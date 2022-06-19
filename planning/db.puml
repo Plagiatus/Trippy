@@ -1,0 +1,130 @@
+@startuml DB
+package Sessions {
+	map Sessions {
+		_id => MongoID
+		id => number
+		host => Snowflake
+		name => string
+		description => string
+		players =>
+		type => string
+		edition => string
+		version => string
+		ip => string
+		rpLink => string
+		playerAmt => number
+		vcAmount => number
+		image => string
+		mode => string
+		preferences => Preferences
+		startTime => number
+		endTime => number
+		channels =>
+		messages =>
+		feedbackId => string
+		kickedPlayers => Snowflake[]
+	}
+
+	map SessionPlayer {
+		id => Snowflake
+		joinTime => number
+		leaveTime => number
+	}
+
+	map SessionChannels {
+		category => Snowflake
+		textChannels => Snowflake[]
+		voiceChannels => Snowflake[]
+		hostChannel => Snowflake
+	}
+
+	map SessionMessages {
+		playerInfo => Snowflake
+		hostInfo => Snowflake
+		activeListing => Snowflake
+		list => Snowflake
+	}
+
+	Sessions::players -> SessionPlayer
+	Sessions::channels -> SessionChannels
+
+	map Players {
+		_id => MongoID
+		id => Snowflake
+		javaIGN => string
+		javaUUID => string
+		bedrockIGN => string
+		bedrockID => string
+		discordName => string
+		sessionsJoined => number
+		sessionsHosted => number
+		xp => number
+		endorsement => number
+		endorsements =>
+		bannedPlayers => Snowflake[]
+	}
+
+	map Endorsement {
+		date => number
+		endorser => Snowflake
+	}
+
+	Players::endorsements -> Endorsement
+
+	map Reports {
+		type => kick | ban | report
+		reason => string
+		reporter => Snowflake
+		date => number
+	}
+
+	map Templates {
+		id => string
+		name => string
+		description => string
+		type => string
+		edition => string
+		version => string
+		ip => string
+		rpLink => string
+		playerAmt => number
+		vcAmount => number
+		image => string
+		mode => string
+		preferences => Preferences
+		feedbackId => string
+	}
+}
+
+package Feedback {
+	map FeedbackReplies {
+		session => string
+		from => Snowflake
+		answers =>
+	}
+
+	map FeedbackAnswer {
+		id => number
+		value => number | string
+	}
+
+	map FeedbackQuestionnaires {
+		id => string
+		questions =>
+	}
+
+	map FeedbackQuestion {
+		type => string
+		question => string
+		options? => string[]
+		labels? => string[]
+		range? => number[]
+		required? => boolean
+		id => number
+	}
+
+	FeedbackQuestionnaires::questions -> FeedbackQuestion
+	FeedbackReplies::answers -> FeedbackAnswer
+}
+
+@enduml

@@ -1,0 +1,193 @@
+@startuml Interactions
+
+package session {
+	package start {
+		start
+		if( hash provided? ) then (no)
+			:send them to website;
+			stop
+		else if(is player in session?) then (yes)
+			:tell them to leave session first;
+			stop
+		endif
+		:create active session in session manager
+		with unique ID;
+		:create roles;
+		:create channels
+		- category / text / voice / host-control / player-info;
+		:apply permissions to channels;
+		:make player host;
+		:create messages
+		- ping / listing / playerinfo / host-control;
+		stop
+	}
+
+	package join {
+		start
+		if(is player in session?) then (yes)
+			:tell them to leave;
+			stop
+		else if(is player permantently kicked?) then(yes)
+			:tell them they cannot return;
+			stop
+		else if(is player banned?) then(yes)
+			:tell them they are banned;
+			stop
+		else if(is player in bad standing?) then(yes)
+			:tell them they cannot join sessions atm;
+			stop
+		endif
+		:give session role;
+		:add to session object;
+		:send welcome message
+		(ping host);
+		stop
+	}
+
+	package leave {
+		start
+		if(player in session?) then (no)
+			stop
+		endif
+		if(host ask for feedback?) then (yes)
+			:send them feedback link;
+		endif
+		if(been in session long enough?) then (yes)
+			:send them endorsement link;
+		endif
+		if(any of the above?) then (yes)
+			:show button for "leave for real";
+		else
+			:leaving(player);
+		endif
+		stop
+	}
+
+	package leaveForReal {
+		start
+		if(player in session?) then (no)
+			stop
+		endif
+		:leaving(player);
+		stop
+	}
+
+	package leaving(ending?) {
+		if(ending?) then(no)
+			:take their session role;
+		endif
+		:kick them out of
+		voice channel somehow;
+		:store leave time in session;
+		:award XP accordingly;
+		:update host view;
+		:update listing;
+		stop
+	}
+
+	package kick {
+		start
+		if(player provided) then (no)
+			stop
+		endif
+		if (permantently?) then (yes)
+			:add player to session kicked list;
+			:changeEndorsement();
+		endif
+		:leaving();
+		:post in mod channel;
+		stop
+	}
+
+	package ban {
+		start
+		if(player provided?) then (no)
+			stop
+		endif
+		:put in host player ban list;
+		:changeEndorsement();
+		:post in mod channel;
+		:leaving();
+		stop
+	}
+
+	package end {
+		start
+		if(is host or mod) then (no)
+			:how do you even have access to this?;
+			stop
+		endif
+		:ping players (with link to feedback
+		and button for endorsement link);
+		:remove listing;
+		:update list message;
+		:update session channel name;
+		:set end time in session obj;
+		:leaving(true) all players;
+		:ask host if they want a list of messages;
+		:give host link to feedback;
+		:setTimeout 30min to remove channels
+		(remember to refresh these on reboot, too);
+		stop
+	}
+}
+
+package register {
+	if(needed options provided?) then (no)
+		stop
+	endif
+	if(java) then (yes)
+		if(playername exists?) then (yes)
+			:apply UUID and IGN to player object;
+		endif
+	else
+
+		if(playername exists?) then (yes)
+			:apply XBOXID and IGN to player object;
+		endif
+	endif
+	if(validate) then (yes)
+		:generate personal link to loginto MS with
+		to confirm this is actually their account;
+		if(validated) then (yes)
+			:mark as vaidated in player obj;
+		endif
+	endif
+	stop
+}
+
+package ping {
+	start
+	if(add) then (yes) 
+		:add role to player;
+	else if(remove) then (yes) 
+		:remove role from player;
+	endif
+	stop
+}
+
+package endorsePlayer {
+	start
+	if(player was endorsed recently by you) then (yes)
+		stop
+	endif
+	:grant XP;
+	:changeEndorsement();
+	stop
+}
+	
+package changeEndorsement {
+	start
+	:add/remove endorsement points;
+	:calc new end. level;
+	if(new level != old level) then (yes)
+		:update level;
+		if(below threshold) then (yes)
+			:post in mod channel;
+		endif
+	endif
+	stop
+}
+
+
+@enduml

@@ -1,0 +1,116 @@
+@startuml Trippy Classes
+
+package Sessions {
+	class Session {
+		id : number
+		host : Snowflake
+		name : string
+		description : string
+		players :
+		type : string
+		edition : string
+		version : string
+		ip : string
+		rpLink : string
+		playerAmt : number
+		vcAmount : number
+		image : string
+		mode : string
+		preferences : Preferences
+		startTime : number
+		endTime : number
+		channels : SessionChannels
+		announcementMessage : Snowflake
+		feedbackId : string
+	}
+
+	interface SessionChannels {
+		category : Snowflake
+		textChannels : Snowflake[]
+		voiceChannels : Snowflake[]
+		hostChannel : Snowflake
+	}
+
+	interface Preferences {
+		communication: Communication
+		newPlayers: bool
+		timeEstimate: number
+	}
+
+	enum Communication {
+		NONE
+		VC_ENCOURAGED
+		VC_REQUIRED
+	}
+
+	class SessionManager {
+		sessions: Session[]
+		closeSessionAfterBeingEmptyForTooLong()
+	}
+
+	class SessionPlayer {
+		id: Snowflake
+		joinTime: number
+		leaveTime: number
+	}
+}
+
+class Player {
+	id : Snowflake
+	javaIGN : string
+	javaUUID : string
+	bedrockIGN : string
+	bedrockID : string
+	discordName : string
+	sessionsJoined : number
+	sessionsHosted : number
+	xp : number
+	endorsement : number
+	endorsements : Endorsement
+	bannedPlayers : Snowflake[]
+}
+
+interface Endorsement {
+	date : number
+	endorser : Snowflake
+}
+
+class PlayerManager {
+	isPlayerInSession()
+	canPlayerJoinSession()
+	decayEndorsement()
+}
+
+class HTTPServer {
+
+}
+
+class DiscordClient {
+
+}
+
+package Interactions {
+
+}
+
+package Feedback {
+	class FeedbackManager {
+
+	}
+}
+
+class Database {
+	getActiveSessions()
+
+}
+
+HTTPServer -- DiscordClient
+HTTPServer -- SessionManager
+Session -- SessionManager
+Database -- HTTPServer
+Player -- PlayerManager
+Player -- Database
+Session -- Database
+HTTPServer -- FeedbackManager
+
+@enduml
