@@ -1,0 +1,28 @@
+{
+  "name": "trippy-discord_bot",
+  "version": "0.1",
+  "description": "Trippy the friendly discord bot for the minecraft maptesting server",
+  "main": "main.js",
+  "scripts": {
+    "start": "node src/main.js",
+    "local": "node src/main.js local",
+    "update": "node src/bot/update_commands.js",
+    "update-local": "node src/bot/update_commands.js local",
+    "db": "D:\\Programme\\MongoDB\\5.0.9\\bin\\mongod.exe --dbpath ./db",
+    "postinstall": "tsc"
+  },
+  "keywords": [],
+  "author": "Plagiatus",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/rest": "^0.5.0",
+    "discord-api-types": "^0.36.1",
+    "discord.js": "^14.0.3",
+    "mongodb": "^4.7.0",
+    "undici": "^5.7.0",
+    "validate.js": "^0.13.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.3"
+  }
+}
