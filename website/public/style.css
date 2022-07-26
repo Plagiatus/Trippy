@@ -1,0 +1,23 @@
+body {
+	--text-color: #fbfbff;
+	--background: #00ACED;
+	--background2: #0b4F6C;
+	--highlight: #B80C09;
+	--dark: #040F16;
+
+	color: var(--text-color);
+	background: var(--background);
+	
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body.palette2 {
+	--text-color: #fbfbff;
+	--background: #00ACED;
+	--background2: #0b4F6C;
+	--highlight: #5941A9;
+	--dark: #1D1128;
+}
