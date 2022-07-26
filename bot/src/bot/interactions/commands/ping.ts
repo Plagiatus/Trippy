@@ -9,7 +9,7 @@ const ping: iCommandInteraction = {
 	.setDescription("Replies if the bot is online."),
 	execute(interaction: Discord.CommandInteraction){
 		if(interaction.isRepliable()) {
-			interaction.reply({content: `Ping Pong, your latency is long! (${Date.now() - interaction.createdTimestamp}ms)`});
+			interaction.reply({ephemeral: true, content: `Ping Pong, your latency is long! (${Date.now() - interaction.createdTimestamp}ms)`});
 		}
 	}
 };
