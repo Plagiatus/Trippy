@@ -9,6 +9,9 @@
 			<router-link class="nav-link" to="/">Home</router-link>
 			<router-link class="nav-link" to="/session">Session</router-link>
 			<router-link class="nav-link" to="/profile">Profiles</router-link>
+			<span id="discord-in-nav">
+				<a href="https://discord.gg/G9u72eW" target="_blank" rel="noopener noreferrer"><img src="@/assets/Discord-Logo-White.svg" alt="Discord"></a>
+			</span>
 		</nav>
 	</div>
 </template>
@@ -32,7 +35,8 @@ nav#main-nav {
 	padding: .5em;
 }
 
-div#nav-spacer, nav#main-nav {
+div#nav-spacer,
+nav#main-nav {
 	height: 4em;
 }
 
@@ -52,12 +56,24 @@ div#nav-spacer, nav#main-nav {
 	background-color: var(--background);
 }
 
-img#nav-logo{
+img#nav-logo {
 	width: 3em;
 	height: 3em;
 	border-radius: 5px;
 }
+
 div#nav-logo-wrapper {
 	margin-right: 1em;
+}
+
+#discord-in-nav {
+	flex-grow: 1;
+	display: flex;
+	justify-content: flex-end;
+}
+
+#discord-in-nav img {
+	width: 2.5em;
+	height: 2.5em;
 }
 </style>
