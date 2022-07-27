@@ -21,3 +21,37 @@ body.palette2 {
 	--highlight: #5941A9;
 	--dark: #1D1128;
 }
+
+input {
+	padding: .375rem .75rem;
+	color: #212529;
+	border: 1px solid #ced4da;
+	border-radius: .25rem;
+	display: block;
+	font: inherit;
+	resize: none;
+}
+
+button.btn {
+	background-color: var(--background2);
+	color: var(--text-color);
+	border-radius: 0.2em;
+	border: none;
+	padding: 0.4em 1.5em;
+	font-weight: 600;
+	cursor: pointer;
+	height: 2em;
+	position: relative;
+	margin: .25rem 0;
+}
+
+button.btn.dark {
+	background-color: var(--dark);
+}
+button.btn.highlight {
+	background-color: var(--highlight);
+}
+
+.error-display {
+	color: #700;
+}
