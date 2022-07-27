@@ -3,6 +3,9 @@
 		<router-link class="sessions-link" :to="{ name: 'Sessions.Setup' }">
 			<h2>&rarr; set up a new session</h2>
 		</router-link>
+		<router-link class="sessions-link" :to="{ name: 'Sessions.Feedback' }">
+			<h2>&rarr; view feedback</h2>
+		</router-link>
 	</div>
 </template>
 

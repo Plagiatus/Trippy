@@ -9,6 +9,7 @@ export const router = createRouter({
 		{path: "/profile", name: "Profiles", component: ()=> import("@/views/Profiles.vue")},
 		{path: "/session", name: "Sessions", component: ()=> import("@/views/Sessions.vue")},
 		{path: "/session/setup", name: "Sessions.Setup", component: ()=> import("@/views/SessionSetup.vue")},
+		{path: "/session/feedback/:feedbackId?", name: "Sessions.Feedback", component: ()=> import("@/views/SessionFeedback.vue")},
 
 		{path: "/:pathMatch(.*)*", redirect: "/"}
 	],
