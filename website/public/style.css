@@ -55,3 +55,7 @@ button.btn.highlight {
 .error-display {
 	color: #700;
 }
+
+a {
+	color: inherit;
+}
