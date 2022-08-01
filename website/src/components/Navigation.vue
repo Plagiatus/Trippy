@@ -1,5 +1,5 @@
 <template>
-	<div id="nav-spacer">
+	<header id="nav-spacer">
 		<nav id="main-nav">
 			<div id="nav-logo-wrapper">
 				<router-link class="nav-link-logo" to="/">
@@ -13,7 +13,7 @@
 				<a href="https://discord.gg/G9u72eW" target="_blank" rel="noopener noreferrer"><img src="@/assets/Discord-Logo-White.svg" alt="Discord"></a>
 			</span>
 		</nav>
-	</div>
+	</header>
 </template>
 
 <script lang="ts">
@@ -35,7 +35,7 @@ nav#main-nav {
 	padding: .5em;
 }
 
-div#nav-spacer,
+header#nav-spacer,
 nav#main-nav {
 	height: 4em;
 }
