@@ -22,14 +22,14 @@ body.palette2 {
 	--dark: #1D1128;
 }
 
-input {
+input,
+textarea {
 	padding: .375rem .75rem;
 	color: #212529;
 	border: 1px solid #ced4da;
 	border-radius: .25rem;
 	display: block;
 	font: inherit;
-	resize: none;
 }
 
 button.btn {
@@ -54,6 +54,11 @@ button.btn.highlight {
 
 .error-display {
 	color: #700;
+	background-color: #ffe3e3;
+	padding: .2em;
+	margin: .2em;
+	border-radius: .1em;
+	display: block;
 }
 
 a {
