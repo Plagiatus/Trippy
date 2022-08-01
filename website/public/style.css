@@ -59,3 +59,11 @@ button.btn.highlight {
 a {
 	color: inherit;
 }
+
+.highlight {
+	background-color: var(--highlight);
+}
+
+.highlight-text {
+	color: var(--highlight);
+}
