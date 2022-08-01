@@ -7,8 +7,8 @@
 				</router-link>
 			</div>
 			<router-link class="nav-link" to="/">Home</router-link>
-			<!-- <router-link class="nav-link" to="/session">Session</router-link> -->
-			<!-- <router-link class="nav-link" to="/profile">Profiles</router-link> -->
+			<router-link class="nav-link" to="/session">Session</router-link>
+			<router-link class="nav-link" to="/profile">Profiles</router-link>
 			<span id="discord-in-nav">
 				<a href="https://discord.gg/G9u72eW" target="_blank" rel="noopener noreferrer"><img src="@/assets/Discord-Logo-White.svg" alt="Discord"></a>
 			</span>
