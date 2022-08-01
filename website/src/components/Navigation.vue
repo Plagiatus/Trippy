@@ -10,7 +10,8 @@
 			<router-link class="nav-link" to="/session">Session</router-link>
 			<router-link class="nav-link" to="/profile">Profiles</router-link>
 			<span id="discord-in-nav">
-				<a href="https://discord.gg/G9u72eW" target="_blank" rel="noopener noreferrer"><img src="@/assets/Discord-Logo-White.svg" alt="Discord"></a>
+				<a href="https://discord.gg/G9u72eW" target="_blank" rel="noopener noreferrer"><img
+						src="@/assets/Discord-Logo-White.svg" alt="Discord"></a>
 			</span>
 		</nav>
 	</header>
@@ -25,6 +26,11 @@ export default defineComponent({
 </script>
 
 <style>
+header {
+	z-index: 1000;
+	position: relative;
+}
+
 nav#main-nav {
 	width: 100%;
 	position: fixed;
