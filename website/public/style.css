@@ -5,6 +5,8 @@ body {
 	--highlight: #B80C09;
 	--dark: #040F16;
 
+	--text-color-filter: brightness(0) saturate(100%) invert(85%) sepia(26%) saturate(362%) hue-rotate(201deg) brightness(101%) contrast(124%);
+
 	color: var(--text-color);
 	background: var(--background);
 	
