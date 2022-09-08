@@ -1,5 +1,6 @@
 # Moderators
 - get detailed info on past sessions, specific session, players history, their bans and kicks (both used and recieved)
+- be able to talk "as the bot" using a mod only command :D 
 
 # Sessions
 - ? ping only for players with lvl 2 endorsement or higher?
