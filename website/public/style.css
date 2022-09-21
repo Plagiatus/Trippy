@@ -54,6 +54,10 @@ button.btn.highlight {
 	background-color: var(--highlight);
 }
 
+button.btn:disabled {
+	filter: opacity(0.75);
+}
+
 .error-display {
 	color: #700;
 	background-color: #ffe3e3;
