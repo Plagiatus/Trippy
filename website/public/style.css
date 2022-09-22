@@ -78,3 +78,21 @@ a {
 .highlight-text {
 	color: var(--highlight);
 }
+
+input.perform-validation:not(:valid),
+select.perform-validation:not(:valid), 
+textarea.perform-validation:not(:valid) {
+	border-color: red;
+	border-style: solid;
+	outline: none;
+	background-color: rgb(252, 184, 184);
+}
+
+label.required::after {
+	content: "*";
+	color: var(--highlight);
+}
+
+.hidden {
+	display: none;
+}

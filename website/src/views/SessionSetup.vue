@@ -1,12 +1,12 @@
 <template>
 	<div>
-		<form @submit="prevent" id="load-code-form">
+		<form @submit="loadCode" id="load-code-form">
 			<label for="loadingCode">Setup Code (this will overwrite your inputs so far!)</label>
 			<input type="text" v-model="loadingCode" id="loadingCode" maxlength="8" size="8">
 			<span class="error-display" v-if="loadCodeError">{{ loadCodeError }}</span>
-			<button class="btn" @click="loadCode">Go</button>
+			<button class="btn" type="submit">Go</button>
 		</form>
-		<form @submit="prevent">
+		<form @submit="submitSession">
 			<h2>Info</h2>
 			<label for="sessionType">Type</label>
 			<select name="sessionType" id="sessionType" v-model="session.type" required>
@@ -22,24 +22,25 @@
 				<option value="bedrock">Bedrock</option>
 				<option value="other">Other</option>
 			</select>
-			<div v-if="session.edition == 'java'">
-				<label for="version">Version</label>
-				<select name="version" id="version" v-model="session.version" required>
+			<div :class="{hidden: session.edition != 'java'}">
+				<label for="version-java">Version</label>
+				<select name="version" id="version-java" v-model="session.version" required>
 					<optgroup v-for="group in javaVersions" :label="group.label">
 						<option v-for="ver in group.versions" :key="ver" :value="ver">{{ver}}</option>
 					</optgroup>
 				</select>
 			</div>
-			<div v-else-if="session.edition == 'other'">
-				<label for="version">Version</label>
-				<input type="text" name="versoin" id="version" v-model="session.version">
+			<div :class="{hidden: session.edition != 'other'}">
+				<label for="version-other">Version</label>
+				<input type="text" name="version" id="version-other" v-model="session.version" required>
 			</div>
 
 			<label for="rp">Resourcepack</label>
 			<input type="text" name="rp" id="rp" v-model="session.rpLink">
 
 			<label for="ip">IP</label>
-			<input type="text" name="ip" id="ip" v-model="session.ip" required>
+			<input type="text" name="ip" id="ip" v-model="session.ip" required
+			pattern="((^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,8})|(((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}))(:((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4})))?$">
 
 			<label for="playerAmt">Playerslots</label>
 			<input type="number" name="playerAmt" id="playerAmt" v-model="session.playerAmt" min="0" required>
@@ -98,9 +99,9 @@
 			<h2>Feedback</h2>
 			<span>Coming soon</span>
 
-			<button class="btn">Get Code</button>
-			<output id="code-output">asdf</output>
-			<button type="button">Click to copy</button>
+			<loading-button :text="'Get Code'" :success-text="'Got Code'" :loading="loadingSessionCode" :type="'submit'"></loading-button>
+			<output id="code-output">{{sessionCode}}</output>
+			<copy-button :value="sessionCode"></copy-button>
 		</form>
 	</div>
 </template>
@@ -108,22 +109,32 @@
 
 <script lang="ts">
 import request from "@/mixins/request";
+import formutils from "@/mixins/form-utils";
 import { defineComponent } from "vue";
+import CopyButton from "@/components/CopyButton.vue";
+import LoadingButton from "@/components/LoadingButton.vue";
 
 export default defineComponent({
-	mixins: [request],
+	components: {CopyButton, LoadingButton},
+	mixins: [request, formutils],
 	data() {
 		return {
 			session: {} as SessionSetupData,
 			loadingCode: "",
 			loadCodeError: "",
 			javaVersions: [] as JavaVersion[],
+			sessionCode: "",
+			loadingSessionCode: false,
 		}
 	},
 	methods: {
 		async loadCode(e: Event) {
-			this.loadCodeError = "";
 			this.prevent(e);
+			if(this.loadingCode.trim().length == 0) {
+				this.loadCodeError = "Code cannot be empty."
+				return;
+			}
+			this.loadCodeError = "";
 			let reply = await this.sendRequest("session/setup/" + this.loadingCode, "GET");
 			if (reply.error) {
 				this.loadCodeError = reply.error;
@@ -165,6 +176,12 @@ export default defineComponent({
 				}
 
 			}
+		},
+		async submitSession(e: Event) {
+			this.prevent(e);
+			console.log("submit Session")
+			this.loadingSessionCode = true;
+			setTimeout(()=> {this.loadingSessionCode = false}, 1000);
 		}
 	},
 	created() {
@@ -192,6 +209,7 @@ interface JavaVersion {
 
 #code-output {
 	width: 4em;
+	height: 1.5em;
 	display: inline-block;
 	border: 1px solid var(--text-color);
 	border-radius: .25em;
