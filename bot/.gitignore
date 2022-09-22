@@ -1,5 +1,4 @@
 *.js
 db
 
-config_local.json
-config.json
+config*.json
