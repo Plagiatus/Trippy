@@ -2,6 +2,7 @@ interface Config {
 	botToken: string,
 	appId: string,
 	serverId: string,
+	port: number,
 	db: {
 		user: string,
 		password: string,
