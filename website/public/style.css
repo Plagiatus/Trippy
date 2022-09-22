@@ -25,6 +25,7 @@ body.palette2 {
 }
 
 input,
+select,
 textarea {
 	padding: .375rem .75rem;
 	color: #212529;
@@ -32,6 +33,7 @@ textarea {
 	border-radius: .25rem;
 	display: block;
 	font: inherit;
+	background-color: #fff;
 }
 
 button.btn {
@@ -85,7 +87,7 @@ textarea.perform-validation:not(:valid) {
 	border-color: red;
 	border-style: solid;
 	outline: none;
-	background-color: rgb(252, 184, 184);
+	background-color: rgb(255, 219, 219);
 }
 
 label.required::after {
