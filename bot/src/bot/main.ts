@@ -6,15 +6,13 @@ export const client: Discord.Client = new Discord.Client({ intents: [Discord.Gat
 
 client.once("ready", async () => {
 	console.log("discord connection established.");
-	await checkExistanceOfConfigThings();
-	console.log("\x1b[44mReady to go.\x1b[49m");
 });
 
 client.on("interactionCreate", handleInteraction);
 client.on("error", handleError);
 
 
-async function checkExistanceOfConfigThings() {
+export async function checkExistanceOfConfigThings() {
 	//server
 	await client.guilds.fetch()
 	let guild = client.guilds.cache.get(config.serverId);
@@ -27,6 +25,11 @@ async function checkExistanceOfConfigThings() {
 		let channel: string = config.channels[name];
 		if (!guild.channels.cache.has(channel)) {
 			throw new Error(`Channel "${name}" not found in guild.`);
+		}
+		//@ts-ignore
+		let perms = guild.channels.cache.get(channel)?.permissionsFor(client.user);
+		if (!perms?.has("SendMessages") || !perms.has("ViewChannel")) {
+			throw new Error(`Channel "${name}" doesn't have correct permissions.`);
 		}
 	}
 	//roles
@@ -51,8 +54,8 @@ function handleInteraction(interaction: Discord.Interaction) {
 }
 
 async function executeInteraction(interaction: Discord.Interaction, name: string){
-	if(!interactions.has(name)) throw new Error(`This interaction (${name}) doesn't exist. Please contact a moderator if this problem persists.`);
 	try {
+		if(!interactions.has(name)) throw new Error(`This interaction ("${name}") doesn't exist. Please contact a moderator if this problem persists.`);
 		await interactions.get(name)?.execute(interaction);
 	} catch (error) {
 		errorHandler.handleError(error, interaction);

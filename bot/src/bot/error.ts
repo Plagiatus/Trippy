@@ -1,11 +1,17 @@
-import { ChannelType, Embed, EmbedBuilder, Guild, Interaction, InteractionType, Message, MessageType } from "discord.js";
+import { ChannelType, CommandInteraction, EmbedBuilder, Interaction, Message, MessageType } from "discord.js";
 import { config } from "../data";
 import { client } from "./main";
 
 
 class ErrorHandler extends EventTarget {
+	isHandlingTheBigOnes: boolean = false;
+
 	constructor() {
 		super();
+	}
+	
+	handleTheBigOnes(){
+		if(this.isHandlingTheBigOnes) return;
 		process.addListener("unhandledRejection", this.handleRejection.bind(this));
 		process.addListener("uncaughtException", this.handleException.bind(this));
 	}
@@ -23,7 +29,10 @@ class ErrorHandler extends EventTarget {
 					channel.send({ content: "Error: ```" + error.substring(0, 4000) + "```" });
 				}
 			} else {
-				channel.send({ embeds: [this.makeEmbed(error, messageOrInteraction)] })
+				channel.send({ embeds: [this.makeEmbed(error, messageOrInteraction)] });
+				if((messageOrInteraction as CommandInteraction).isRepliable()) {
+					(messageOrInteraction as CommandInteraction).reply({ephemeral: true, content: String(error).substring(0, 4000)})
+				}
 			}
 		}
 	}
