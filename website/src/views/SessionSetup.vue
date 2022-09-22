@@ -2,9 +2,10 @@
 	<div>
 		<form @submit="loadCode" id="load-code-form">
 			<label for="loadingCode">Setup Code (this will overwrite your inputs so far!)</label>
-			<input type="text" v-model="loadingCode" id="loadingCode" maxlength="8" size="8">
+			<input type="text" v-model="loadingCode" id="loadingCode" maxlength="5" size="5" pattern="^[a-zA-Z0-9]{5}$">
 			<span class="error-display" v-if="loadCodeError">{{ loadCodeError }}</span>
-			<button class="btn" type="submit">Go</button>
+			<loading-button :text="'Go'" :loading="loadingCodeLoading" :type="'submit'" :success-text="'Ok'">
+			</loading-button>
 		</form>
 		<form @submit="submitSession">
 			<h2>Info</h2>
@@ -40,7 +41,7 @@
 
 			<label for="ip">IP</label>
 			<input type="text" name="ip" id="ip" v-model="session.ip" required
-			pattern="((^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,8})|(((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}))(:((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4})))?$">
+				pattern="((^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,8})|(((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}))(:((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4})))?$">
 
 			<label for="playerAmt">Playerslots</label>
 			<input type="number" name="playerAmt" id="playerAmt" v-model="session.playerAmt" min="0" required>
@@ -75,33 +76,41 @@
 
 			<h3>Communication</h3>
 			<label for="comPrefNone">No Preference</label>
-			<input type="radio" name="comPref" id="comPrefNone" value="none" v-model="session.preferences.communication">
+			<input type="radio" name="comPref" id="comPrefNone" value="none"
+				v-model="session.preferences.communication">
 			<label for="comPrefEnc">Voicechat encouraged</label>
-			<input type="radio" name="comPref" id="comPrefEnc" value="vc_encouraged" v-model="session.preferences.communication">
+			<input type="radio" name="comPref" id="comPrefEnc" value="vc_encouraged"
+				v-model="session.preferences.communication">
 			<label for="comPrefReq">Voicechat required</label>
-			<input type="radio" name="comPref" id="comPrefReq" value="vc_required" v-model="session.preferences.communication">
+			<input type="radio" name="comPref" id="comPrefReq" value="vc_required"
+				v-model="session.preferences.communication">
 
 			<h3>Map experience</h3>
 			<label for="playerPrefNone">No preference</label>
-			<input type="radio" name="playerPref" id="playerPrefNone" value="none" v-model="session.preferences.newPlayers">
+			<input type="radio" name="playerPref" id="playerPrefNone" value="none"
+				v-model="session.preferences.newPlayers">
 			<label for="playerPrefNew">New players only</label>
-			<input type="radio" name="playerPref" id="playerPrefNew" value="new" v-model="session.preferences.newPlayers">
+			<input type="radio" name="playerPref" id="playerPrefNew" value="new"
+				v-model="session.preferences.newPlayers">
 			<label for="playerPref">Returning players only</label>
 			<input type="radio" name="playerPref" id="playerPref" value="exp" v-model="session.preferences.newPlayers">
 
 			<label for="timeEstimate">How much time do you expect this will take?</label>
-			<input type="number" name="timeEstimate" id="timeEstimate" min="0" v-model="session.preferences.timeEstimate">
+			<input type="number" name="timeEstimate" id="timeEstimate" min="0"
+				v-model="session.preferences.timeEstimate">
 
-			
+
 			<label for="testDescription">Test Description</label>
 			<textarea name="testDescription" id="testDescription" v-model="session.testDescription"></textarea>
 
 			<h2>Feedback</h2>
 			<span>Coming soon</span>
 
-			<loading-button :text="'Get Code'" :success-text="'Got Code'" :loading="loadingSessionCode" :type="'submit'"></loading-button>
+			<loading-button :text="'Get Code'" :success-text="'Got Code'" :loading="loadingSessionCode"
+				:type="'submit'"></loading-button>
 			<output id="code-output">{{sessionCode}}</output>
 			<copy-button :value="sessionCode"></copy-button>
+			<span class="error-display" v-if="sendSessionError">{{ sendSessionError }}</span>
 		</form>
 	</div>
 </template>
@@ -115,40 +124,50 @@ import CopyButton from "@/components/CopyButton.vue";
 import LoadingButton from "@/components/LoadingButton.vue";
 
 export default defineComponent({
-	components: {CopyButton, LoadingButton},
+	components: { CopyButton, LoadingButton },
 	mixins: [request, formutils],
 	data() {
 		return {
 			session: {} as SessionSetupData,
-			loadingCode: "",
+			loadingCode: "asdfa",
+			loadingCodeLoading: false,
 			loadCodeError: "",
 			javaVersions: [] as JavaVersion[],
 			sessionCode: "",
+			sendSessionError: "",
 			loadingSessionCode: false,
 		}
 	},
 	methods: {
 		async loadCode(e: Event) {
 			this.prevent(e);
-			if(this.loadingCode.trim().length == 0) {
-				this.loadCodeError = "Code cannot be empty."
+			if (this.loadingCodeLoading) return;
+			this.loadCodeError = "";
+			if (this.loadingCode.trim().length == 0) {
+				this.loadCodeError = "Code cannot be empty.";
 				return;
 			}
-			this.loadCodeError = "";
+			this.loadingCodeLoading = true;
 			let reply = await this.sendRequest("session/setup/" + this.loadingCode, "GET");
 			if (reply.error) {
-				this.loadCodeError = reply.error;
+				if (reply.error.statusText)
+					this.loadCodeError = reply.error.statusText;
+				else
+					this.loadCodeError = reply.error;
+				this.loadingCodeLoading = false;
 				return;
 			}
 			try {
 				if (reply.data) {
 					this.session = JSON.parse(reply.data);
+					this.loadingCodeLoading = false;
 					return;
 				}
 				this.loadCodeError = "The server sent an empty response.";
 			} catch (error: any) {
 				this.loadCodeError = error;
 			}
+			this.loadingCodeLoading = false;
 
 		},
 		prevent(e: Event) {
@@ -179,9 +198,31 @@ export default defineComponent({
 		},
 		async submitSession(e: Event) {
 			this.prevent(e);
-			console.log("submit Session")
+			if (this.loadingSessionCode) return;
 			this.loadingSessionCode = true;
-			setTimeout(()=> {this.loadingSessionCode = false}, 1000);
+			let reply = await this.sendRequest("session/getcode/", "POST", this.session);
+			if (reply.error) {
+				if (reply.error.statusText)
+					this.sendSessionError = reply.error.statusText;
+				else
+					this.sendSessionError = reply.error;
+				this.loadingSessionCode = false;
+				return;
+			}
+			try {
+				if (reply.data) {
+					let data = JSON.parse(reply.data);
+					if(data.code){
+						this.sessionCode = data.code;
+					}
+
+					this.loadingSessionCode = false;
+					return;
+				}
+				this.sendSessionError = "The server sent an empty response.";
+			} catch (error: any) {
+				this.sendSessionError = error;
+			}
 		}
 	},
 	created() {
