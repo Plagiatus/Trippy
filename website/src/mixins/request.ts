@@ -20,11 +20,11 @@ export default defineComponent({
                         headers: { "Content-Type": "application/json" }
                     });
                 } else {
-                    return { error: "No supported method specified" };
+                    return { error: { statusText: "No supported method specified", status: 600 }};
                 }
 
                 if (!response.ok) {
-                    return { error: response.status + "; " + response.statusText }
+                    return { error: { status: response.status, statusText: response.statusText }}
                 }
 
                 const responseText = await response.text();
@@ -38,6 +38,11 @@ export default defineComponent({
 });
 
 interface RequestReply {
-    error?: any;
+    error?: ServerError | any;
     data?: string;
+}
+
+interface ServerError {
+    status: number,
+    statusText: string,
 }
