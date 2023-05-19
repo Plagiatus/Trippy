@@ -1,36 +1,36 @@
 {
-  "name": "trippy-discord_bot",
-  "version": "0.1",
-  "description": "Trippy the friendly discord bot for the minecraft maptesting server",
-  "main": "main.js",
-  "scripts": {
-    "start": "node src/main.js",
-    "local": "node src/main.js local",
-    "update": "node src/bot/update_commands.js",
-    "update-local": "node src/bot/update_commands.js local",
-    "db": "C:\\\"Program Files\"\\MongoDB\\Server\\6.0\\bin\\mongod.exe --dbpath ./db",
-    "postinstall": "tsc"
-  },
-  "keywords": [],
-  "author": "Plagiatus",
-  "license": "ISC",
-  "dependencies": {
-    "@discordjs/rest": "^0.5.0",
-    "body-parser": "^1.20.0",
-    "cors": "^2.8.5",
-    "discord-api-types": "^0.36.1",
-    "discord.js": "^14.0.3",
-    "express": "^4.18.1",
-    "mongodb": "^4.7.0",
-    "object-hash": "^3.0.0",
-    "undici": "^5.7.0",
-    "validate.js": "^0.13.1"
-  },
-  "devDependencies": {
-    "@types/cors": "^2.8.12",
-    "@types/express": "^4.17.13",
-    "@types/node": "^18.0.3",
-    "@types/object-hash": "^2.2.1",
-    "typescript": "^4.7.4"
-  }
+	"name": "trippy-discord_bot",
+	"version": "0.1",
+	"description": "Trippy the friendly discord bot for the minecraft maptesting server",
+	"main": "main.js",
+	"scripts": {
+		"local:start": "ts-node --files src/main.ts -- local",
+		"local:update": "ts-node --files src/bot/update_commands.ts -- local",
+		"prod:start": "ts-node --files src/main.ts -- prod",
+		"prod:update": "ts-node --files src/bot/update_commands.ts -- prod",
+		"db:start": "C:\\\"Program Files\"\\MongoDB\\Server\\6.0\\bin\\mongod.exe --dbpath ./db"
+	},
+	"keywords": [],
+	"author": "Plagiatus",
+	"license": "ISC",
+	"dependencies": {
+		"@discordjs/rest": "^0.5.0",
+		"body-parser": "^1.20.0",
+		"cors": "^2.8.5",
+		"discord-api-types": "^0.36.1",
+		"discord.js": "^14.0.3",
+		"express": "^4.18.1",
+		"mongodb": "^4.7.0",
+		"object-hash": "^3.0.0",
+		"undici": "^5.7.0",
+		"validate.js": "^0.13.1"
+	},
+	"devDependencies": {
+		"@types/cors": "^2.8.12",
+		"@types/express": "^4.17.13",
+		"@types/node": "^18.0.3",
+		"@types/object-hash": "^2.2.1",
+		"ts-node": "^10.9.1",
+		"typescript": "^4.7.4"
+	}
 }

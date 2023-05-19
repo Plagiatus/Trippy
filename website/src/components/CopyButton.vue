@@ -22,6 +22,7 @@
                 navigator.clipboard.writeText(this.value);
                 if(this.textHideTimeout) clearTimeout(this.textHideTimeout);
                 this.textVisible = true;
+                //@ts-ignore
                 this.textHideTimeout = setTimeout(()=>{this.textVisible = false}, 1000);
             }
         }

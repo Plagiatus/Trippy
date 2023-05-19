@@ -1,0 +1,27 @@
+{
+    "botToken": "",
+	"appId": "",
+	"serverId": "",
+	"port": "3000",
+	"db": {
+		"user": "",
+		"password": "",
+		"url": "",
+		"name": ""
+	},
+	"channels": {
+		"modLog": "",
+		"systemLog": "",
+		"sessionList": "",
+		"activeSessions": ""
+	},
+	"roles": {
+		"mods": "",
+		"hosts": "",
+		"lvl1": "",
+		"lvl2": "",
+		"lvl3": "",
+		"lvl4": "",
+		"lvl5": ""
+	}
+}
