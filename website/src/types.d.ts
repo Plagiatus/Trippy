@@ -46,3 +46,8 @@ interface Preferences {
 
 type Communication = "none" | "vc_encouraged" | "vc_required";
 type NewPlayers = "none" | "new" | "exp";
+
+interface JavaVersion {
+	label: string,
+	versions: string[]
+}

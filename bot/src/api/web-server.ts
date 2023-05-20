@@ -5,6 +5,7 @@ import utils from "../utils/utils";
 import cors from "cors";
 import RouteMaker from "./route";
 import WebResponses from "./responses";
+import bodyParser from "body-parser";
 
 export class WebServer {
     private readonly server: Express;
@@ -16,6 +17,7 @@ export class WebServer {
         this.config = provider.get(Config);
         this.responses = provider.get(WebResponses);
 
+        this.server.use(bodyParser.json());
         this.server.use(cors({
             origin: [this.config.frontendUrl],
         }));

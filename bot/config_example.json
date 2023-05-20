@@ -2,7 +2,7 @@
     "botToken": "",
 	"appId": "",
 	"serverId": "",
-	"port": 3001,
+	"port": 9009,
 	"frontendUrl": "http://localhost:3000",
 	"db": {
 		"user": "",

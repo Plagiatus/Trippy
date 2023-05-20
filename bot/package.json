@@ -4,11 +4,11 @@
 	"description": "Trippy the friendly discord bot for the minecraft maptesting server",
 	"main": "main.js",
 	"scripts": {
-		"local:start": "ts-node --files src/main.ts local",
+		"local:start": "ts-node-dev --files src/main.ts local",
 		"local:update": "ts-node --files src/update_commands.ts local",
 		"prod:start": "ts-node --files src/main.ts prod",
 		"prod:update": "ts-node --files src/update_commands.ts prod",
-		"db:start": "C:\\\"Program Files\"\\MongoDB\\Server\\6.0\\bin\\mongod.exe --dbpath ./db"
+		"db:display": "C:\\\"Program Files\"\\MongoDB\\Server\\6.0\\bin\\mongod.exe --dbpath ./db"
 	},
 	"keywords": [],
 	"author": "Plagiatus",
@@ -31,6 +31,7 @@
 		"@types/node": "^18.0.3",
 		"@types/object-hash": "^2.2.1",
 		"ts-node": "^10.9.1",
+		"ts-node-dev": "2.0.0",
 		"typescript": "5.0.4"
 	}
 }
