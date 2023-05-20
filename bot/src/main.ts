@@ -1,23 +1,37 @@
-import { server } from "./api/main";
-import { errorHandler } from "./bot/error";
-import { checkExistanceOfConfigThings, client } from "./bot/main";
-import { config } from "./data";
-import { db } from "./db";
-
+import WebResponses from "./api/responses";
+import { WebServer } from "./api/web-server";
+import Config from "./config";
+import DatabaseClient from "./database-client";
+import Provider from "./provider";
+import DiscordClient from "./bot/discord-client";
+import ErrorHandler from "./bot/error-handler";
+import InteractionCollection from "./bot/interaction-collection";
 
 async function start(){
-	//connect to DB
-	await db.connect();
+	console.log("Starting...");
 
-	//start HTTP Server
-	server.listen(config.port);
+	const provider = new Provider()
+		.addFactory(Config, () => Config.loadConfigFile(Config.getEnvironmentConfigPath()))
+		.add(DatabaseClient)
+		.add(WebServer)
+		.add(WebResponses)
+		.add(DiscordClient)
+		.add(ErrorHandler)
+		.addFactory(InteractionCollection, provider => new InteractionCollection(provider, InteractionCollection.importInteractions()));
 
-	//connect bot
-	await client.login(config.botToken);
-	await checkExistanceOfConfigThings();
+	await provider.get(DatabaseClient).connect();
+	console.log("Connected to database...");
 
-	// start error handler advanced mode
-	errorHandler.handleTheBigOnes();
+	await provider.get(WebServer).start();
+	console.log("Started web server...");
+
+	const discordClient = provider.get(DiscordClient);
+
+	await discordClient.connect();
+	console.log("Connected to Discord...");
+
+	await discordClient.validateGuildIsSetup();
+	console.log("Validated Discord guild...");
 
 	console.log("\x1b[44mReady to go.\x1b[49m");
 }

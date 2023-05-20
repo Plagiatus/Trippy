@@ -2,7 +2,8 @@
     "botToken": "",
 	"appId": "",
 	"serverId": "",
-	"port": "3000",
+	"port": 3001,
+	"frontendUrl": "http://localhost:3000",
 	"db": {
 		"user": "",
 		"password": "",
@@ -17,11 +18,6 @@
 	},
 	"roles": {
 		"mods": "",
-		"hosts": "",
-		"lvl1": "",
-		"lvl2": "",
-		"lvl3": "",
-		"lvl4": "",
-		"lvl5": ""
+		"hosts": ""
 	}
 }
