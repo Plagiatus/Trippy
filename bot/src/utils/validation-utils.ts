@@ -1,6 +1,6 @@
-class ParsingUtils {
-	isAlphaNumeric(str: string): str is `${number}` {
-		var code, i, len;
+class ValidationUtils {
+	isAlphaNumeric(str: string) {
+		let code, i, len;
 		
 		for (i = 0, len = str.length; i < len; i++) {
 			code = str.charCodeAt(i);
@@ -14,4 +14,4 @@ class ParsingUtils {
 	};
 }
 
-export default new ParsingUtils();
+export default new ValidationUtils();
