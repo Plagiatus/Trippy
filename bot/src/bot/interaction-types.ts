@@ -1,6 +1,5 @@
-import { BaseInteraction } from "discord.js";
 import type Provider from "../provider";
-import type { ButtonBuilder, ModalBuilder, ModalSubmitInteraction, ContextMenuCommandInteraction, ButtonInteraction, CommandInteraction, ContextMenuCommandBuilder, SlashCommandBuilder } from "discord.js"
+import type { BaseInteraction, ButtonBuilder, ModalBuilder, ModalSubmitInteraction, ContextMenuCommandInteraction, ButtonInteraction, CommandInteraction, ContextMenuCommandBuilder, SlashCommandBuilder } from "discord.js"
 
 export type Interaction = IButtonInteraction | ICommandInteraction | IContextMenuInteraction | IModalInteraction;
 
