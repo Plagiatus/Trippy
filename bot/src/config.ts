@@ -88,6 +88,10 @@ export default class Config {
 		return this.rawConfig.appId;
 	}
 
+	public get databaseName() {
+		return this.rawConfig.db.name;
+	}
+
 	public static loadConfigFile(filePath: string) {
 		if (!fs.existsSync(filePath)) throw new Error(`Config file not found, looking at "${filePath}".`);
 		let fileContent: string = fs.readFileSync(filePath, "utf-8");
