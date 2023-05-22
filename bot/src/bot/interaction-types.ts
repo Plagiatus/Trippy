@@ -5,7 +5,7 @@ import type { ButtonBuilder, ModalBuilder, ModalSubmitInteraction, ContextMenuCo
 export type Interaction = IButtonInteraction | ICommandInteraction | IContextMenuInteraction | IModalInteraction;
 
 export interface IBasicInteraction<TInteraction extends BaseInteraction = any, TType extends string = any> {
-    type: TType
+	type: TType
 	execute: (args: {interaction: TInteraction, provider: Provider}) => void,
 	name: string,
 }

@@ -2,11 +2,11 @@ import Provider from "@/provider/provider";
 import BaseApiClient from "./base-api-client";
 
 export default class FeedbackApiClient extends BaseApiClient {
-    public constructor(provider: Provider) {
-        super(provider);
-    }
+	public constructor(provider: Provider) {
+		super(provider);
+	}
 
-    public getFeedbackForUUID(uuid: string) {
-        return this.get(`feedback/${uuid}`);
-    }
+	public getFeedbackForUUID(uuid: string) {
+		return this.get(`feedback/${uuid}`);
+	}
 }

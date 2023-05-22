@@ -9,12 +9,12 @@ import MojangApiClient from './api-clients/mojang-api-client'
 
 
 createApp(App)
-    .use(router)
-    .use(providerPlugin({
-        providerSetup: provider => provider
-            .addFactory(Config, () => new Config({apiUrl: (new URL(window.location.href).hostname == "localhost") ? "http://localhost:9009" : "https://api.maptesting.de"}))
-            .add(SessionsApiClient)
-            .add(FeedbackApiClient)
-            .add(MojangApiClient)
-    }))
-    .mount('#app')
+	.use(router)
+	.use(providerPlugin({
+		providerSetup: provider => provider
+			.addFactory(Config, () => new Config({apiUrl: (new URL(window.location.href).hostname == "localhost") ? "http://localhost:9009" : "https://api.maptesting.de"}))
+			.add(SessionsApiClient)
+			.add(FeedbackApiClient)
+			.add(MojangApiClient)
+	}))
+	.mount('#app')

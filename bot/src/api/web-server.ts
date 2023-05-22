@@ -8,43 +8,43 @@ import WebResponses from "./responses";
 import bodyParser from "body-parser";
 
 export class WebServer {
-    private readonly server: Express;
-    private readonly config: Config;
-    private readonly responses: WebResponses;
+	private readonly server: Express;
+	private readonly config: Config;
+	private readonly responses: WebResponses;
 
-    public constructor(private readonly provider: Provider) {
-        this.server = express();
-        this.config = provider.get(Config);
-        this.responses = provider.get(WebResponses);
+	public constructor(private readonly provider: Provider) {
+		this.server = express();
+		this.config = provider.get(Config);
+		this.responses = provider.get(WebResponses);
 
-        this.server.use(bodyParser.json());
-        this.server.use(cors({
-            origin: [this.config.frontendUrl],
-        }));
+		this.server.use(bodyParser.json());
+		this.server.use(cors({
+			origin: [this.config.frontendUrl],
+		}));
 
-        for (const route of WebServer.importRoutes()) {
-            this.addRoute(route);
-        }
+		for (const route of WebServer.importRoutes()) {
+			this.addRoute(route);
+		}
 
-        this.server.all("*", (req, res) => {
-            res.sendStatus(404);
-        });
-    }
+		this.server.all("*", (req, res) => {
+			res.sendStatus(404);
+		});
+	}
 
-    private addRoute(route: RouteMaker) {
-        route({
-            server: this.server, 
-            provider: this.provider,
-            responses: this.responses,
-        });
-    }
+	private addRoute(route: RouteMaker) {
+		route({
+			server: this.server, 
+			provider: this.provider,
+			responses: this.responses,
+		});
+	}
 
-    public start() {
-        return new Promise<void>(res => this.server.listen(this.config.webServerPort, res));
-    }
+	public start() {
+		return new Promise<void>(res => this.server.listen(this.config.webServerPort, res));
+	}
 
-    public static importRoutes() {
-        const routeFiles = utils.dynamicImportFolder<RouteMaker>("api/routes");
-        return routeFiles.map(routeFile => routeFile.imported);
-    }
+	public static importRoutes() {
+		const routeFiles = utils.dynamicImportFolder<RouteMaker>("api/routes");
+		return routeFiles.map(routeFile => routeFile.imported);
+	}
 }

@@ -1,38 +1,38 @@
 <template>
-    <button type="button" class="btn copy-btn" @click="copyData">
-        <img class="copy-icon" src="/icons/copy.svg" alt="Copy">
-        <span class="copy-confirmation" v-if="data.textVisible">copied</span>
-    </button>
+	<button type="button" class="btn copy-btn" @click="copyData">
+		<img class="copy-icon" src="/icons/copy.svg" alt="Copy">
+		<span class="copy-confirmation" v-if="data.textVisible">copied</span>
+	</button>
 </template>
 
 <script setup lang="ts">
 import { shallowReactive } from "vue";
 
 const props = defineProps<{
-    value: string
+	value: string
 }>();
 
 const data = shallowReactive({
-    textHideTimeout: null as null|number,
-    textVisible: false,
+	textHideTimeout: null as null|number,
+	textVisible: false,
 })
 
 function copyData() {
-    navigator.clipboard.writeText(props.value);
-    if (data.textHideTimeout) {
-        clearTimeout(data.textHideTimeout);
-    }
-    data.textVisible = true;
-    data.textHideTimeout = setTimeout(() => {
-        data.textVisible = false;
-    }, 1000);
+	navigator.clipboard.writeText(props.value);
+	if (data.textHideTimeout) {
+		clearTimeout(data.textHideTimeout);
+	}
+	data.textVisible = true;
+	data.textHideTimeout = setTimeout(() => {
+		data.textVisible = false;
+	}, 1000);
 }
 </script>
 
 <style>
 button.copy-btn {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
 }
 
 .copy-icon {
