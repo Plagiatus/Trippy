@@ -1,11 +1,11 @@
 <template>
 	<div id="sessions-wrapper">
 		<router-link class="sessions-link" :to="{ name: 'Sessions.Setup' }">
-			<img src="@/assets/add.svg" alt="New Session">
+			<img src="/icons/add.svg" alt="New Session">
 			<span>Set up a new session</span>
 		</router-link>
 		<router-link class="sessions-link" :to="{ name: 'Sessions.Feedback' }">
-			<img src="@/assets/user-feedback.svg" alt="Show feedback">
+			<img src="/icons/user-feedback.svg" alt="Show feedback">
 			<span>View feedback</span>
 		</router-link>
 	</div>

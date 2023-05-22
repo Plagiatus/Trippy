@@ -1,108 +1,54 @@
-interface Config {
-	botToken: string,
-	appId: string,
-	serverId: string,
-	port: number,
-	db: {
-		user: string,
-		password: string,
-		url: string,
-		name: string,
-	},
-	channels: {
-		modLog: string,
-		systemLog: string,
-		sessionList: string,
-		activeSessions: string,
-	},
-	roles: {
-		mods: string,
-		hosts: string,
-		lvl1: string,
-		lvl2: string,
-		lvl3: string,
-		lvl4: string,
-		lvl5: string,
-	},
-}
-
-type Interaction = iButtonInteraction | iCommandInteraction | iContextMenuInteraction | iModalInteraction;
-
-interface BasicInteraction {
-	execute: Function,
-	name: string,
-}
-
-interface iButtonInteraction extends BasicInteraction {
-	type: "BUTTON",
-	data: import("discord.js").MessageButton,
-}
-
-interface iCommandInteraction extends BasicInteraction {
-	type: "COMMAND",
-	data: import("discord.js").SlashCommandBuilder,
-}
-
-interface iContextMenuInteraction extends BasicInteraction {
-	type: "CONTEXT",
-	data: import("discord.js").ContextMenuCommandBuilder,
-}
-
-interface iModalInteraction extends BasicInteraction {
-	type: "MODAL",
-	data: import("discord.js").Modal,
-}
-
+import type Provider from "./provider";
 
 interface SessionSetupData {
-    name: string
-    description: string
-    type: string
-    edition: string
-    version: string
-    ip: string
-    rpLink: string
-    playerAmt: number
-    vcAmount: number
-    image: string
-    mode: string
-    preferences: Preferences
-    testDescription: string
+	name: string
+	description: string
+	type: string
+	edition: string
+	version: string
+	ip: string
+	rpLink: string
+	playerAmt: number
+	vcAmount: number
+	image: string
+	mode: string
+	preferences: Preferences
+	testDescription: string
 }
 
 interface iSession extends SessionSetupData {
-    readonly id: string
-    host: string
-    players: SessionPlayer[]
-    startTime: number
-    endTime: number
-    channels: SessionChannels
-    announcementMessage: string
-    feedbackId: string
+	readonly id: string
+	host: string
+	players: SessionPlayer[]
+	startTime: number
+	endTime: number
+	channels: SessionChannels
+	announcementMessage: string
+	feedbackId: string
 }
 
 interface SessionBlueprint extends SessionSetupData {
-    code: string
+	code: string
 }
 
 
 interface SessionPlayer {
-    id: string
-    joinTime: number
-    leaveTime: number
+	id: string
+	joinTime: number
+	leaveTime: number
 }
 
 interface SessionChannels {
-    category : string
-    textChannels : string[]
-    voiceChannels : string[]
-    hostChannel : string
+	category : string
+	textChannels : string[]
+	voiceChannels : string[]
+	hostChannel : string
 }
 
 interface Preferences {
-    communication: Communication
-    newPlayers: NewPlayers
-    timeEstimate: number
+	communication: Communication
+	newPlayers: NewPlayers
+	timeEstimate: number
 }
 
 type Communication = "none" | "vc_encouraged" | "vc_required";

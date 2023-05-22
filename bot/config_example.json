@@ -1,0 +1,23 @@
+{
+	"botToken": "",
+	"appId": "",
+	"serverId": "",
+	"port": 9009,
+	"frontendUrl": "http://localhost:3000",
+	"db": {
+		"user": "",
+		"password": "",
+		"url": "",
+		"name": ""
+	},
+	"channels": {
+		"modLog": "",
+		"systemLog": "",
+		"sessionList": "",
+		"activeSessions": ""
+	},
+	"roles": {
+		"mods": "",
+		"hosts": ""
+	}
+}

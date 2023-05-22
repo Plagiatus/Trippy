@@ -1,39 +1,38 @@
 <template>
-    <button type="button" class="btn copy-btn" @click="copyData">
-        <img class="copy-icon" src="@/assets/copy.svg" alt="Copy">
-        <span class="copy-confirmation" v-if="textVisible">copied</span>
-    </button>
+	<button type="button" class="btn copy-btn" @click="copyData">
+		<img class="copy-icon" src="/icons/copy.svg" alt="Copy">
+		<span class="copy-confirmation" v-if="data.textVisible">copied</span>
+	</button>
 </template>
 
-<script lang="ts">
-    import { defineComponent } from "vue";
-    
-    export default defineComponent({
-        name: "CopyButton",
-        props: ["value"],
-        data() {
-            return {
-                textVisible: false,
-                textHideTimeout: null as unknown as number,
-            }
-        },
-        methods: {
-            copyData(){
-                navigator.clipboard.writeText(this.value);
-                if(this.textHideTimeout) clearTimeout(this.textHideTimeout);
-                this.textVisible = true;
-                this.textHideTimeout = setTimeout(()=>{this.textVisible = false}, 1000);
-            }
-        }
+<script setup lang="ts">
+import { shallowReactive } from "vue";
 
-    });
-    </script>
+const props = defineProps<{
+	value: string
+}>();
+
+const data = shallowReactive({
+	textHideTimeout: null as null|number,
+	textVisible: false,
+})
+
+function copyData() {
+	navigator.clipboard.writeText(props.value);
+	if (data.textHideTimeout) {
+		clearTimeout(data.textHideTimeout);
+	}
+	data.textVisible = true;
+	data.textHideTimeout = setTimeout(() => {
+		data.textVisible = false;
+	}, 1000);
+}
+</script>
 
 <style>
- 
 button.copy-btn {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
 }
 
 .copy-icon {

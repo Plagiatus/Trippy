@@ -1,38 +1,45 @@
 <template>
-	<button class="btn" :disabled="loading || success || disabled"
+	<button class="btn" :disabled="loading || data.success || disabled"
 		:class="{loading: loading, light: light, red: red}"
 		:type="type">&nbsp;{{textToDisplay}}</button>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script setup lang="ts">
+import { computed, shallowReactive, watch } from 'vue';
 
-export default defineComponent({
-	name: "LoadingButton",
-	props: ["text", "loading", "successText", "light", "red", "disabled", "type"],
-	data() {
-		return {
-			success: false
-		}
-	},
-	watch: {
-		loading(newValue, oldValue) {
-			if (!newValue) {
-				this.success = true;
-				setTimeout(() => {
-					this.success = false;
-				}, 1000)
-			}
-		}
-	},
-	computed: {
-		textToDisplay(): string {
-			if (this.success) return this.successText;
-			if (this.loading) return "";
-			return this.text;
-		}
+const props = defineProps<{
+	text: string;
+	loading?: boolean;
+	successText?: string;
+	light?: boolean;
+	red?: boolean;
+	disabled?: boolean;
+	type?: "button"|"submit"|"reset";
+}>();
+
+const data = shallowReactive({
+	success: false,
+	successClearTimeout: null as null|number,
+});
+
+watch(() => props.loading, () => {
+	if (props.loading) {
+		return;
 	}
-})
+
+	data.successClearTimeout !== null && clearTimeout(data.successClearTimeout);
+
+	data.success = true;
+	data.successClearTimeout = setTimeout(() => {
+		data.success = false;
+	}, 1000);
+});
+
+const textToDisplay = computed(() =>{
+	if (data.success) return props.successText;
+	if (props.loading) return "";
+	return props.text;
+});
 </script>
 
 <style>

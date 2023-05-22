@@ -1,4 +1,7 @@
 *.js
 db
+dest
 
 config*.json
+!config_example.json
+.env.prod

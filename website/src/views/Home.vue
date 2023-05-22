@@ -1,6 +1,6 @@
 <template>
 	<div id="home">
-		<img id="home-logo" src="@/assets/logo.png" alt="Logo of the Minecraft Maptesting Server">
+		<img id="home-logo" src="/logo.png" alt="Logo of the Minecraft Maptesting Server">
 		<h1>Minecraft Maptesting Server</h1>
 		<hr>
 		<p id="home-description">
@@ -13,9 +13,9 @@
 		</p>
 		<div id="home-cta-discord">
 			<a href="https://discord.gg/G9u72eW" target="_blank" rel="noopener noreferrer">
-				<img src="@/assets/two-arrow-right.svg" alt="" class="home-cta-discord-arrow">
-				<img src="@/assets/Discord-Logo+Wordmark-White.svg" alt="Discord">
-				<img src="@/assets/two-arrow-right.svg" alt="" class="home-cta-discord-arrow">
+				<img src="/icons/two-arrow-right.svg" alt="" class="home-cta-discord-arrow">
+				<img src="/icons/Discord-Logo+Wordmark-White.svg" alt="Discord">
+				<img src="/icons/two-arrow-right.svg" alt="" class="home-cta-discord-arrow">
 			</a>
 		</div>
 	</div>

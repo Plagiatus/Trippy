@@ -3,7 +3,7 @@
 		<nav id="main-nav">
 			<div id="nav-logo-wrapper">
 				<router-link class="nav-link-logo" to="/">
-					<img id="nav-logo" src="@/assets/logo.png" alt="">
+					<img id="nav-logo" src="/logo.png" alt="">
 				</router-link>
 			</div>
 			<router-link class="nav-link" to="/">Home</router-link>
@@ -11,19 +11,11 @@
 			<router-link class="nav-link" to="/profile">Profiles</router-link>
 			<span id="discord-in-nav">
 				<a href="https://discord.gg/G9u72eW" target="_blank" rel="noopener noreferrer"><img
-						src="@/assets/Discord-Logo-White.svg" alt="Discord"></a>
+						src="/icons/Discord-Logo-White.svg" alt="Discord"></a>
 			</span>
 		</nav>
 	</header>
 </template>
-
-<script lang="ts">
-import { defineComponent } from "vue";
-
-export default defineComponent({
-	name: "Navigation",
-});
-</script>
 
 <style>
 header {
