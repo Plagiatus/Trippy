@@ -6,7 +6,7 @@ export default class FeedbackApiClient extends BaseApiClient {
 		super(provider);
 	}
 
-	public getFeedbackForUUID(uuid: string) {
+	public async getFeedbackForUUID(uuid: string) {
 		return this.get(`feedback/${uuid}`);
 	}
 }

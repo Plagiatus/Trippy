@@ -10,7 +10,7 @@ export default class DatabaseClient {
 		this.client = new Mongo.MongoClient(config.databaseUrl);
 	}
 
-	public connect() {
-		return this.client.connect();
+	public async connect() {
+		await this.client.connect();
 	}
 }

@@ -6,11 +6,11 @@ export default class SessionsApiClient extends BaseApiClient {
 		super(provider);
 	}
 
-	getTemplate(templateId: string) {
+	public async getTemplate(templateId: string) {
 		return this.get(`session/setup/${templateId}`);
 	}
 
-	createTemplateCode(template: SessionSetupData) {
+	public async createTemplateCode(template: SessionSetupData) {
 		return this.post(`session/getcode/`, template);
 	}
 }

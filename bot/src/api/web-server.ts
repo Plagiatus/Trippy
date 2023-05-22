@@ -39,8 +39,10 @@ export class WebServer {
 		});
 	}
 
-	public start() {
-		return new Promise<void>(res => this.server.listen(this.config.webServerPort, res));
+	public async start() {
+		return new Promise<void>(res => {
+			this.server.listen(this.config.webServerPort, res);
+		});
 	}
 
 	public static importRoutes() {

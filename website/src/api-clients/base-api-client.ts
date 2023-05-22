@@ -8,7 +8,7 @@ export default abstract class BaseApiClient {
 		this.config = provider.get(Config);
 	}
 
-	protected get(path: string, params?: Record<string,string>) {
+	protected async get(path: string, params?: Record<string,string>) {
 		return this.wrapRequest(() => {
 			const url = new URL(this.getFullPath(path));
 			if (params) {
@@ -24,7 +24,7 @@ export default abstract class BaseApiClient {
 		});
 	}
 
-	protected post(path: string, data?: unknown) {
+	protected async post(path: string, data?: unknown) {
 		return this.wrapRequest(() => {
 			return fetch(this.getFullPath(path), {
 				method: "POST",
