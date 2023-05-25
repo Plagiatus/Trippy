@@ -1,7 +1,8 @@
 import * as fs from "fs";
 import path from "path";
-import { validate } from "validate.js";
+import { validate, type Schema } from "jsonschema";
 import utils from "./utils/utils";
+import jsonSchemas from "./utils/json-schemas";
 
 export type RawConfig = {
 	botToken: string,
@@ -28,25 +29,6 @@ export type RawConfig = {
 }
 
 export default class Config {
-	private static readonly constraints = {
-		frontendUrl: { presence: true},
-		botToken: { presence: true, length: {minimum: 10}},
-		serverId: { presence: true, length: {minimum: 18}},
-		appId: { presence: true, length: {minimum: 18}},
-		port: { presence: true, numericality: {onlyInteger: true, noStrings: true}},
-		// "db.user": { presence: true },
-		// "db.password": { presence: true },
-		"db.url": { presence: true },
-		"db.name": { presence: true },
-
-		"channels.modLog": { presence: true, length: {minimum: 18} },
-		"channels.systemLog": { presence: true, length: {minimum: 18} },
-		"channels.sessionList": { presence: true, length: {minimum: 18} },
-		"channels.activeSessions": { presence: true, length: {minimum: 18} },
-
-		"roles.mods": { presence: true, length: {minimum: 18} },
-		"roles.hosts": { presence: true, length: {minimum: 18} },
-	};
 
 	public constructor(private readonly rawConfig: RawConfig) {
 
@@ -94,13 +76,14 @@ export default class Config {
 
 	public static loadConfigFile(filePath: string) {
 		if (!fs.existsSync(filePath)) throw new Error(`Config file not found, looking at "${filePath}".`);
-		let fileContent: string = fs.readFileSync(filePath, "utf-8");
+		const fileContent: string = fs.readFileSync(filePath, "utf-8");
 		if (!fileContent) throw new Error(`Config file empty.`);
 		
-		let config: RawConfig = JSON.parse(fileContent);
-		let validation = validate(config, Config.constraints);
-		if (validation) {
-			console.error("\n\x1b[41m Config Validation Error: \x1b[49m\n", validation, "");
+		const config: RawConfig = JSON.parse(fileContent);
+		console.log("start validate");
+		const validationResult = validate(config, jsonSchemas.configSchema);
+		if (!validationResult.valid) {
+			console.error("\n\x1b[41m Config Validation Error: \x1b[49m\n", validationResult.errors, "");
 			throw new Error("Config validation failed. See above for details.");
 		}
 		

@@ -1,3 +1,7 @@
+import { SessionBlueprint } from "../types/session-blueprint-types";
+import { validate, type Schema } from "jsonschema";
+import jsonSchemas from "./json-schemas";
+
 class ValidationUtils {
 	isAlphaNumeric(str: string): boolean {
 		for (let i = 0; i < str.length; i++) {
@@ -10,6 +14,19 @@ class ValidationUtils {
 		}
 		return true;
 	};
+
+	valdiateSessionBlueprint(value: unknown) {
+		return this.validateValueWithJsonSchema<SessionBlueprint>(value, jsonSchemas.sessionBlueprintSchema);
+	}
+
+	private validateValueWithJsonSchema<T>(value: unknown, schema: Schema) {
+		const validationResult = validate(value, schema);
+
+		return {
+			validationResult,
+			validatedValue: validationResult.valid ? value as T : null,
+		}
+	}
 }
 
 export default new ValidationUtils();

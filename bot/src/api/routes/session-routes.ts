@@ -1,25 +1,44 @@
+import DatabaseClient from "../../database-client";
 import validationUtils from "../../utils/validation-utils";
 import RouteMaker from "../route";
 import hash from "object-hash";
+import { SessionTemplate } from "../../types/document-types";
 
-export default (({server, responses}) => { 
-    server.route("/session/getcode/")
+export default (({server, responses, provider}) => { 
+    const databaseClient = provider.get(DatabaseClient);
+
+    server.route("/session/template/:code?")
         .post(async (req, res) => {
-            let code: string = parseInt(hash(req.body), 16).toString(36).slice(0, 5);
+            const code: string = parseInt(hash(req.body), 16).toString(36).slice(0, 5);
+
+            const { validationResult, validatedValue } = validationUtils.valdiateSessionBlueprint(req.body);
+            if (!validatedValue) {
+                return responses.sendCustomError("Failed to validate template: " + validationResult.errors.map(error => `"${error.property}": ${error.message}`).join(". "), res);
+            }
+
+            const template: SessionTemplate = { 
+                template: validatedValue,
+                code,
+            }
+
+            await databaseClient.sessionTemplateRepository.add(template);
             res.send({ code });
         })
-        .all(responses.wrongMethod);
-
-    server.route("/session/setup/:code")
         .get(async (req, res) => {
-            let code: string = req.params.code;
+            const code = req.params.code;
             if (!code || code.length != 5) {
                 return responses.sendCustomError("Code needs to be 5 characters long.", res);
             }
             if (!validationUtils.isAlphaNumeric(code)) {
                 return responses.sendCustomError("Code can only be alphanumerical.", res);
             }
-            res.send({ description: "description", name: "name", edition: "java", image: "", ip: "example.com", mode: "other", playerAmt: 0, preferences: { communication: "none", newPlayers: "none", timeEstimate: 0 }, rpLink: "", type: "test", vcAmount: 1, version: "1.19.2", testDescription: "blabla" })
+
+            const template = await databaseClient.sessionTemplateRepository.get(code);
+            if (!template) {
+                return responses.sendCustomError("No template with the given code.", res);
+            }
+
+            res.send(template);
         })
         .all(responses.wrongMethod);
 }) satisfies RouteMaker
