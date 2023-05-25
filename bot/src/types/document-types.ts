@@ -25,7 +25,4 @@ export type Session = {
 	feedbackId: string;
 }
 
-export type SessionTemplate = {
-	readonly code: string;
-	template: SessionBlueprint;
-}
+export type SessionTemplate = { readonly code: string; } & SessionBlueprint

@@ -1,16 +1,17 @@
 import Provider from "@/provider/provider";
 import BaseApiClient from "./base-api-client";
+import { SessionBlueprint } from "@/types/session-blueprint-types";
 
 export default class SessionsApiClient extends BaseApiClient {
 	public constructor(provider: Provider) {
 		super(provider);
 	}
 
-	public async getTemplate(templateId: string) {
-		return this.get(`session/setup/${templateId}`);
+	public async getTemplateByCode(code: string) {
+		return this.get(`session/template/${code}`);
 	}
 
-	public async createTemplateCode(template: SessionSetupData) {
-		return this.post(`session/getcode/`, template);
+	public async createTemplateCode(template: SessionBlueprint) {
+		return this.post(`session/template/`, template);
 	}
 }

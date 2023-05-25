@@ -17,7 +17,7 @@ export default (({server, responses, provider}) => {
             }
 
             const template: SessionTemplate = { 
-                template: validatedValue,
+                ...validatedValue,
                 code,
             }
 

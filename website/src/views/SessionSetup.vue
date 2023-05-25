@@ -10,7 +10,7 @@
 		<form @submit.prevent="submitSession">
 			<h2>Info</h2>
 			<label for="sessionType">Type</label>
-			<select name="sessionType" id="sessionType" v-model="session.type" v-requiredWithStar v-validateFormat>
+			<select name="sessionType" id="sessionType" v-model="sessionTemplate.type" v-requiredWithStar v-validateFormat>
 				<option value="test">Testing for bugs / feedback</option>
 				<option value="record">Recording for trailer/screenshots</option>
 				<option value="fun">Playing for fun</option>
@@ -18,48 +18,50 @@
 			</select>
 
 			<label for="edition">Edition</label>
-			<select name="edition" id="edition" v-model="session.edition" v-requiredWithStar v-validateFormat>
+			<select name="edition" id="edition" v-model="sessionTemplate.edition" v-requiredWithStar v-validateFormat>
 				<option value="java">Java</option>
 				<option value="bedrock">Bedrock</option>
 				<option value="other">Other</option>
 			</select>
-			<div :class="{hidden: session.edition != 'java'}">
+			<template v-if="sessionTemplate.edition === 'java'">
 				<label for="version-java">Version</label>
-				<select name="version" id="version-java" v-model="session.version" v-requiredWithStar v-validateFormat>
+				<select name="version" id="version-java" v-model="sessionTemplate.version" v-requiredWithStar v-validateFormat>
 					<optgroup v-for="group in data.javaVersions" :label="group.label">
 						<option v-for="ver in group.versions" :key="ver" :value="ver">{{ver}}</option>
 					</optgroup>
 				</select>
-			</div>
-			<div :class="{hidden: session.edition != 'other'}">
+			</template>
+			<div :class="{hidden: sessionTemplate.edition != 'other'}">
 				<label for="version-other">Version</label>
-				<input type="text" name="version" id="version-other" v-model="session.version" v-requiredWithStar v-validateFormat>
+				<input type="text" name="version" id="version-other" v-model="sessionTemplate.version" v-requiredWithStar v-validateFormat>
 			</div>
 
 			<label for="rp">Resourcepack</label>
-			<input type="text" name="rp" id="rp" v-model="session.rpLink" v-validateFormat>
+			<input type="text" name="rp" id="rp" v-model="sessionTemplate.rpLink" v-validateFormat>
 
-			<label for="ip">IP</label>
-			<input type="text" name="ip" id="ip" v-model="session.ip" v-requiredWithStar v-validateFormat
-				pattern="((^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,8})|(((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}))(:((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4})))?$">
-
+			<template v-if="sessionTemplate.server?.type === 'server'">
+				<label for="ip">IP</label>
+				<input type="text" name="ip" id="ip" v-model="sessionTemplate.server.ip" v-requiredWithStar v-validateFormat
+					pattern="((^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,8})|(((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}))(:((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4})))?$">
+			</template>
+					
 			<label for="playerAmt">Playerslots</label>
-			<input type="number" name="playerAmt" id="playerAmt" v-model="session.playerAmt" min="0" v-requiredWithStar v-validateFormat>
+			<input type="number" name="playerAmt" id="playerAmt" v-model="maxPlayers" min="0" v-requiredWithStar v-validateFormat>
 
 			<label for="vcAmt">Voice Chats</label>
-			<input type="number" name="vcAmt" id="vcAmt" v-model="session.vcAmount" min="0" v-requiredWithStar v-validateFormat>
+			<input type="number" name="vcAmt" id="vcAmt" v-model="voiceChannels" min="0" v-requiredWithStar v-validateFormat>
 
 			<h2>Presentation</h2>
 
 			<label for="mapName">Map Name</label>
-			<input type="text" name="mapName" id="mapName" v-model="session.name" v-requiredWithStar v-validateFormat>
+			<input type="text" name="mapName" id="mapName" v-model="sessionTemplate.name" v-requiredWithStar v-validateFormat>
 
 			<label for="mapImage">Map Image</label>
-			<input type="text" name="mapImage" id="mapImage" v-model="session.image" v-validateFormat>
-			<img id="map-image-preview" :src="session.image" alt="">
+			<input type="text" name="mapImage" id="mapImage" v-model="sessionTemplate.image" v-validateFormat>
+			<img id="map-image-preview" :src="sessionTemplate.image" alt="">
 
-			<label for="gamemode">Gamemode</label>
-			<select name="gamemode" id="gamemode" v-model="session.mode" v-requiredWithStar v-validateFormat>
+			<label for="category">Category</label>
+			<select name="category" id="category" v-model="sessionTemplate.category" v-requiredWithStar v-validateFormat>
 				<option value="parkour">Parkour</option>
 				<option value="pvp">PvP</option>
 				<option value="pve">PvE</option>
@@ -72,36 +74,36 @@
 			</select>
 
 			<label for="mapDescription">Map Description</label>
-			<textarea name="mapDescription" id="mapDescription" v-model="session.description"  v-validateFormat></textarea>
+			<textarea name="mapDescription" id="mapDescription" v-model="sessionTemplate.description"  v-validateFormat v-requiredWithStar></textarea>
 
 			<h3>Communication</h3>
 			<label for="comPrefNone">No Preference</label>
 			<input type="radio" name="comPref" id="comPrefNone" value="none" v-validateFormat
-				v-model="session.preferences.communication">
+				v-model="sessionTemplate.preferences.communication">
 			<label for="comPrefEnc">Voicechat encouraged</label>
 			<input type="radio" name="comPref" id="comPrefEnc" value="vc_encouraged" v-validateFormat
-				v-model="session.preferences.communication">
+				v-model="sessionTemplate.preferences.communication">
 			<label for="comPrefReq">Voicechat required</label>
 			<input type="radio" name="comPref" id="comPrefReq" value="vc_required" v-validateFormat
-				v-model="session.preferences.communication">
+				v-model="sessionTemplate.preferences.communication">
 
 			<h3>Map experience</h3>
 			<label for="playerPrefNone">No preference</label>
 			<input type="radio" name="playerPref" id="playerPrefNone" value="none" v-validateFormat
-				v-model="session.preferences.newPlayers">
+				v-model="sessionTemplate.preferences.newPlayers">
 			<label for="playerPrefNew">New players only</label>
 			<input type="radio" name="playerPref" id="playerPrefNew" value="new" v-validateFormat
-				v-model="session.preferences.newPlayers">
+				v-model="sessionTemplate.preferences.newPlayers">
 			<label for="playerPref">Returning players only</label>
-			<input type="radio" name="playerPref" id="playerPref" value="exp" v-model="session.preferences.newPlayers" v-validateFormat>
+			<input type="radio" name="playerPref" id="playerPref" value="exp" v-model="sessionTemplate.preferences.newPlayers" v-validateFormat>
 
 			<label for="timeEstimate">How much time do you expect this will take?</label>
 			<input type="number" name="timeEstimate" id="timeEstimate" min="0" v-validateFormat
-				v-model="session.preferences.timeEstimate">
+				v-model="sessionTemplate.preferences.timeEstimate">
 
 
 			<label for="testDescription">Test Description</label>
-			<textarea name="testDescription" id="testDescription" v-model="session.testDescription" v-validateFormat></textarea>
+			<textarea name="testDescription" id="testDescription" v-model="sessionTemplate.testDescription" v-validateFormat></textarea>
 
 			<h2>Feedback</h2>
 			<span>Coming soon</span>
@@ -116,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, shallowReactive } from "vue";
+import { computed, onMounted, ref, shallowReactive } from "vue";
 import CopyButton from "@/components/CopyButton.vue";
 import LoadingButton from "@/components/LoadingButton.vue";
 import useProvidedItem from "@/composables/use-provided-item";
@@ -124,6 +126,7 @@ import SessionsApiClient from "@/api-clients/sessions-api-client";
 import MojangApiClient from "@/api-clients/mojang-api-client";
 import vRequiredWithStar from "@/directives/v-required-star";
 import vValidateFormat from "@/directives/v-validate-format";
+import { SessionBlueprint } from "@/types/session-blueprint-types";
 
 const sessionApiClient = useProvidedItem(SessionsApiClient);
 const mojangApiClient = useProvidedItem(MojangApiClient);
@@ -137,25 +140,36 @@ const data = shallowReactive({
 	sendSessionError: "",
 	loadingSessionCode: false,
 });
-const session = ref<SessionSetupData>({
-	description: "",
-	edition: "",
-	image: "",
-	ip: "",
-	mode: "",
-	name: "",
-	playerAmt: 0,
+
+const sessionTemplate = ref<Partial<SessionBlueprint>&{preferences: SessionBlueprint["preferences"]}>({
 	preferences: {
-		communication: "none",
-		newPlayers: "none",
-		timeEstimate: 0,
+		players: {}
 	},
-	rpLink: "",
-	testDescription: "",
-	type: "",
-	vcAmount: 0,
-	version: "",
+	server: {
+		type: "server",
+		ip: ""
+	}
 });
+
+const voiceChannels = computed({
+	get() {
+		return sessionTemplate.value.voiceChannels?.length ?? 0
+	},
+	set(amount: number) {
+		sessionTemplate.value.voiceChannels = new Array(amount).fill({});
+	}
+});
+
+const maxPlayers = computed({
+	get() {
+		return sessionTemplate.value.preferences.players?.max;
+	},
+	set(max: number|undefined) {
+		sessionTemplate.value.preferences.players = {
+			max: max,
+		}
+	}
+})
 
 async function loadCode() {
 	if (data.loadingCodeLoading) return;
@@ -165,7 +179,7 @@ async function loadCode() {
 		return;
 	}
 	data.loadingCodeLoading = true;
-	let reply = await sessionApiClient.getTemplate(data.loadingCode);
+	let reply = await sessionApiClient.getTemplateByCode(data.loadingCode);
 	if (reply.error) {
 		if (typeof reply.error === "object" && "statusText" in reply.error && typeof reply.error.statusText === "string")
 			data.loadCodeError = reply.error.statusText;
@@ -176,7 +190,7 @@ async function loadCode() {
 	}
 	try {
 		if (reply.data) {
-			session.value = JSON.parse(reply.data);
+			sessionTemplate.value = JSON.parse(reply.data);
 			data.loadingCodeLoading = false;
 			return;
 		}
@@ -190,7 +204,7 @@ async function loadCode() {
 async function submitSession() {
 	if (data.loadingSessionCode) return;
 	data.loadingSessionCode = true;
-	let reply = await sessionApiClient.createTemplateCode(session.value);
+	let reply = await sessionApiClient.createTemplateCode(sessionTemplate.value as SessionBlueprint);
 	if (reply.error) {
 		if (typeof reply.error === "object" && "statusText" in reply.error && typeof reply.error.statusText === "string")
 			data.sendSessionError = reply.error.statusText;
