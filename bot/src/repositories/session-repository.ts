@@ -1,8 +1,8 @@
-import { Session } from "../types/document-types";
+import { RawSession } from "../types/document-types";
 import Repository from "./repository";
 
-export default class SessionRepository extends Repository<Session,"id"> {
+export default class SessionRepository extends Repository<RawSession,"id"> {
 	public getActiveSessions() {
-		return this.collection.find({ endTime: -1 }).toArray();
+		return this.collection.find({ state: {$in: ["running","stopping"]} }).toArray();
 	}
 }

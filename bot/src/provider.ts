@@ -62,7 +62,7 @@ export default class Provider {
 		return this;
 	}
 
-	public getRaw<T>(type: ItemType<T>) {
+	private getRaw<T>(type: ItemType<T>) {
 		const information = this.getItemInformation(type);
 
 		if (information.state === ItemState.notAdded) {

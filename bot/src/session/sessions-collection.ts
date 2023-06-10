@@ -1,0 +1,57 @@
+import DatabaseClient from "../database-client";
+import Provider from "../provider";
+import { RawSession } from "../types/document-types";
+import { SessionBlueprint } from "../types/session-blueprint-types";
+import utils from "../utils/utils";
+import Session from "./session";
+import * as Discord from "discord.js";
+
+export default class SessionsCollection {
+	private readonly databaseClient: DatabaseClient;
+
+	private readonly sessions: Session[];
+	
+	public constructor(private readonly provider: Provider) {
+		this.databaseClient = provider.get(DatabaseClient);
+
+		this.sessions = [];
+	}
+
+	public get activeSessionsCount() {
+		return this.sessions.filter(session => session.state === "running" || session.state === "stopping").length;
+	}
+
+	public async loadSessionsFromDatabase() {
+		const rawSessions = await this.databaseClient.sessionRepository.getActiveSessions();
+		const sessions = await utils.asyncMap(rawSessions, async (rawSession) => {
+			const session = new Session(this.provider, rawSession);
+			await session.reloadSession();
+			return session;
+		});
+
+		this.sessions.push(...sessions);
+	}
+
+	public async startNewSession(hostUserId: string, blueprint: SessionBlueprint) {
+		const newRawSession: RawSession = {
+			state: "new",
+			blueprint: blueprint,
+			hostId: hostUserId,
+			id: Session.generateSessionId(),
+			players: [],
+		}
+
+		const session = new Session(this.provider, newRawSession);
+		await session.startSession();
+		this.sessions.push(session);
+	}
+
+	public getSession(id: string) {
+		const sessionWithId = this.sessions.find(session => session.id === id);
+		if (!sessionWithId || sessionWithId.state !== "running") {
+			return null;
+		}
+
+		return sessionWithId;
+	}
+}

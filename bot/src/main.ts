@@ -6,6 +6,7 @@ import Provider from "./provider";
 import DiscordClient from "./bot/discord-client";
 import ErrorHandler from "./bot/error-handler";
 import InteractionCollection from "./bot/interaction-collection";
+import SessionsCollection from "./session/sessions-collection";
 
 async function start(){
 	console.log("Starting...");
@@ -17,6 +18,7 @@ async function start(){
 		.add(WebResponses)
 		.add(DiscordClient)
 		.add(ErrorHandler)
+		.add(SessionsCollection)
 		.addFactory(InteractionCollection, provider => new InteractionCollection(provider, InteractionCollection.importInteractions()));
 
 	await provider.get(DatabaseClient).connect();
@@ -32,6 +34,11 @@ async function start(){
 
 	await discordClient.validateGuildIsSetup();
 	console.log("Validated Discord guild...");
+
+	const sessionsCollection = provider.get(SessionsCollection);
+
+	await sessionsCollection.loadSessionsFromDatabase();
+	console.log(`Reloaded (${sessionsCollection.activeSessionsCount}) sessions from database...`);
 
 	console.log("\x1b[44mReady to go.\x1b[49m");
 }

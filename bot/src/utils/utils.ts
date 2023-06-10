@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import path from "path";
+import crypto from "crypto";
 
 class Utils {
 	dynamicImportFolder<T>(folder: string): {path: string, imported: T}[] {
@@ -34,6 +35,22 @@ class Utils {
 
 	public get executionRootPath() {
 		return path.join(require.main?.filename ?? __filename, "./../");
+	}
+
+	public newId() {
+		return crypto.randomUUID();
+	}
+
+	public async asyncMap<TElement,TReturn>(array: ReadonlyArray<TElement>, map: (element: TElement, index: number, array: ReadonlyArray<TElement>) => Promise<TReturn>): Promise<TReturn[]> {
+		const mapPromises: Promise<TReturn>[] = [];
+		for (let i = 0; i < array.length; i++) {
+			mapPromises.push(map(array[i],i,array));
+		}
+		return await Promise.all(mapPromises);
+	}
+
+	public async asyncForeach<TElement>(array: ReadonlyArray<TElement>, foreach: (element: TElement, index: number, array: ReadonlyArray<TElement>) => Promise<void>): Promise<void> {
+		await this.asyncMap(array, foreach);
 	}
 }
 

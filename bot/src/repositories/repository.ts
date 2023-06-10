@@ -14,6 +14,10 @@ export default class Repository<TDocument extends Mongo.Document, TId extends ke
 		return await this.collection.insertOne(document);
 	}
 
+	public async update(document: TDocument) {
+		return await this.collection.replaceOne(this.getQueryForDocument(document), document);
+	}
+
 	public async remove(documentOrId: TDocument|TDocument[TId]) {
 		return await this.collection.deleteOne(this.getQueryForDocument(documentOrId));
 	}

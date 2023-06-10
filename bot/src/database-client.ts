@@ -17,7 +17,7 @@ export default class DatabaseClient {
 		this.client = new Mongo.MongoClient(this.config.databaseUrl);
 
 		const db = this.client.db(this.config.databaseName);
-		this.sessionTemplateRepository = new Repository(provider, db.collection("Sessions"), "code");
+		this.sessionTemplateRepository = new Repository(provider, db.collection("Templates"), "code");
 		this.sessionRepository = new SessionRepository(provider, db.collection("Sessions"), "id");
 	}
 

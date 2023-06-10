@@ -4,6 +4,7 @@ import * as Discord from "discord.js";
 import ErrorHandler from "./error-handler";
 import InteractionCollection from "./interaction-collection";
 
+type ChannelParameterType = (keyof Config["channelIds"]) | (string & {}) | Discord.Channel;
 export default class DiscordClient {
 	private readonly client: Discord.Client;
 	private readonly config: Config;
@@ -26,6 +27,13 @@ export default class DiscordClient {
 		throw new Error("Discord client doesn't have a user.");
 	}
 
+	public get allowAccessToChannelPermissions() {
+		return {
+			id: this.user.id,
+			allow: ["ViewChannel"]
+		} satisfies Discord.OverwriteResolvable
+	}
+
 	public async connect() {
 		return new Promise<void>(res => {
 			this.client.once("ready", () => res());
@@ -33,15 +41,60 @@ export default class DiscordClient {
 		});
 	}
 
-	public async sendMessage(channelType: keyof Config["channelIds"], message: string|Discord.MessagePayload|Discord.MessageOptions) {
-		const guild = await this.client.guilds.fetch(this.config.guildId);
-		const channel = await guild.channels.fetch(this.config.channelIds[channelType]);
+	public async sendMessage(channel: ChannelParameterType, message: string|Discord.MessagePayload|Discord.BaseMessageOptions) {
+		const sendInChannel = await this.getChannel(channel);
 
-		if (channel && channel.type == Discord.ChannelType.GuildText) {
-			await channel.send(message);
-			return true;
+		if (!sendInChannel || !sendInChannel.isTextBased()) {
+			throw new Error("Failed to find channel to send message in.");
 		}
-		return false;
+		return await sendInChannel.send(message);
+	}
+
+	public async getMessage(channel: ChannelParameterType, id: string) {
+		const fetchFromChannel = await this.getChannel(channel);
+		if (fetchFromChannel && fetchFromChannel.isTextBased()) {
+			return await fetchFromChannel.messages.fetch(id);
+		}
+		return undefined;
+	}
+
+	public async getChannel(channel: ChannelParameterType) {
+		const guild = await this.getGuild();
+
+		if (typeof channel === "string") {
+			if (channel in this.config.channelIds) {
+				const channelId = this.config.channelIds[channel as keyof Config["channelIds"]];
+				return await guild.channels.fetch(channelId);
+			}
+			return await guild.channels.fetch(channel);
+		}
+
+		return channel;
+	}
+
+	public async createChannel<T extends Discord.GuildChannelTypes>(options: Discord.GuildChannelCreateOptions & { type: T }) {
+		const guild = await this.getGuild();
+		return await guild.channels.create(options);
+	}
+
+	public async deleteChannel(id: string) {
+		const guild = await this.getGuild();
+		await guild.channels.delete(id);
+	}
+
+	public async getRole(id: string) {
+		const guild = await this.getGuild();
+		return await guild.roles.fetch(id);
+	}
+
+	public async createRole(options: Discord.RoleCreateOptions) {
+		const guild = await this.getGuild();
+		return await guild.roles.create(options);
+	}
+
+	public async getMember(id: string) {
+		const guild = await this.getGuild();
+		return await guild.members.fetch(id);
 	}
 
 	public async validateGuildIsSetup() {
@@ -107,5 +160,9 @@ export default class DiscordClient {
 		} else {
 			throw new Error("This type of interaction is not supported. If this problem persists, contact a moderator.");
 		}
+	}
+
+	private async getGuild() {
+		return await this.client.guilds.fetch(this.config.guildId);
 	}
 }

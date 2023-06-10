@@ -21,11 +21,11 @@ export default class ErrorHandler {
 	async handleGenericError(error: unknown) {
 		let didSendMessage = false;
 		if (error instanceof Error) {
-			didSendMessage = await this.discordClient.sendMessage("systemLog", { content: `\`\`\`${error.stack?.substring(0, 4000) }\`\`\``});
+			didSendMessage = !await this.discordClient.sendMessage("systemLog", { content: `\`\`\`${error.stack?.substring(0, 4000) }\`\`\``});
 		} else if (typeof error === "string") {
-			didSendMessage = await this.discordClient.sendMessage("systemLog", { content: "Error: ```" + error.substring(0, 4000) + "```" });
+			didSendMessage = !await this.discordClient.sendMessage("systemLog", { content: "Error: ```" + error.substring(0, 4000) + "```" });
 		} else {
-			didSendMessage = await this.discordClient.sendMessage("systemLog", { content: "Unexpected error type: ```" + (error + "").substring(0, 4000) + "```" });
+			didSendMessage = !await this.discordClient.sendMessage("systemLog", { content: "Unexpected error type: ```" + (error + "").substring(0, 4000) + "```" });
 		}
 
 		if (!didSendMessage) {
