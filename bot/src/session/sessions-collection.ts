@@ -80,4 +80,9 @@ export default class SessionsCollection {
 		const userId = typeof user === "string" ? user : user.id;
 		return this.sessions.find(session => session.isUserInSession(userId));
 	}
+
+	public getHostedSession(user: string|Discord.User|Discord.GuildMember) {
+		const userId = typeof user === "string" ? user : user.id;
+		return this.sessions.find(session => session.hostId === userId);
+	}
 }

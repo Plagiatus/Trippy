@@ -56,6 +56,10 @@ export default class Session {
 		return this.rawSession.blueprint;
 	}
 
+	public get hostId() {
+		return this.rawSession.hostId;
+	}
+
 	public get joinedUserIds() {
 		return this.rawSession.players.filter(player => player.leaveTime === undefined).map(player => player.id);
 	}
@@ -358,18 +362,6 @@ export default class Session {
 		await this.databaseClient.sessionRepository.update(this.rawSession);
 
 		try {
-			await voiceChannels?.remove();
-		} catch (error) {
-			this.errorHandler.handleSessionError(this, error, "Failed to remove voice channels.");
-		}
-
-		try {
-			await announcementMessage?.remove();
-		} catch (error) {
-			this.errorHandler.handleSessionError(this, error, "Failed to remove announcement message.");
-		}
-
-		try {
 			await hostRole?.delete();
 		} catch (error) {
 			this.errorHandler.handleSessionError(this, error, "Failed to remove host role.");
@@ -379,6 +371,18 @@ export default class Session {
 			await sessionRole?.delete();
 		} catch (error) {
 			this.errorHandler.handleSessionError(this, error, "Failed to remove session role.");
+		}
+
+		try {
+			await voiceChannels?.remove();
+		} catch (error) {
+			this.errorHandler.handleSessionError(this, error, "Failed to remove voice channels.");
+		}
+
+		try {
+			await announcementMessage?.remove();
+		} catch (error) {
+			this.errorHandler.handleSessionError(this, error, "Failed to remove announcement message.");
 		}
 
 		try {
@@ -433,22 +437,24 @@ export default class Session {
 
 	private sendEndedMessage(user: Discord.User) {
 		this.sendMessageToPlayers({
+			content: this.sessionRole?.toString() ?? "",
 			embeds: [
 				new Discord.EmbedBuilder()
 					.setColor(constants.warningColor)
 					.setTitle("Session is ending")
-					.setDescription(`This session has been stopped by ${user} and will close in 30 seconds. ${this.sessionRole?.toString() ?? ""}`)
+					.setDescription(`This session has been stopped by ${user} and will close in 30 seconds.`)
 			]
 		})
 	}
 
 	private sendForceEndedMessage() {
 		this.sendMessageToPlayers({
+			content: this.sessionRole?.toString() ?? "",
 			embeds: [
 				new Discord.EmbedBuilder()
 					.setColor(constants.warningColor)
 					.setTitle("Session is ending")
-					.setDescription(`This session has been stopped and will close in 30 seconds. ${this.sessionRole?.toString() ?? ""}`)
+					.setDescription(`This session has been stopped and will close in 30 seconds.`)
 			]
 		})
 	}
