@@ -16,7 +16,7 @@ export default class SessionHostMessage {
 		const discordClient = provider.get(DiscordClient);
 		const message = await discordClient.getMessage(hostChannelId, messageId);
 		if (!message) {
-			throw new Error("Unable to recreate because message can't be found.");
+			throw new Error("Unable to recreate host message because message can't be found.");
 		}
 
 		const hostMessage = new SessionHostMessage(message);

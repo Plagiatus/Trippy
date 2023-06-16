@@ -1,6 +1,7 @@
 import { CommandInteraction, EmbedBuilder, Message, MessageType, Interaction } from "discord.js";
 import Provider from "../provider";
 import DiscordClient from "./discord-client";
+import Session from "../session/session";
 
 export default class ErrorHandler {
 	private readonly discordClient: DiscordClient;
@@ -19,14 +20,19 @@ export default class ErrorHandler {
 	}
 
 	async handleGenericError(error: unknown) {
-		let didSendMessage = false;
-		if (error instanceof Error) {
-			didSendMessage = !await this.discordClient.sendMessage("systemLog", { content: `\`\`\`${error.stack?.substring(0, 4000) }\`\`\``});
-		} else if (typeof error === "string") {
-			didSendMessage = !await this.discordClient.sendMessage("systemLog", { content: "Error: ```" + error.substring(0, 4000) + "```" });
-		} else {
-			didSendMessage = !await this.discordClient.sendMessage("systemLog", { content: "Unexpected error type: ```" + (error + "").substring(0, 4000) + "```" });
+		const errorMessage = this.getErrorString(error);
+		const didSendMessage = !!await this.discordClient.sendMessage("systemLog", { content: errorMessage });
+
+		if (!didSendMessage) {
+			console.error("Failed to send error message for error:", error);
 		}
+	}
+
+	async handleSessionError(session: Session, error: unknown, message?: string) {
+		const errorMessage = this.getErrorString(error);
+		const didSendMessage = !!await this.discordClient.sendMessage("systemLog", {
+			content: `[Session ${session.id}]:${message === undefined ? "" : " " + message} ${errorMessage}`
+		});
 
 		if (!didSendMessage) {
 			console.error("Failed to send error message for error:", error);
@@ -39,6 +45,16 @@ export default class ErrorHandler {
 		await this.discordClient.sendMessage("systemLog", { embeds: [this.makeEmbed(error, messageOrInteraction)] });
 		if ("isRepliable" in messageOrInteraction && messageOrInteraction.isRepliable()) {
 			(messageOrInteraction as CommandInteraction).reply({ephemeral: true, content: String(error).substring(0, 4000)});
+		}
+	}
+
+	private getErrorString(error: unknown) {
+		if (error instanceof Error) {
+			return `\`\`\`${error.stack?.substring(0, 4000) }\`\`\``;
+		} else if (typeof error === "string") {
+			return "Error: ```" + error.substring(0, 4000) + "```";
+		} else {
+			return "Unexpected error type: ```" + (error + "").substring(0, 4000) + "```";
 		}
 	}
 

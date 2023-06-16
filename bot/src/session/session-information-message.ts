@@ -3,6 +3,7 @@ import DiscordClient from "../bot/discord-client";
 import Provider from "../provider";
 import { SessionBlueprint } from "../types/session-blueprint-types";
 import leaveSessionButton from "../bot/interactions/buttons/leave-session-button";
+import constants from "../utils/constants";
 
 export default class SessionInformationMessage {
 	private constructor(private readonly message: Discord.Message) {
@@ -54,6 +55,7 @@ export default class SessionInformationMessage {
 	private static createEmbed(sessionBlueprint: SessionBlueprint) {
 		return new Discord.EmbedBuilder()
 			.setTitle(sessionBlueprint.name)
+			.setColor(constants.mainColor)
 			.setDescription(sessionBlueprint.description)
 			.toJSON()
 	}

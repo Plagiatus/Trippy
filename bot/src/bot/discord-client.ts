@@ -59,17 +59,21 @@ export default class DiscordClient {
 	}
 
 	public async getChannel(channel: ChannelParameterType) {
-		const guild = await this.getGuild();
+		try {
+			const guild = await this.getGuild();
 
-		if (typeof channel === "string") {
-			if (channel in this.config.channelIds) {
-				const channelId = this.config.channelIds[channel as keyof Config["channelIds"]];
-				return await guild.channels.fetch(channelId);
+			if (typeof channel === "string") {
+				if (channel in this.config.channelIds) {
+					const channelId = this.config.channelIds[channel as keyof Config["channelIds"]];
+					return await guild.channels.fetch(channelId);
+				}
+				return await guild.channels.fetch(channel);
 			}
-			return await guild.channels.fetch(channel);
-		}
 
-		return channel;
+			return channel;
+		} catch {
+			return null;
+		}
 	}
 
 	public async createChannel<T extends Discord.GuildChannelTypes>(options: Discord.GuildChannelCreateOptions & { type: T }) {
@@ -93,8 +97,12 @@ export default class DiscordClient {
 	}
 
 	public async getMember(id: string) {
-		const guild = await this.getGuild();
-		return await guild.members.fetch(id);
+		try {
+			const guild = await this.getGuild();
+			return await guild.members.fetch(id);
+		} catch {
+			return null;
+		}
 	}
 
 	public async validateGuildIsSetup() {

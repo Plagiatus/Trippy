@@ -1,3 +1,4 @@
+import ErrorHandler from "../bot/error-handler";
 import DatabaseClient from "../database-client";
 import Provider from "../provider";
 import { RawSession } from "../types/document-types";
@@ -8,11 +9,13 @@ import * as Discord from "discord.js";
 
 export default class SessionsCollection {
 	private readonly databaseClient: DatabaseClient;
+	private readonly errorHandler: ErrorHandler;
 
 	private readonly sessions: Session[];
 	
 	public constructor(private readonly provider: Provider) {
 		this.databaseClient = provider.get(DatabaseClient);
+		this.errorHandler = provider.get(ErrorHandler);
 
 		this.sessions = [];
 	}
@@ -25,11 +28,25 @@ export default class SessionsCollection {
 		const rawSessions = await this.databaseClient.sessionRepository.getActiveSessions();
 		const sessions = await utils.asyncMap(rawSessions, async (rawSession) => {
 			const session = new Session(this.provider, rawSession);
-			await session.reloadSession();
-			return session;
+			try {
+				await session.reloadSession();
+				return session;
+			} catch(error) {
+				try {
+					await session.fullEndSession();
+					await this.errorHandler.handleSessionError(session, error, "Removed session after it failed to reload.");
+				} catch(error) {
+					await this.errorHandler.handleSessionError(session, error, "Failed to remove session after it failed to reload.");
+				}
+				return null;
+			}
 		});
 
-		this.sessions.push(...sessions);
+		for (const session of sessions) {
+			if (session) {
+				this.sessions.push(session);
+			}
+		}
 	}
 
 	public async startNewSession(hostUserId: string, blueprint: SessionBlueprint) {
