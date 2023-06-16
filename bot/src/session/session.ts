@@ -60,6 +60,11 @@ export default class Session {
 		return this.rawSession.players.filter(player => player.leaveTime === undefined).map(player => player.id);
 	}
 
+	public isChannelForSession(channel: string|Discord.Channel) {
+		const channelId = typeof channel === "string" ? channel : channel.id;
+		return channelId === this.mainChannel?.id || channelId === this.hostChannel?.id || this.voiceChannels?.channelIds.includes(channelId);
+	}
+
 	public async getHost(): Promise<Discord.GuildMember|null> {
 		return this.discordClient.getMember(this.rawSession.hostId);
 	}

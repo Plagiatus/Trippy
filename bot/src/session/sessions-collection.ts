@@ -71,4 +71,13 @@ export default class SessionsCollection {
 
 		return sessionWithId;
 	}
+
+	public getSessionFromChannel(channel: string|Discord.Channel) {
+		return this.sessions.find(session => session.isChannelForSession(channel));
+	}
+
+	public getSessionFromUser(user: string|Discord.User|Discord.GuildMember) {
+		const userId = typeof user === "string" ? user : user.id;
+		return this.sessions.find(session => session.isUserInSession(userId));
+	}
 }
