@@ -302,7 +302,7 @@ export default class Session {
 		}
 	}
 
-	public async tryStopSession(endingUser: Discord.User): Promise<boolean> {
+	public async tryStopSession(endingUser: Discord.GuildMember): Promise<boolean> {
 		if (endingUser.id !== this.rawSession.hostId || this.rawSession.state !== "running") {
 			return false;
 		}
@@ -312,14 +312,14 @@ export default class Session {
 		return true;
 	}
 
-	public async forceStopSession(endingUser: Discord.User) {
+	public async forceStopSession(endingUser: Discord.GuildMember) {
 		if (this.rawSession.state !== "running") {
 			return;
 		}
 
 		this.sendForceEndedMessage();
 		if (this.mainChannel) {
-			this.discordClient.sendMessage(this.mainChannel, "Session has been force ended by: " + endingUser.username);
+			this.discordClient.sendMessage(this.mainChannel, "Session has been force ended by: " + endingUser.displayName);
 		}
 
 		await this.stopSession();
@@ -435,7 +435,7 @@ export default class Session {
 		return idString;
 	}
 
-	private sendEndedMessage(user: Discord.User) {
+	private sendEndedMessage(user: Discord.GuildMember) {
 		this.sendMessageToPlayers({
 			content: this.sessionRole?.toString() ?? "",
 			embeds: [

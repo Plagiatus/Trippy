@@ -8,18 +8,18 @@ export default {
 	data: new SlashCommandBuilder()
 		.setName("leave")
 		.setDescription("Makes you leave the session you are in."),
-	async execute({interaction, provider}){
+	async execute({interaction, provider, interactor}){
 		const sessionsCollection = provider.get(SessionsCollection);
 
-		const session = sessionsCollection.getSessionFromChannel(interaction.channelId) ?? sessionsCollection.getSessionFromUser(interaction.user);
+		const session = sessionsCollection.getSessionFromChannel(interaction.channelId) ?? sessionsCollection.getSessionFromUser(interactor);
 		if (!session) {
 			interaction.reply({ephemeral: true, content: "You are not in any sessions which you can leave."});
 			return;
 		}
 
-		if (session.isUserInSession(interaction.user.id)) {
+		if (session.isUserInSession(interactor.id)) {
 			await interaction.deferReply({ephemeral: true});
-			await session.leave(interaction.user.id);
+			await session.leave(interactor.id);
 			interaction.editReply("You have left the session.")
 		} else {
 			interaction.reply({ephemeral: true, content: "You cannot leave this session."});

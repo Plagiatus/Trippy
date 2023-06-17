@@ -1,4 +1,4 @@
-import { ButtonInteraction, ChatInputCommandInteraction, CommandInteraction, ContextMenuCommandInteraction, ModalSubmitInteraction } from "discord.js";
+import { ButtonInteraction, ChatInputCommandInteraction, CommandInteraction, ContextMenuCommandInteraction, ModalSubmitInteraction, GuildMember } from "discord.js";
 import utils from "../utils/utils";
 import { IBasicInteraction, IButtonInteraction, ICommandInteraction, IContextMenuInteraction, IModalInteraction } from "./interaction-types";
 import Provider from "../provider";
@@ -23,28 +23,29 @@ export default class InteractionCollection {
 		return interactionMap;
 	}
 
-	public executeCommandInteraction(id: string, interaction: ChatInputCommandInteraction) {
-		this.executeInteraction(this.commandInteractions, id, interaction);
+	public executeCommandInteraction(id: string, interaction: ChatInputCommandInteraction, interactor: GuildMember) {
+		this.executeInteraction(this.commandInteractions, id, interaction, interactor);
 	}
 
-	public executeButtonInteraction(id: string, interaction: ButtonInteraction) {
-		this.executeInteraction(this.buttonInteractions, id, interaction);
+	public executeButtonInteraction(id: string, interaction: ButtonInteraction, interactor: GuildMember) {
+		this.executeInteraction(this.buttonInteractions, id, interaction, interactor);
 	}
 
-	public executeContextInteraction(id: string, interaction: ContextMenuCommandInteraction) {
-		this.executeInteraction(this.contextInteractions, id, interaction);
+	public executeContextInteraction(id: string, interaction: ContextMenuCommandInteraction, interactor: GuildMember) {
+		this.executeInteraction(this.contextInteractions, id, interaction, interactor);
 	}
 
-	public executeModalInteraction(id: string, interaction: ModalSubmitInteraction) {
-		this.executeInteraction(this.modalInteractions, id, interaction);
+	public executeModalInteraction(id: string, interaction: ModalSubmitInteraction, interactor: GuildMember) {
+		this.executeInteraction(this.modalInteractions, id, interaction, interactor);
 	}
 
-	private executeInteraction<T extends IBasicInteraction>(map: Map<string|RegExp,T>, id: string, interaction: Parameters<T["execute"]>[0]["interaction"]) {
+	private executeInteraction<T extends IBasicInteraction>(map: Map<string|RegExp,T>, id: string, interaction: Parameters<T["execute"]>[0]["interaction"], interactor: GuildMember) {
 		const executer = this.getExecuterFromId(map, id);
 
 		executer.execute({
 			interaction,
 			provider: this.provider,
+			interactor,
 		});
 	}
 

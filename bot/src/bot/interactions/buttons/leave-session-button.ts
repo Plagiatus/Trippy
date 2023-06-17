@@ -9,7 +9,7 @@ export default {
 		.setCustomId(`session-leave:${sessionId}`)
 		.setLabel("Leave")
 		.setStyle(ButtonStyle.Danger),
-	execute({interaction, provider}){
+	execute({interaction, provider, interactor}){
 		const sessionId = (/session-leave:(.*)/).exec(interaction.customId)?.[1] ?? "";
 		const sessionsCollection = provider.get(SessionsCollection);
 		const session = sessionsCollection.getSession(sessionId);
@@ -25,6 +25,6 @@ export default {
 		}
 
 		interaction.deferUpdate();
-		session.leave(interaction.user.id);
+		session.leave(interactor.id);
 	}
 } satisfies IButtonInteraction<[sessionId: string]>;

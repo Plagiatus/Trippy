@@ -7,6 +7,7 @@ import DiscordClient from "./bot/discord-client";
 import ErrorHandler from "./bot/error-handler";
 import InteractionCollection from "./bot/interaction-collection";
 import SessionsCollection from "./session/sessions-collection";
+import Impersonation from "./impersonation";
 
 async function start(){
 	console.log("Starting...");
@@ -19,6 +20,7 @@ async function start(){
 		.add(DiscordClient)
 		.add(ErrorHandler)
 		.add(SessionsCollection)
+		.add(Impersonation)
 		.addFactory(InteractionCollection, provider => new InteractionCollection(provider, InteractionCollection.importInteractions()));
 
 	await provider.get(DatabaseClient).connect();

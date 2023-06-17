@@ -3,18 +3,21 @@ import Provider from "../provider";
 import * as Discord from "discord.js";
 import ErrorHandler from "./error-handler";
 import InteractionCollection from "./interaction-collection";
+import Impersonation from "../impersonation";
 
 type ChannelParameterType = (keyof Config["channelIds"]) | (string & {}) | Discord.Channel;
 export default class DiscordClient {
 	private readonly client: Discord.Client;
 	private readonly config: Config;
 	private readonly errorHandler: ErrorHandler;
+	private readonly impersonation: Impersonation;
 	private readonly interactionCollection: InteractionCollection;
 
 	public constructor(private readonly provider: Provider) {
 		this.config = provider.get(Config);
 		this.errorHandler = provider.get(ErrorHandler);
 		this.interactionCollection = provider.get(InteractionCollection);
+		this.impersonation = provider.get(Impersonation);
 		this.client = new Discord.Client({ intents: [Discord.GatewayIntentBits.Guilds] });
 		this.addListeners();
 	}
@@ -155,16 +158,26 @@ export default class DiscordClient {
 			this.errorHandler.handleInteractionError(error, interaction);
 		}
 	}
+
+	private async getInteractor(interaction: Discord.BaseInteraction) {
+		const id = this.impersonation.getId(interaction.user.id);
+		return this.getMember(id);
+	}
 	
 	private async executeInteraction(interaction: Discord.Interaction) {
+		const interactor = await this.getInteractor(interaction);
+		if (!interactor) {
+			throw new Error("Was unable to get information about you. If this problem persists, contact a moderator.");
+		}
+
 		if (interaction.isChatInputCommand()) {
-			this.interactionCollection.executeCommandInteraction(interaction.commandName, interaction);
+			this.interactionCollection.executeCommandInteraction(interaction.commandName, interaction, interactor);
 		} else if (interaction.isButton()) {
-			this.interactionCollection.executeButtonInteraction(interaction.customId, interaction);
+			this.interactionCollection.executeButtonInteraction(interaction.customId, interaction, interactor);
 		} else if (interaction.isContextMenuCommand()) {
-			this.interactionCollection.executeContextInteraction(interaction.commandName, interaction);
+			this.interactionCollection.executeContextInteraction(interaction.commandName, interaction, interactor);
 		} else if (interaction.type === Discord.InteractionType.ModalSubmit) {
-			this.interactionCollection.executeModalInteraction(interaction.customId, interaction);
+			this.interactionCollection.executeModalInteraction(interaction.customId, interaction, interactor);
 		} else {
 			throw new Error("This type of interaction is not supported. If this problem persists, contact a moderator.");
 		}

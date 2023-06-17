@@ -14,7 +14,7 @@ export default {
 			option.setName("template")
 			.setDescription("The id of the template to use")
 			.setRequired(false)),
-	async execute({interaction, provider}){
+	async execute({interaction, provider, interactor}){
 		const config = provider.get(Config);
 		const databaseClient = provider.get(DatabaseClient);
 		const sessionsCollection = provider.get(SessionsCollection);
@@ -34,7 +34,7 @@ export default {
 		}
 
 		await interaction.editReply({content: `Creating session...`});
-		await sessionsCollection.startNewSession(interaction.user.id, template);
+		await sessionsCollection.startNewSession(interactor.id, template);
 		await interaction.editReply({content: `Session has been made!`});
 	}
 } satisfies ICommandInteraction;

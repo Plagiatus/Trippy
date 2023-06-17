@@ -9,7 +9,7 @@ export default {
 		.setCustomId(`session-join:${sessionId}`)
 		.setLabel("join session")
 		.setStyle(ButtonStyle.Primary),
-	async execute({interaction, provider}){
+	async execute({interaction, provider, interactor}){
 		const sessionId = (/session-join:(.*)/).exec(interaction.customId)?.[1] ?? "";
 		const sessionsCollection = provider.get(SessionsCollection);
 		const session = sessionsCollection.getSession(sessionId);
@@ -24,7 +24,7 @@ export default {
 			return;
 		}
 
-		if (session.isUserInSession(interaction.user.id)) {
+		if (session.isUserInSession(interactor.id)) {
 			interaction.reply({content: "You are already in this session", ephemeral: true});
 			return;
 		}
@@ -35,6 +35,6 @@ export default {
 		}
 
 		await interaction.deferUpdate();
-		await session.join(interaction.user.id);
+		await session.join(interactor.id);
 	}
 } satisfies IButtonInteraction<[sessionId: string]>;

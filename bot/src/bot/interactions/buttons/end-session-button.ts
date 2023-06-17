@@ -9,7 +9,7 @@ export default {
 		.setCustomId(`session-end:${sessionId}`)
 		.setLabel("End Session")
 		.setStyle(ButtonStyle.Danger),
-	async execute({interaction, provider}) {
+	async execute({interaction, provider, interactor}) {
 		const sessionId = (/session-end:(.*)/).exec(interaction.customId)?.[1] ?? "";
 		const sessionsCollection = provider.get(SessionsCollection);
 		const session = sessionsCollection.getSession(sessionId);
@@ -25,7 +25,7 @@ export default {
 		}
 
 		await interaction.deferReply({ephemeral: true});
-		const didStopSession = await session.tryStopSession(interaction.user);
+		const didStopSession = await session.tryStopSession(interactor);
 		if (didStopSession) {
 			interaction.editReply({content: "Session has been stopped."});
 		} else {

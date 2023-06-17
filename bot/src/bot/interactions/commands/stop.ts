@@ -8,22 +8,22 @@ export default {
 	data: new SlashCommandBuilder()
 		.setName("stop")
 		.setDescription("Stops your session."),
-	async execute({interaction, provider}){
+	async execute({interaction, provider, interactor}){
 		const sessionsCollection = provider.get(SessionsCollection);
 
-		const session = sessionsCollection.getSessionFromChannel(interaction.channelId) ?? sessionsCollection.getHostedSession(interaction.user);
+		const session = sessionsCollection.getSessionFromChannel(interaction.channelId) ?? sessionsCollection.getHostedSession(interactor);
 		if (!session) {
 			interaction.reply({ephemeral: true, content: "You are not in any sessions which you can stop."});
 			return;
 		}
 
-		if (session.hostId !== interaction.user.id) {
+		if (session.hostId !== interactor.id) {
 			interaction.reply({ephemeral: true, content: "You can not stop this session."});
 			return;
 		}
 
 		await interaction.deferReply({ephemeral: true});
-		const didStop = await session.tryStopSession(interaction.user);
+		const didStop = await session.tryStopSession(interactor);
 		if (didStop) {
 			interaction.editReply({content: "Session has been stopped."});
 		} else {
