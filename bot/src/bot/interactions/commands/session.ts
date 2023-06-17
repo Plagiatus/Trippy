@@ -33,6 +33,16 @@ export default {
 			return;
 		}
 
+		if (sessionsCollection.getHostedSession(interactor.id)) {
+			await interaction.editReply({content: `You cannot start another session since you already are hosting one.`});
+			return;
+		}
+
+		if (sessionsCollection.getJoinedSession(interactor.id)) {
+			await interaction.editReply({content: `You cannot start a session since you currently are inside of a session.`});
+			return;
+		}
+
 		await interaction.editReply({content: `Creating session...`});
 		await sessionsCollection.startNewSession(interactor.id, template);
 		await interaction.editReply({content: `Session has been made!`});

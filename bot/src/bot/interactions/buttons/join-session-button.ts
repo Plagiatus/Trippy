@@ -25,7 +25,17 @@ export default {
 		}
 
 		if (session.isUserInSession(interactor.id)) {
-			interaction.reply({content: "You are already in this session", ephemeral: true});
+			interaction.reply({content: "You are already in this session.", ephemeral: true});
+			return;
+		}
+
+		if (sessionsCollection.getHostedSession(interactor.id)) {
+			interaction.reply({content: "You cannot join the session since you currently are hosting a session.", ephemeral: true});
+			return;
+		}
+
+		if (sessionsCollection.getJoinedSession(interactor.id)) {
+			interaction.reply({content: "You cannot join the session since you already are in a session.", ephemeral: true});
 			return;
 		}
 		

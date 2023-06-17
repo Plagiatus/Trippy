@@ -11,7 +11,7 @@ export default {
 	async execute({interaction, provider, interactor}){
 		const sessionsCollection = provider.get(SessionsCollection);
 
-		const session = sessionsCollection.getSessionFromChannel(interaction.channelId) ?? sessionsCollection.getSessionFromUser(interactor);
+		const session = sessionsCollection.getSessionFromChannel(interaction.channelId) ?? sessionsCollection.getJoinedSession(interactor);
 		if (!session) {
 			interaction.reply({ephemeral: true, content: "You are not in any sessions which you can leave."});
 			return;

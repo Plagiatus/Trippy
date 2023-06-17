@@ -59,13 +59,13 @@ export default class SessionsCollection {
 		}
 
 		const session = new Session(this.provider, newRawSession);
-		await session.startSession();
 		this.sessions.push(session);
+		await session.startSession();
 	}
 
 	public getSession(id: string) {
 		const sessionWithId = this.sessions.find(session => session.id === id);
-		if (!sessionWithId || sessionWithId.state !== "running") {
+		if (!sessionWithId || (sessionWithId.state !== "running" && sessionWithId.state !== "stopping")) {
 			return null;
 		}
 
@@ -76,7 +76,7 @@ export default class SessionsCollection {
 		return this.sessions.find(session => session.isChannelForSession(channel));
 	}
 
-	public getSessionFromUser(user: string|Discord.User|Discord.GuildMember) {
+	public getJoinedSession(user: string|Discord.User|Discord.GuildMember) {
 		const userId = typeof user === "string" ? user : user.id;
 		return this.sessions.find(session => session.isUserInSession(userId));
 	}
