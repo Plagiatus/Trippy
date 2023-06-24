@@ -7,15 +7,26 @@
 				</router-link>
 			</div>
 			<router-link class="nav-link" to="/">Home</router-link>
-			<router-link class="nav-link" to="/session">Session</router-link>
-			<router-link class="nav-link" to="/profile">Profiles</router-link>
+			<template v-if="authenticationHandler.isLoggedIn()">
+				<router-link class="nav-link" to="/session">Session</router-link>
+				<router-link class="nav-link" to="/profile">Profiles</router-link>
+			</template>
 			<span id="discord-in-nav">
-				<a href="https://discord.gg/G9u72eW" target="_blank" rel="noopener noreferrer"><img
-						src="/icons/Discord-Logo-White.svg" alt="Discord"></a>
+				<LoggedInUserDisplay v-if="authenticationHandler.isLoggedIn()"/>
+				<DiscordOAuthButton v-else/>
 			</span>
 		</nav>
 	</header>
 </template>
+
+<script setup lang="ts">
+import AuthenticationHandler from "@/authentication-handler";
+import useProvidedItem from "@/composables/use-provided-item";
+import DiscordOAuthButton from "./DiscordOAuthButton.vue";
+import LoggedInUserDisplay from "./LoggedInUserDisplay.vue";
+
+const authenticationHandler = useProvidedItem(AuthenticationHandler);
+</script>
 
 <style>
 header {
@@ -68,10 +79,5 @@ div#nav-logo-wrapper {
 	flex-grow: 1;
 	display: flex;
 	justify-content: flex-end;
-}
-
-#discord-in-nav img {
-	width: 2.5em;
-	height: 2.5em;
 }
 </style>

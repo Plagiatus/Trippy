@@ -54,3 +54,8 @@ export type RawSession = {
 });
 
 export type SessionTemplate = { readonly code: string; } & SessionBlueprint
+
+export type UserData = {
+	readonly id: string;
+	discordAuthToken?: string;
+}

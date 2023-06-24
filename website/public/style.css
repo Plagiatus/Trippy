@@ -24,6 +24,10 @@ body.palette2 {
 	--dark: #1D1128;
 }
 
+#app {
+	min-height: 100vh;
+}
+
 input,
 select,
 textarea {

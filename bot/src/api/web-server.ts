@@ -1,21 +1,24 @@
 import Config from "../config";
 import Provider from "../provider";
-import express, {Express} from "express";
+import express, {Express, RequestHandler} from "express";
 import utils from "../utils/utils";
 import cors from "cors";
 import RouteMaker from "./route";
 import WebResponses from "./responses";
 import bodyParser from "body-parser";
+import isAuthenticatedGuardFactory from "./guards/is-authenticated-guard-factory";
 
 export class WebServer {
 	private readonly server: Express;
 	private readonly config: Config;
 	private readonly responses: WebResponses;
+	private readonly isAuthenticatedGuard: RequestHandler;
 
 	public constructor(private readonly provider: Provider) {
 		this.server = express();
 		this.config = provider.get(Config);
 		this.responses = provider.get(WebResponses);
+		this.isAuthenticatedGuard = isAuthenticatedGuardFactory(provider);
 
 		this.server.use(bodyParser.json());
 		this.server.use(cors({
@@ -36,6 +39,7 @@ export class WebServer {
 			server: this.server, 
 			provider: this.provider,
 			responses: this.responses,
+			isAuthenticatedGuard: this.isAuthenticatedGuard,
 		});
 	}
 

@@ -190,7 +190,7 @@ async function loadCode() {
 	}
 	try {
 		if (reply.data) {
-			sessionTemplate.value = JSON.parse(reply.data);
+			sessionTemplate.value = reply.data;
 			data.loadingCodeLoading = false;
 			return;
 		}
@@ -215,10 +215,7 @@ async function submitSession() {
 	}
 	try {
 		if (reply.data) {
-			let responseData = JSON.parse(reply.data);
-			if(responseData.code){
-				data.sessionCode = responseData.code;
-			}
+			data.sessionCode = reply.data.code;
 
 			data.loadingSessionCode = false;
 			return;

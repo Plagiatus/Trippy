@@ -76,6 +76,8 @@ const configSchema: Schema = {
 		botToken: {type: "string", minLength: 10},
 		serverId: {type: "string", minLength: 18},
 		appId: {type: "string", minLength: 18},
+		oAuthSecret: {type: "string", minLength: 30},
+		jwtSecret: {type: "string", minLength: 16},
 		port: {type: "integer", minimum: 0, maximum: 65535},
 		db: {
 			type: "object",

@@ -62,7 +62,7 @@ export default class Provider {
 		return this;
 	}
 
-	public getRaw<T>(type: ItemType<T>) {
+	private getRaw<T>(type: ItemType<T>) {
 		const information = this.getItemInformation(type);
 
 		if (information.state === ItemState.notAdded) {
@@ -103,7 +103,12 @@ export default class Provider {
 				return key in getInstance();
 			},
 			get(_, key) {
-				return getInstance()[key];
+				const instance = getInstance();
+				const value = instance[key];
+				if (typeof value === "function") {
+					return value.bind(instance);
+				}
+				return value;
 			},
 			set(_, key, value) {
 				return getInstance()[key] = value;
@@ -130,7 +135,7 @@ export default class Provider {
 			information.state = ItemState.instantiated;
 		} catch(error) {
 			information.state = ItemState.notInstantiated;
-			throw error;
+			throw new Error(`Failed to instantiate ${information.type.name}: ${error}`);
 		}
 	}
 

@@ -1,6 +1,8 @@
 {
 	"botToken": "",
 	"appId": "",
+	"oAuthSecret": "",
+	"jwtSecret": "aRandomSecretValue",
 	"serverId": "",
 	"port": 9009,
 	"frontendUrl": "http://localhost:3000",

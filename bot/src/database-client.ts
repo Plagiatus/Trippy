@@ -3,7 +3,8 @@ import Provider from "./provider";
 import * as Mongo from "mongodb";
 import Repository from "./repositories/repository";
 import SessionRepository from "./repositories/session-repository";
-import { SessionTemplate } from "./types/document-types";
+import { SessionTemplate, UserData } from "./types/document-types";
+import UserRepository from "./repositories/user-repository";
 
 export default class DatabaseClient {
 	private client: Mongo.MongoClient;
@@ -11,6 +12,7 @@ export default class DatabaseClient {
 
 	public readonly sessionTemplateRepository: Repository<SessionTemplate, "code">;
 	public readonly sessionRepository: SessionRepository;
+	public readonly userRepository: UserRepository;
 
 	public constructor(provider: Provider) {
 		this.config = provider.get(Config);
@@ -18,7 +20,8 @@ export default class DatabaseClient {
 
 		const db = this.client.db(this.config.databaseName);
 		this.sessionTemplateRepository = new Repository(provider, db.collection("Templates"), "code");
-		this.sessionRepository = new SessionRepository(provider, db.collection("Sessions"), "id");
+		this.sessionRepository = new SessionRepository(provider, db.collection("Sessions"));
+		this.userRepository = new UserRepository(provider, db.collection("Users"));
 	}
 
 	public async connect() {

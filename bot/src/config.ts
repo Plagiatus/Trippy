@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import path from "path";
-import { validate, type Schema } from "jsonschema";
+import { validate } from "jsonschema";
 import utils from "./utils/utils";
 import jsonSchemas from "./utils/json-schemas";
 
@@ -8,6 +8,8 @@ export type RawConfig = {
 	botToken: string,
 	appId: string,
 	serverId: string,
+	oAuthSecret: string,
+	jwtSecret: string,
 	port: number,
 	frontendUrl: string,
 	db: {
@@ -68,6 +70,14 @@ export default class Config {
 
 	public get discordAppId() {
 		return this.rawConfig.appId;
+	}
+
+	public get discordOAuthSecret() {
+		return this.rawConfig.oAuthSecret;
+	}
+
+	public get jwtSecret() {
+		return this.rawConfig.jwtSecret;
 	}
 
 	public get databaseName() {
