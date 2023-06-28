@@ -2,7 +2,8 @@ import { Ref, shallowRef } from "vue";
 import Provider from "./provider/provider";
 import { router } from "./router";
 import Storage from "./storage";
-import AuthenticationApiClient from "./api-clients/authentication-api-client";
+import AuthenticationApiClient, { JwtInformation } from "./api-clients/authentication-api-client";
+import utils from "./utils/utils";
 
 type RefreshInformation = {
 	jwtExpiresAt: number;
@@ -48,6 +49,15 @@ export default class AuthenticationHandler {
 
 	public get userInformation(): UserInformation|null {
 		return this.changeableUserInformationRef.value;
+	}
+
+	public get refreshRequired() {
+		const refreshInformation = this.storage.get<RefreshInformation>(AuthenticationHandler.refreshInformationStorageKey);
+		if (!refreshInformation) {
+			return false;
+		}
+
+		return (Date.now() >= refreshInformation.jwtExpiresAt && this.jwt)
 	}
 
 	public isLoggedIn(): this is Omit<AuthenticationHandler,"userInformation">&{userInformation: UserInformation} {
@@ -110,13 +120,17 @@ export default class AuthenticationHandler {
 			return false;
 		}
 
-		const newRefreshInformation: RefreshInformation = {
-			jwtExpiresAt: response.data.expiresIn + Date.now(),
-			refreshToken: response.data.refreshToken,
-		}
-		this.storage.set(AuthenticationHandler.refreshInformationStorageKey, newRefreshInformation);
+		this.handleJwtInformation(response.data);
+		return true;
+	}
 
-		this.setJwt(response.data.jwt);
+	public async authenticateUsingLoginToken(token: string) {
+		const response = await this.authenticationApiClient.authenticateUsingLoginToken(token);
+		if (!response.data) {
+			return false;
+		}
+
+		this.handleJwtInformation(response.data);
 		return true;
 	}
 
@@ -174,13 +188,12 @@ export default class AuthenticationHandler {
 			this.changeableUserInformationRef.value = null;
 			return;
 		} else {
-			const jwtBody = newJwt.split(".")[1];
-			const jwtBodyJson = atob(jwtBody);
-			const parsedJwtBody = JSON.parse(jwtBodyJson);
+			const jwtBody: any = utils.getJwtBody(newJwt); // jwt is coming from the backend so we trust it's of the correct type.
+
 			this.changeableUserInformationRef.value = {
-				avatar: parsedJwtBody.avatar,
-				name: parsedJwtBody.name,
-				userId: parsedJwtBody.userId,
+				avatar: jwtBody.avatar,
+				name: jwtBody.name,
+				userId: jwtBody.userId,
 			};
 			this.storage.set(AuthenticationHandler.useInformationStorageKey, this.changeableUserInformationRef.value);
 		}
@@ -188,7 +201,17 @@ export default class AuthenticationHandler {
 
 	private get defaultAuthenticatedRedirectUrl() {
 		const origin = new URL(location.href).origin;
-		const authenticatedPath = router.resolve({name: "Authenticated"}).fullPath;
+		const authenticatedPath = router.resolve({name: "Login.Authenticated"}).fullPath;
 		return origin + authenticatedPath;
+	}
+
+	private handleJwtInformation(jwtInformation: JwtInformation) {
+		const newRefreshInformation: RefreshInformation = {
+			jwtExpiresAt: jwtInformation.expiresIn + Date.now(),
+			refreshToken: jwtInformation.refreshToken,
+		}
+		this.storage.set(AuthenticationHandler.refreshInformationStorageKey, newRefreshInformation);
+
+		this.setJwt(jwtInformation.jwt);
 	}
 }

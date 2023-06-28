@@ -8,7 +8,7 @@ import ErrorHandler from "./bot/error-handler";
 import InteractionCollection from "./bot/interaction-collection";
 import SessionsCollection from "./session/sessions-collection";
 import Impersonation from "./impersonation";
-import UserAuthenticator from "./api/user-authenticator";
+import AuthenticationService from "./authentication-service";
 
 async function start(){
 	console.log("Starting...");
@@ -22,7 +22,7 @@ async function start(){
 		.add(ErrorHandler)
 		.add(SessionsCollection)
 		.add(Impersonation)
-		.add(UserAuthenticator)
+		.add(AuthenticationService)
 		.addFactory(InteractionCollection, provider => new InteractionCollection(provider, InteractionCollection.importInteractions()));
 
 	await provider.get(DatabaseClient).connect();

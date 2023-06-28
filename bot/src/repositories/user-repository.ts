@@ -1,4 +1,3 @@
-import { ObjectId, WithId } from "mongodb";
 import { UserData } from "../types/document-types";
 import Repository from "./repository";
 import Provider from "../provider";
@@ -11,13 +10,26 @@ export default class UserRepository extends Repository<UserData,"id"> {
 	
 	public override async get(id: string): Promise<UserData> {
 		const data = await super.get(id);
-		return data ?? this.getNewUserData(id);
+		return this.updateUserData(data ?? this.getNewUserData(id));
 	}
+
+	public override async update(document: UserData) {
+		return await this.collection.replaceOne(this.getQueryForDocument(document), document, {upsert: true});
+	}
+
 
 	private getNewUserData(id: string): UserData {
 		return {
 			id: id,
-			discordAuthToken: undefined
+			discordAuthToken: undefined,
+			loginId: 0,
 		}
+	}
+
+	private updateUserData(data: UserData): UserData {
+		if (!data.loginId) {
+			data.loginId = 0;
+		}
+		return data;
 	}
 }

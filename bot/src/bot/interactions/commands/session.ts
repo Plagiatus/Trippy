@@ -1,13 +1,14 @@
-import { SlashCommandBuilder } from "discord.js";
+import * as Discord from "discord.js";
 import { ICommandInteraction } from "../../interaction-types";
 import Config from "../../../config";
 import DatabaseClient from "../../../database-client";
 import SessionsCollection from "../../../session/sessions-collection";
+import AuthenticationService from "../../../authentication-service";
 
 export default {
 	name: "session",
 	type: "COMMAND",
-	data: new SlashCommandBuilder()
+	data: new Discord.SlashCommandBuilder()
 		.setName("session")
 		.setDescription("Used for starting sessions.")
 		.addStringOption(option => 
@@ -22,7 +23,21 @@ export default {
 		const templateId = interaction.options.getString("template", false);
 
 		if (templateId === null) {
-			interaction.reply({content: `To create a session you need to create a template here ${config.frontendUrl}/session/setup.`, ephemeral: true});
+			const sessionSetupUrl = `${config.frontendUrl}/session/setup`;
+			const authenticationService = provider.get(AuthenticationService);
+			const loginAndSessionSetupUrl = await authenticationService.createLoginLinkWithRedirect(sessionSetupUrl, interactor.id);
+
+			interaction.reply({
+				content: `Click the button below to get to the session setup website.`, ephemeral: true,
+				components: [
+					new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(
+						new Discord.ButtonBuilder()
+							.setURL(loginAndSessionSetupUrl)
+							.setLabel("Create session")
+							.setStyle(Discord.ButtonStyle.Link)
+					)
+				]
+			});
 			return;
 		}
 

@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import Provider from "../../provider";
-import UserAuthenticator from "../user-authenticator";
+import AuthenticationService from "../../authentication-service";
 
 export default function isAuthenticatedGuardFactory(provider: Provider) {
-	const userAuthenticator = provider.get(UserAuthenticator);
+	const userAuthenticator = provider.get(AuthenticationService);
 
 	return async (req: Request, res: Response, next: NextFunction) => {
 		const authorizationHeader = req.headers["authorization"];

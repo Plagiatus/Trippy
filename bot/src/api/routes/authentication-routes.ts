@@ -1,8 +1,8 @@
-import UserAuthenticator from "../user-authenticator";
+import AuthenticationService from "../../authentication-service";
 import RouteMaker from "../route";
 
 export default (({server, responses, provider}) => { 
-	const userAuthenticator = provider.get(UserAuthenticator);
+	const userAuthenticator = provider.get(AuthenticationService);
 
     server.route("/authentication/code")
         .post(async (req, res) => {
@@ -15,9 +15,39 @@ export default (({server, responses, provider}) => {
             try {
 			    const tokenData = await userAuthenticator.authenticateFromAuthorizationCode(code);
 			    res.send(tokenData);
-            } catch(error) {
-                console.log(error);
+            } catch {
                 responses.sendCustomError("Unable to authenticate using the given code.", res);
+            }
+        })
+        .all(responses.wrongMethod);
+
+    server.route("/authentication/login-token")
+        .get(async (req, res) => {
+            const token = req.query.token;
+            if (typeof token !== "string") {
+                responses.sendCustomError("No token was given.", res);
+                return;
+            }
+
+            try {
+			    const userInformation = await userAuthenticator.getInformationFromLoginToken(token);
+			    res.send(userInformation);
+            } catch {
+                responses.sendCustomError("Unable to get user information from token.", res);
+            }
+        })
+        .post(async (req, res) => {
+            const token = req.body.token;
+            if (typeof token !== "string") {
+                responses.sendCustomError("No token was given.", res);
+                return;
+            }
+
+            try {
+			    const tokenData = await userAuthenticator.authenticateFromLoginToken(token);
+			    res.send(tokenData);
+            } catch {
+                responses.sendCustomError("Unable to authenticate using the given token.", res);
             }
         })
         .all(responses.wrongMethod);
