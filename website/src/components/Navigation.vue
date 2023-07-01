@@ -6,14 +6,14 @@
 					<img id="nav-logo" src="/logo.png" alt="">
 				</router-link>
 			</div>
-			<router-link class="nav-link" to="/">Home</router-link>
+			<navigation-button route-to="/">Home</navigation-button>
 			<template v-if="authenticationHandler.isLoggedIn()">
-				<router-link class="nav-link" to="/session">Session</router-link>
-				<router-link class="nav-link" to="/profile">Profiles</router-link>
+				<navigation-button route-to="/session">Session</navigation-button>
+				<navigation-button route-to="/profile">Profiles</navigation-button>
 			</template>
 			<span id="discord-in-nav">
-				<LoggedInUserDisplay v-if="authenticationHandler.isLoggedIn()"/>
-				<DiscordOAuthButton v-else/>
+				<logged-in-user-display v-if="authenticationHandler.isLoggedIn()"/>
+				<discord-o-auth-button v-else/>
 			</span>
 		</nav>
 	</header>
@@ -24,6 +24,7 @@ import AuthenticationHandler from "@/authentication-handler";
 import useProvidedItem from "@/composables/use-provided-item";
 import DiscordOAuthButton from "./DiscordOAuthButton.vue";
 import LoggedInUserDisplay from "./LoggedInUserDisplay.vue";
+import NavigationButton from "./NavigationButton.vue";
 
 const authenticationHandler = useProvidedItem(AuthenticationHandler);
 </script>
@@ -47,22 +48,6 @@ nav#main-nav {
 header#nav-spacer,
 nav#main-nav {
 	height: 4em;
-}
-
-.nav-link {
-	color: var(--text-color);
-	padding: 0.25em 0.5em;
-	margin: 0 0.1em;
-	text-decoration: none;
-	border-radius: 0.3em;
-}
-
-.nav-link:hover {
-	background-color: var(--dark);
-}
-
-.nav-link.router-link-active {
-	background-color: var(--background);
 }
 
 img#nav-logo {

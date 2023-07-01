@@ -5,7 +5,7 @@
 			<br>
 			<input type="text" name="feedbackID" id="feedbackID" v-model="data.feedbackId"
 				placeholder="9623e042-60af-443e-9b32-79cc077bd5d2" size="36" required>
-			<button class="btn" @click="updateID">GO</button>
+			<normal-button @click="updateID">GO</normal-button>
 		</form>
 		<div id="filled-feedback-wrapper" v-else>
 			<span id="feedback-id-display">
@@ -20,7 +20,7 @@
 				correct code!</span>
 			<br>
 			<input type="text" v-model="data.feedbackId" placeholder="9623e042-60af-443e-9b32-79cc077bd5d2" size="36">
-			<button class="btn" @click="updateID" required>GO</button>
+			<normal-button class="btn" @click="updateID" required>GO</normal-button>
 		</div>
 	</div>
 </template>
@@ -30,6 +30,7 @@ import { useRoute, useRouter } from "vue-router";
 import { shallowReactive, watch } from "vue";
 import FeedbackApiClient from "@/api-clients/feedback-api-client";
 import useProvidedItem from "@/composables/use-provided-item";
+import NormalButton from "@/components/NormalButton.vue";
 
 const route = useRoute();
 const router = useRouter();

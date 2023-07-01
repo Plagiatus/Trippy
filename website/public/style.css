@@ -1,19 +1,18 @@
 body {
 	--text-color: #fbfbff;
 	--background: #00ACED;
-	--background2: #0b4F6C;
+	--background2: #126c92;
 	--highlight: #B80C09;
-	--dark: #040F16;
 
 	--text-color-filter: brightness(0) saturate(100%) invert(85%) sepia(26%) saturate(362%) hue-rotate(201deg) brightness(101%) contrast(124%);
 
 	color: var(--text-color);
 	background: var(--background);
 	
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+	font-family: Avenir, Helvetica, Arial, sans-serif;
 
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 body.palette2 {
@@ -21,84 +20,17 @@ body.palette2 {
 	--background: #00ACED;
 	--background2: #0b4F6C;
 	--highlight: #5941A9;
-	--dark: #1D1128;
 }
 
 #app {
 	min-height: 100vh;
 }
 
-input,
-select,
-textarea {
-	padding: .375rem .75rem;
-	color: #212529;
-	border: 1px solid #ced4da;
-	border-radius: .25rem;
-	display: block;
-	font: inherit;
-	background-color: #fff;
-}
-
-button.btn {
-	background-color: var(--background2);
-	color: var(--text-color);
-	border-radius: 0.2em;
+input, textarea, button {
+	background-color: transparent;
 	border: none;
-	padding: 0.4em 1.5em;
-	font-weight: 600;
-	cursor: pointer;
-	height: 2em;
-	position: relative;
-	margin: .25rem 0;
-}
-
-button.btn.dark {
-	background-color: var(--dark);
-}
-button.btn.highlight {
-	background-color: var(--highlight);
-}
-
-button.btn:disabled {
-	filter: opacity(0.75);
-}
-
-.error-display {
-	color: #700;
-	background-color: #ffe3e3;
-	padding: .2em;
-	margin: .2em;
-	border-radius: .1em;
-	display: block;
 }
 
 a {
 	color: inherit;
-}
-
-.highlight {
-	background-color: var(--highlight);
-}
-
-.highlight-text {
-	color: var(--highlight);
-}
-
-input.perform-validation:not(:valid),
-select.perform-validation:not(:valid), 
-textarea.perform-validation:not(:valid) {
-	border-color: red;
-	border-style: solid;
-	outline: none;
-	background-color: rgb(255, 219, 219);
-}
-
-label.required::after {
-	content: "*";
-	color: var(--highlight);
-}
-
-.hidden {
-	display: none;
 }

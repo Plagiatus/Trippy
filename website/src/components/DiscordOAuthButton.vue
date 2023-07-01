@@ -1,14 +1,15 @@
 <template>
-	<button @click="startOAuth" class="discord-oauth-button">
+	<navigation-button class="discord-oauth-button" @click="startOAuth">
 		<span class="text">Login with Discord</span>
 		<img class="image" src="/icons/Discord-Logo-White.svg" alt="Discord">
-	</button>
+	</navigation-button>
 </template>
 
 <script setup lang="ts">
 import useProvidedItem from '@/composables/use-provided-item';
 import Config from '@/config';
 import AuthenticationHandler from '@/authentication-handler';
+import NavigationButton from './NavigationButton.vue';
 
 const authenticationHandler = useProvidedItem(AuthenticationHandler);
 const config = useProvidedItem(Config);
@@ -28,14 +29,6 @@ function startOAuth() {
 .discord-oauth-button {
 	display: flex;
 	align-items: center;
-	background-color: transparent;
-	border: none;
-	cursor: pointer;
-	border-radius: 0.3em;
-}
-
-.discord-oauth-button:hover {
-	background-color: var(--dark);
 }
 
 .text {

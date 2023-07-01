@@ -1,11 +1,10 @@
 <template>
-	<div>
+	<div class="session-setup-page">
 		<form @submit.prevent="loadCode" id="load-code-form">
 			<label for="loadingCode">Setup Code (this will overwrite your inputs so far!)</label>
 			<input type="text" v-model="data.loadingCode" id="loadingCode" maxlength="5" size="5" pattern="^[a-zA-Z0-9]{5}$" v-validateFormat>
 			<span class="error-display" v-if="data.loadCodeError">{{ data.loadCodeError }}</span>
-			<loading-button :text="'Go'" :loading="data.loadingCodeLoading" :type="'submit'" :success-text="'Ok'">
-			</loading-button>
+			<loading-button text="Go" :loading="data.loadingCodeLoading" :type="'submit'" success-text="Loaded!"/>
 		</form>
 		<form @submit.prevent="submitSession">
 			<h2>Info</h2>
@@ -31,7 +30,7 @@
 					</optgroup>
 				</select>
 			</template>
-			<div :class="{hidden: sessionTemplate.edition != 'other'}">
+			<div v-if="sessionTemplate.edition === 'other'">
 				<label for="version-other">Version</label>
 				<input type="text" name="version" id="version-other" v-model="sessionTemplate.version" v-requiredWithStar v-validateFormat>
 			</div>
@@ -231,7 +230,7 @@ onMounted(async () => {
 });
 </script>
 
-<style>
+<style scoped>
 #map-image-preview {
 	max-width: 200px;
 	max-height: 200px;
@@ -244,5 +243,48 @@ onMounted(async () => {
 	border: 1px solid var(--text-color);
 	border-radius: .25em;
 	font-family: 'Courier New', Courier, monospace;
+}
+
+.session-setup-page input,
+.session-setup-page select,
+.session-setup-page textarea {
+	padding: .375rem .75rem;
+	color: #212529;
+	border: 1px solid #ced4da;
+	border-radius: .25rem;
+	display: block;
+	font: inherit;
+	background-color: #fff;
+}
+
+.error-display {
+	color: #700;
+	background-color: #ffe3e3;
+	padding: .2em;
+	margin: .2em;
+	border-radius: .1em;
+	display: block;
+}
+
+.highlight {
+	background-color: var(--highlight);
+}
+
+.highlight-text {
+	color: var(--highlight);
+}
+
+.session-setup-page input.perform-validation:not(:valid),
+.session-setup-page select.perform-validation:not(:valid), 
+.session-setup-page textarea.perform-validation:not(:valid) {
+	border-color: red;
+	border-style: solid;
+	outline: none;
+	background-color: rgb(255, 219, 219);
+}
+
+.session-setup-page label.required::after {
+	content: "*";
+	color: var(--highlight);
 }
 </style>

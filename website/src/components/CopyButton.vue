@@ -1,7 +1,6 @@
 <template>
-	<button type="button" class="btn copy-btn" @click="copyData">
-		<img class="copy-icon" src="/icons/copy.svg" alt="Copy">
-		<span class="copy-confirmation" v-if="data.textVisible">copied</span>
+	<button type="button" class="copy-button" @click="copyData">
+		<img class="copy-icon" :src="data.displayConfirmation ? '/icons/checkmark.svg': '/icons/copy.svg'" alt="Copy">
 	</button>
 </template>
 
@@ -14,7 +13,7 @@ const props = defineProps<{
 
 const data = shallowReactive({
 	textHideTimeout: null as null|number,
-	textVisible: false,
+	displayConfirmation: false,
 })
 
 function copyData() {
@@ -22,32 +21,21 @@ function copyData() {
 	if (data.textHideTimeout) {
 		clearTimeout(data.textHideTimeout);
 	}
-	data.textVisible = true;
+	data.displayConfirmation = true;
 	data.textHideTimeout = setTimeout(() => {
-		data.textVisible = false;
+		data.displayConfirmation = false;
 	}, 1000);
 }
 </script>
 
-<style>
-button.copy-btn {
-	padding-left: 0.5em;
-	padding-right: 0.5em;
+<style scoped>
+.copy-button {
+	cursor: pointer;
 }
 
 .copy-icon {
 	width: 1em;
 	height: 1em;
 	filter: var(--text-color-filter);
-	position: relative;
-}
-
-.copy-confirmation {
-	position: absolute;
-	top: 0;
-	left: 2.5em;
-	border: 1px solid var(--text-color);
-	padding: 0.2em;
-	border-radius: 0.2em;
 }
 </style>

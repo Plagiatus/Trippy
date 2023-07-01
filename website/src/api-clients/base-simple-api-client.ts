@@ -1,37 +1,17 @@
-import Provider from "@/provider/provider";
+import AuthenticationHandler from "@/authentication-handler";
 import Config from "@/config";
+import Provider from "@/provider/provider";
 
-export type JwtInformation = {
-	jwt: string;
-	refreshToken: string;
-	expiresIn: number;
-}
-
-// Can't extend BaseApiClient because it creates a dependency loop.
-export default class AuthenticationApiClient {
-	private readonly config: Config;
+export default abstract class BaseSimpleApiClient {
+	protected readonly config: Config;
+	private readonly authenticationHandler: AuthenticationHandler;
 
 	public constructor(provider: Provider) {
 		this.config = provider.get(Config);
+		this.authenticationHandler = provider.get(AuthenticationHandler);
 	}
 
-	public async authenticateUsingAuthorizationCode(code: string) {
-		return this.post<JwtInformation>(`authentication/code`, { code });
-	}
-
-	public async refreshJwt(refreshToken: string) {
-		return this.post<JwtInformation>(`authentication/refresh`, { refreshToken });
-	}
-
-	public async authenticateUsingLoginToken(token: string) {
-		return this.post<JwtInformation>(`authentication/login-token`, { token });
-	}
-
-	public async getInformationFromLoginToken(token: string) {
-		return this.get<{name: string, avatar: string|null}>(`authentication/login-token`, { token });
-	}
-
-	private async get<TResult>(path: string, params?: Record<string,string>) {
+	protected async get<TResult>(path: string, params?: Record<string,string>, options?: {useAuth?: boolean}) {
 		return this.wrapRequest<TResult>(async () => {
 			const url = new URL(this.getFullPath(path));
 			if (params) {
@@ -49,7 +29,7 @@ export default class AuthenticationApiClient {
 		});
 	}
 
-	private async post<TResult>(path: string, data?: unknown) {
+	protected async post<TResult>(path: string, data?: unknown, options?: {useAuth?: boolean}) {
 		return this.wrapRequest<TResult>(async () => {
 			return await fetch(this.getFullPath(path), {
 				method: "POST",

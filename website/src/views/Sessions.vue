@@ -1,37 +1,16 @@
 <template>
 	<div id="sessions-wrapper">
-		<router-link class="sessions-link" :to="{ name: 'Sessions.Setup' }">
-			<img src="/icons/add.svg" alt="New Session">
-			<span>Set up a new session</span>
-		</router-link>
-		<router-link class="sessions-link" :to="{ name: 'Sessions.Feedback' }">
-			<img src="/icons/user-feedback.svg" alt="Show feedback">
-			<span>View feedback</span>
-		</router-link>
+		<big-icon-button icon="/icons/add.svg" title="Set up a new session" :routeTo="{ name: 'Sessions.Setup' }"/>
+		<big-icon-button icon="/icons/user-feedback.svg" title="View feedback" :routeTo="{ name: 'Sessions.Feedback' }"/>
 	</div>
 </template>
 
+<script setup lang="ts">
+import BigIconButton from '@/components/BigIconButton.vue';
+
+</script>
+
 <style>
-.sessions-link {
-	text-decoration: none;
-	color: var(--text-color);
-	margin: 2rem;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-}
-
-.sessions-link > img {
-	filter: var(--text-color-filter);
-	width: 100%;
-	width: 200px;
-}
-
-.sessions-link > span {
-	font-size: 2em;
-	font-weight: bold;
-}
-
 #sessions-wrapper {
 	display: flex;
 	flex-direction: row;

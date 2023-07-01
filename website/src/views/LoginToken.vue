@@ -1,15 +1,12 @@
 <template>
 	<div class="token-login-view">
-		<template v-if="!data.loggingInAs">
-			<LoadingSpinner/>
-			<p>Loading...</p>
-		</template>
+		<loading-spinner v-if="!data.loggingInAs"/>
 		<template v-else>
 			<img class="avatar" v-if="data.loggingInAs.avatar" :src="data.loggingInAs.avatar"/>
 			<p class="text">You are about to login as <span class="username">{{data.loggingInAs.name}}</span></p>
 			<div class="buttons-collection">
-				<button @click="cancelLogin">Cancel</button>
-				<LoadingButton @click="login" :loading="data.isLoggingIn" text="Login"/>
+				<normal-button @click="cancelLogin">Cancel</normal-button>
+				<loading-button @click="login" :loading="data.isLoggingIn" text="Login"/>
 			</div>
 		</template>
 	</div>
@@ -24,6 +21,7 @@ import { useRoute, useRouter } from 'vue-router';
 import utils from '@/utils/utils';
 import AuthenticationApiClient from '@/api-clients/authentication-api-client';
 import LoadingButton from '@/components/LoadingButton.vue';
+import NormalButton from '@/components/NormalButton.vue';
 
 const data = shallowReactive({
 	loggingInAs: null as {name: string, avatar: string|null}|null,
