@@ -7,18 +7,18 @@ export type SessionBlueprint = {
 	version: string;
 	server: ServerType;
 	preferences: SessionPreferences;
+	voiceChannels: VoiceChannelBlueprint[];
 	
 	rpLink?: string;
-	voiceChannels?: VoiceChannelBlueprint[];
 	image?: string;
-	testDescription?: string;
+	ping?: boolean;
 }
 
 export type SessionPreferences = {
 	communication?: Communication;
 	newPlayers?: NewPlayers;
 	timeEstimate?: number;
-	players?: {
+	players: {
 		min?: number;
 		max?: number;
 	}
@@ -44,3 +44,8 @@ type SessionType = "test"|"record"|"fun"|"stream";
 type SessionCategory = "parkour"|"pvp"|"pve"|"puzzle"|"stategy"|"hns"|"ctm"|"multiple"|"other";
 type Communication = "none" | "vc_encouraged" | "voice_encouraged" | "vc_required" | "voice_required";
 type NewPlayers = "none" | "new" | "exp";
+
+export type PartialSessionBlueprint = Partial<SessionBlueprint>&{
+	preferences: Partial<SessionPreferences>&{players: { min?: number, max?: number }};
+	voiceChannels: VoiceChannelBlueprint[];
+}

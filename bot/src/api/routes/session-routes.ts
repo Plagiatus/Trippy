@@ -38,7 +38,7 @@ export default (({server, responses, provider, isAuthenticatedGuard}) => {
                 return responses.sendCustomError("No template with the given code.", res);
             }
 
-            res.send(template);
+            res.send({...template, code: undefined});
         })
         .all(responses.wrongMethod);
 }) satisfies RouteMaker

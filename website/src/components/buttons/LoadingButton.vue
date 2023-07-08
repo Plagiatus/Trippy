@@ -6,7 +6,7 @@
 		:type="type"
 		:color="color"
 	>
-		<span class="text">{{textToDisplay}}</span>
+		<span class="text">{{text}}</span>
 		<span class="success-text">{{successText}}</span>
 		<loading-spinner v-if="loading" class="loading-spinner" :size="1" :color="loadingSpinnerColor"/>
 	</normal-button>
@@ -15,11 +15,11 @@
 <script setup lang="ts">
 import { computed, shallowReactive, watch } from 'vue';
 import NormalButton from './NormalButton.vue';
-import LoadingSpinner from './LoadingSpinner.vue';
+import LoadingSpinner from '../LoadingSpinner.vue';
 
 const props = defineProps<{
 	text: string;
-	loading?: boolean;
+	loading: boolean;
 	successText?: string;
 	disabled?: boolean;
 	type?: "button"|"submit"|"reset";
@@ -48,15 +48,15 @@ watch(() => props.loading, () => {
 
 	data.successClearTimeout !== null && clearTimeout(data.successClearTimeout);
 
+	if (props.successText === undefined) {
+		data.success = false;
+		return;
+	}
+
 	data.success = true;
 	data.successClearTimeout = setTimeout(() => {
 		data.success = false;
 	}, 1000);
-});
-
-const textToDisplay = computed(() =>{
-	if (data.success) return props.successText;
-	return props.text;
 });
 </script>
 
@@ -74,15 +74,18 @@ const textToDisplay = computed(() =>{
 
 .success>.text {
 	opacity: 0;
-	height: 0px;
+	height: 0;
+	pointer-events: none;
 }
 .loading>.text {
 	opacity: 0;
+	pointer-events: none;
 }
 
 .success-text {
 	opacity: 0;
-	height: 0px;
+	height: 0;
+	pointer-events: none;
 }
 
 .success>.success-text {

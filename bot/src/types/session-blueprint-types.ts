@@ -7,18 +7,18 @@ export type SessionBlueprint = {
 	version: string;
 	server: ServerType;
 	preferences: SessionPreferences;
+	voiceChannels: VoiceChannelBlueprint[];
 	
 	rpLink?: string;
-	voiceChannels?: VoiceChannelBlueprint[];
 	image?: string;
-	testDescription?: string;
+	ping?: boolean;
 }
 
 export type SessionPreferences = {
 	communication?: Communication;
 	newPlayers?: NewPlayers;
 	timeEstimate?: number;
-	players?: {
+	players: {
 		min?: number;
 		max?: number;
 	}

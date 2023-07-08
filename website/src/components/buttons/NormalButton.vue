@@ -19,6 +19,7 @@ defineProps<{
 	padding: 0.25em 0.5em;
 	border-radius: 0.3em;
 	color: inherit;
+	white-space: nowrap;
 }
 
 .normal-button:hover {
@@ -34,6 +35,10 @@ defineProps<{
 	cursor: default;
 }
 
+.normal-button:focus-within {
+	outline: 2px solid var(--highlight);
+}
+
 .background {
 	background-color: var(--background);
 }
@@ -44,6 +49,10 @@ defineProps<{
 
 .highlight {
 	background-color: var(--highlight);
+}
+
+.highlight:focus-within {
+	outline: 2px solid var(--background2);
 }
 
 </style>

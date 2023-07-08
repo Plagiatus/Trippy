@@ -12,7 +12,7 @@
 <script setup lang="ts">
 import AuthenticationHandler from '@/authentication-handler';
 import useProvidedItem from '@/composables/use-provided-item';
-import NavigationButton from './NavigationButton.vue';
+import NavigationButton from './buttons/NavigationButton.vue';
 
 const authenticationHandler = useProvidedItem(AuthenticationHandler);
 

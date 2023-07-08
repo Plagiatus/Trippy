@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import BigIconButton from '@/components/BigIconButton.vue';
+import BigIconButton from '@/components/buttons/BigIconButton.vue';
 
 </script>
 

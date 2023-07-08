@@ -20,8 +20,8 @@ import { computed, onMounted, shallowReactive } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import utils from '@/utils/utils';
 import AuthenticationApiClient from '@/api-clients/authentication-api-client';
-import LoadingButton from '@/components/LoadingButton.vue';
-import NormalButton from '@/components/NormalButton.vue';
+import LoadingButton from '@/components/buttons/LoadingButton.vue';
+import NormalButton from '@/components/buttons/NormalButton.vue';
 
 const data = shallowReactive({
 	loggingInAs: null as {name: string, avatar: string|null}|null,

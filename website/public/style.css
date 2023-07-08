@@ -2,7 +2,10 @@ body {
 	--text-color: #fbfbff;
 	--background: #00ACED;
 	--background2: #126c92;
-	--highlight: #B80C09;
+	--highlight: #07ebb9;
+	--background-error: #8f2a2a;
+	--background-input: white;
+	--input-text-color: black;
 
 	--text-color-filter: brightness(0) saturate(100%) invert(85%) sepia(26%) saturate(362%) hue-rotate(201deg) brightness(101%) contrast(124%);
 
@@ -26,7 +29,7 @@ body.palette2 {
 	min-height: 100vh;
 }
 
-input, textarea, button {
+input, textarea, button, select {
 	background-color: transparent;
 	border: none;
 }

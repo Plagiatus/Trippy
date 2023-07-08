@@ -65,7 +65,8 @@ export default class AuthenticationApiClient {
 		try {
 			const response = await wrapper();
 			if (!response.ok) {
-				return { error: { status: response.status, statusText: response.statusText }}
+				const statusError = { status: response.status, statusText: response.statusText };
+				return { error: statusError, statusError: statusError}
 			}
 
 			const responseText = await response.text();

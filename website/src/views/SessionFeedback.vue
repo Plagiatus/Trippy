@@ -30,7 +30,7 @@ import { useRoute, useRouter } from "vue-router";
 import { shallowReactive, watch } from "vue";
 import FeedbackApiClient from "@/api-clients/feedback-api-client";
 import useProvidedItem from "@/composables/use-provided-item";
-import NormalButton from "@/components/NormalButton.vue";
+import NormalButton from "@/components/buttons/NormalButton.vue";
 
 const route = useRoute();
 const router = useRouter();
