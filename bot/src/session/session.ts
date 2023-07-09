@@ -44,6 +44,10 @@ export default class Session {
 		return this.rawSession.state;
 	}
 
+	public get isRunningOrStopping() {
+		return this.rawSession.state === "running" || this.rawSession.state === "stopping";
+	}
+
 	public get playerCount() {
 		return this.rawSession.players.filter(player => player.leaveTime === undefined).length;
 	}

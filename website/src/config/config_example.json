@@ -1,4 +1,5 @@
 {
 	"apiUrl": "http://localhost:9009",
-	"discordOAuthClientId": ""
+	"discordOAuthClientId": "",
+	"discordInvite": "https://discord.gg/G9u72eW"
 }

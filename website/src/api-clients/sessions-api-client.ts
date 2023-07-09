@@ -7,6 +7,10 @@ export default class SessionsApiClient extends BaseApiClient {
 		super(provider);
 	}
 
+	public async createSession(template: SessionBlueprint) {
+		return this.post<{sessionId: string}>(`session`, template);
+	};
+
 	public async getTemplateByCode(code: string) {
 		return this.get<SessionBlueprint>(`session/template/${code}`);
 	}

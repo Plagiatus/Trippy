@@ -23,7 +23,7 @@ export default function isAuthenticatedGuardFactory(provider: Provider) {
 		const token = headerParts[1];
 		try {
 			const result = await userAuthenticator.validateJwt(token);
-			res.locals.userId = result.userId;
+			req.userId = result.userId;
 			next();
 		} catch {
 			return res.sendStatus(401);

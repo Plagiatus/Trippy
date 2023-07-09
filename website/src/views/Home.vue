@@ -12,7 +12,7 @@
 			test your own and other peoples maps!
 		</p>
 		<div id="home-cta-discord">
-			<a href="https://discord.gg/G9u72eW" target="_blank" rel="noopener noreferrer">
+			<a :href="config.discordInviteLink" target="_blank" rel="noopener noreferrer">
 				<img src="/icons/two-arrow-right.svg" alt="" class="home-cta-discord-arrow">
 				<img src="/icons/Discord-Logo+Wordmark-White.svg" alt="Discord">
 				<img src="/icons/two-arrow-right.svg" alt="" class="home-cta-discord-arrow">
@@ -20,6 +20,13 @@
 		</div>
 	</div>
 </template>
+
+<script setup lang="ts">
+import useProvidedItem from '@/composables/use-provided-item';
+import Config from '@/config';
+
+const config = useProvidedItem(Config);
+</script>
 
 <style>
 #home {

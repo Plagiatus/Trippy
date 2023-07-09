@@ -61,11 +61,12 @@ export default class SessionsCollection {
 		const session = new Session(this.provider, newRawSession);
 		this.sessions.push(session);
 		await session.startSession();
+		return session;
 	}
 
 	public getSession(id: string) {
 		const sessionWithId = this.sessions.find(session => session.id === id);
-		if (!sessionWithId || (sessionWithId.state !== "running" && sessionWithId.state !== "stopping")) {
+		if (!sessionWithId || !sessionWithId.isRunningOrStopping) {
 			return null;
 		}
 
@@ -78,11 +79,11 @@ export default class SessionsCollection {
 
 	public getJoinedSession(user: string|Discord.User|Discord.GuildMember) {
 		const userId = typeof user === "string" ? user : user.id;
-		return this.sessions.find(session => session.isUserInSession(userId));
+		return this.sessions.find(session => session.isRunningOrStopping && session.isUserInSession(userId));
 	}
 
 	public getHostedSession(user: string|Discord.User|Discord.GuildMember) {
 		const userId = typeof user === "string" ? user : user.id;
-		return this.sessions.find(session => session.hostId === userId);
+		return this.sessions.find(session => session.isRunningOrStopping && session.hostId === userId);
 	}
 }
