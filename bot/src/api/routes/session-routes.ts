@@ -4,12 +4,50 @@ import RouteMaker from "../route";
 import hash from "object-hash";
 import { SessionTemplate } from "../../types/document-types";
 import SessionsCollection from "../../session/sessions-collection";
+import Session from "../../session/session";
+import DiscordClient from "../../bot/discord-client";
+import utils from "../../utils/utils";
 
 export default (({server, responses, provider, isAuthenticatedGuard}) => { 
     const databaseClient = provider.get(DatabaseClient);
     const sessionsCollection = provider.get(SessionsCollection);
+    const discordClient = provider.get(DiscordClient);
 
     server.route("/session/:id?")
+        .get(isAuthenticatedGuard, async (req, res) => {
+            if (req.params.id) {
+                const session = sessionsCollection.getSession(req.params.id);
+                if (!session || session.hostId !== req.userId) {
+                    return responses.sendCustomError(`Unable to get session with id "${req.params.id}".`, res);
+                }
+
+                const usersInSession = await utils.asyncMap(session.joinedUserIds, id => discordClient.getMember(id));
+
+                return res.send({
+                    blueprint: session.blueprint,
+                    id: session.id,
+                    users: usersInSession.filter(utils.getHasValuePredicate()).map(user => ({
+                        id: user.id,
+                        name: user.displayName,
+                        avatar: user.avatarURL({size: 256}),
+                    }))
+                })
+            }
+
+            const sessions: Session[] = []
+            const session = sessionsCollection.getHostedSession(req.userId!) ?? sessionsCollection.getJoinedSession(req.userId!);
+            if (session) {
+                sessions.push(session);
+            }
+
+            return res.send({
+                sessions: sessions.map(session => ({
+                    isHosting: session.hostId === req.userId,
+                    name: session.blueprint.name,
+                    id: session.id,
+                }))
+            });
+        })
         .post(isAuthenticatedGuard, async (req, res) => {
             const { validationResult, validatedValue } = validationUtils.valdiateSessionBlueprint(req.body);
             if (!validatedValue) {

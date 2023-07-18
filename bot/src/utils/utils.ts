@@ -3,6 +3,8 @@ import path from "path";
 import crypto from "crypto";
 
 class Utils {
+	private readonly hasValuePredicate = (value: unknown) => value !== null && value !== undefined;
+
 	dynamicImportFolder<T>(folder: string): {path: string, imported: T}[] {
 		let files: string[] = fs.readdirSync(`${this.executionRootPath}/${folder}`);
 		let importedFiles: {path: string, imported: T}[] = [];
@@ -51,6 +53,10 @@ class Utils {
 
 	public async asyncForeach<TElement>(array: ReadonlyArray<TElement>, foreach: (element: TElement, index: number, array: ReadonlyArray<TElement>) => Promise<void>): Promise<void> {
 		await this.asyncMap(array, foreach);
+	}
+
+	public getHasValuePredicate<TValue>()  {
+		return this.hasValuePredicate as ((value: TValue|null|undefined) => value is TValue);
 	}
 }
 
