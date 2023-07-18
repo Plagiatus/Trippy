@@ -68,6 +68,16 @@ export default class Session {
 		return this.rawSession.players.filter(player => player.leaveTime === undefined).map(player => player.id);
 	}
 
+	public async changeBlueprint(blueprint: Readonly<SessionBlueprint>) {
+		this.rawSession.blueprint = blueprint;
+		await this.databaseClient.sessionRepository.update(this.rawSession);
+		await Promise.all([
+			this.voiceChannels?.update(blueprint),
+			this.informationMessage?.update(blueprint),
+			this.announcementMessage?.update(this),
+		]);
+	}
+
 	public isChannelForSession(channel: string|Discord.Channel) {
 		const channelId = typeof channel === "string" ? channel : channel.id;
 		return channelId === this.mainChannel?.id || channelId === this.hostChannel?.id || this.voiceChannels?.channelIds.includes(channelId);

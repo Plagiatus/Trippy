@@ -9,11 +9,21 @@ export default (({server, responses, provider, isAuthenticatedGuard}) => {
     const databaseClient = provider.get(DatabaseClient);
     const sessionsCollection = provider.get(SessionsCollection);
 
-    server.route("/session")
+    server.route("/session/:id?")
         .post(isAuthenticatedGuard, async (req, res) => {
             const { validationResult, validatedValue } = validationUtils.valdiateSessionBlueprint(req.body);
             if (!validatedValue) {
                 return responses.sendCustomError("Failed to validate template: " + validationResult.errors.map(error => `"${error.property}": ${error.message}`).join(". "), res);
+            }
+
+            if (req.params.id) {
+                const session = sessionsCollection.getSession(req.params.id);
+                if (!session || session.hostId !== req.userId || session.state !== "running") {
+                    return responses.sendCustomError(`Unable to change session with id "${req.params.id}".`, res);
+                }
+
+                await session.changeBlueprint(validatedValue);
+                return res.send({updated: true});
             }
 
             if (sessionsCollection.getHostedSession(req.userId!)) {
