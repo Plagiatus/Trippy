@@ -5,6 +5,7 @@ import Repository from "./repositories/repository";
 import SessionRepository from "./repositories/session-repository";
 import { SessionTemplate, UserData } from "./types/document-types";
 import UserRepository from "./repositories/user-repository";
+import BansRepository from "./repositories/bans-repository";
 
 export default class DatabaseClient {
 	private client: Mongo.MongoClient;
@@ -13,6 +14,7 @@ export default class DatabaseClient {
 	public readonly sessionTemplateRepository: Repository<SessionTemplate, "code">;
 	public readonly sessionRepository: SessionRepository;
 	public readonly userRepository: UserRepository;
+	public readonly bansRepository: BansRepository;
 
 	public constructor(provider: Provider) {
 		this.config = provider.get(Config);
@@ -22,6 +24,7 @@ export default class DatabaseClient {
 		this.sessionTemplateRepository = new Repository(provider, db.collection("Templates"), "code");
 		this.sessionRepository = new SessionRepository(provider, db.collection("Sessions"));
 		this.userRepository = new UserRepository(provider, db.collection("Users"));
+		this.bansRepository = new BansRepository(provider, db.collection("Bans"));
 	}
 
 	public async connect() {

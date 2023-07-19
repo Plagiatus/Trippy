@@ -1,6 +1,7 @@
 import { ButtonBuilder, ButtonStyle } from "discord.js";
 import { IButtonInteraction } from "../../interaction-types";
 import SessionsCollection from "../../../session/sessions-collection";
+import DatabaseClient from "../../../database-client";
 
 export default {
 	name: /^session-join:.*$/,
@@ -44,6 +45,13 @@ export default {
 			return;
 		}
 
+		const bans = provider.get(DatabaseClient).bansRepository;
+		const sessionHost = await session.getHost();
+		if (await bans.isUserBanned(sessionHost?.id ?? "", interactor.id)) {
+			interaction.reply({content: `${sessionHost} has banned you from their sessions.`})
+			return;
+		}
+		
 		await interaction.deferUpdate();
 		await session.join(interactor.id);
 	}

@@ -60,3 +60,8 @@ export type UserData = {
 	discordAuthToken?: string;
 	loginId: number;
 }
+
+export type BanData = {
+	readonly userId: string;
+	bannedUsers: string[];
+}
