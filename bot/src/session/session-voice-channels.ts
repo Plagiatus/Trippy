@@ -66,9 +66,7 @@ export default class SessionVoiceChannels {
 			return;
 		}
 
-		// The "old" - "new" calculation results in a negative number.
-		// Slice accepts negative numbers and it just means "take from the end" (so -3 is last 3 elements)
-		const missingChannels = newVoiceChannelsArray.slice(this.channels.length - newVoiceChannelsArray.length);
+		const missingChannels = newVoiceChannelsArray.slice(this.channels.length);
 		const newChannels = await utils.asyncMap(missingChannels, async (blueprint, index) => {
 			return await SessionVoiceChannels.createVoiceChannel(this.discordClient, this.config, this.categoryChannel, this.sessionRole, blueprint, index + this.channels.length);
 		});
@@ -81,9 +79,7 @@ export default class SessionVoiceChannels {
 			return;
 		}
 
-		// The "length" - "count" calculation results in a negative number.
-		// Splice accepts negative numbers and it just means "take from the end" (so -3 is last 3 elements)
-		const channelsToRemove = this.channels.splice(this.channels.length - totalChannelCount);
+		const channelsToRemove = this.channels.splice(totalChannelCount);
 
 		await utils.asyncForeach(channelsToRemove, async (channel) => {
 			await this.discordClient.deleteChannel(channel.id);

@@ -2,7 +2,7 @@
 	<transition-size>
 		<template #default="{attrs}">
 			<section v-if="isDisplayingError" @click="closeError" v-bind="attrs">
-				<div class="error-display" :class="type ?? 'normal'">
+				<div class="error-display" :class="[type ?? 'normal', {'can-close': !hideCloseIcon}]">
 					<div>
 						<slot>
 
@@ -41,6 +41,9 @@ function closeError() {
 	border-radius: 0.3em;
 	display: flex;
 	justify-content: space-between;
+}
+
+.can-close {
 	cursor: pointer;
 }
 

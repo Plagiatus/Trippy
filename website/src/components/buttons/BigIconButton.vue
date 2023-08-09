@@ -40,7 +40,6 @@ defineProps<{
 
 .image {
 	filter: var(--text-color-filter);
-	width: 100%;
 	width: 200px;
 }
 

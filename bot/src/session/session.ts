@@ -69,13 +69,19 @@ export default class Session {
 	}
 
 	public async changeBlueprint(blueprint: Readonly<SessionBlueprint>) {
+		if (this.rawSession.state !== "running") {
+			return;
+		}
+
 		this.rawSession.blueprint = blueprint;
-		await this.databaseClient.sessionRepository.update(this.rawSession);
 		await Promise.all([
 			this.voiceChannels?.update(blueprint),
 			this.informationMessage?.update(blueprint),
 			this.announcementMessage?.update(this),
 		]);
+
+		this.rawSession.channels.voiceIds = this.voiceChannels?.channelIds ?? [];
+		await this.databaseClient.sessionRepository.update(this.rawSession);
 	}
 
 	public isChannelForSession(channel: string|Discord.Channel) {
@@ -200,7 +206,7 @@ export default class Session {
 		this.voiceChannels = await SessionVoiceChannels.createNew(this.provider, this.categoryChannel, this.rawSession.blueprint, this.sessionRole);
 		this.announcementMessage = await SessionAnnouncementMessage.createNew(this.provider, this);
 		this.informationMessage = await SessionInformationMessage.createNew(this.provider, this.mainChannel.id, this.rawSession.id, this.rawSession.blueprint);
-		this.hostMessage = await SessionHostMessage.createNew(this.provider, this.hostChannel.id, this.rawSession.id);
+		this.hostMessage = await SessionHostMessage.createNew(this.provider, this.hostChannel.id, this);
 
 		this.rawSession = {
 			...this.rawSession,
@@ -297,7 +303,7 @@ export default class Session {
 
 		if (this.hostChannel) {
 			try {
-				this.hostMessage = await SessionHostMessage.recreate(this.provider, this.hostChannel.id, this.rawSession.messages.hostId);
+				this.hostMessage = await SessionHostMessage.recreate(this.provider, this.hostChannel.id, this.rawSession.messages.hostId, this);
 			} catch(error) {
 				reloadErrors.push(error);
 			}

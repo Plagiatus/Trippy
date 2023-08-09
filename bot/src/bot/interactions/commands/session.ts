@@ -4,6 +4,8 @@ import Config from "../../../config";
 import DatabaseClient from "../../../database-client";
 import SessionsCollection from "../../../session/sessions-collection";
 import AuthenticationService from "../../../authentication-service";
+import { SessionBlueprint } from "../../../types/session-blueprint-types";
+import createSessionButton from "../buttons/create-session-button";
 
 export default {
 	name: "session",
@@ -31,10 +33,7 @@ export default {
 				content: `Click the button below to get to the session setup website.`, ephemeral: true,
 				components: [
 					new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(
-						new Discord.ButtonBuilder()
-							.setURL(loginAndSessionSetupUrl)
-							.setLabel("Create session")
-							.setStyle(Discord.ButtonStyle.Link)
+						createSessionButton.create(loginAndSessionSetupUrl),
 					)
 				]
 			});
@@ -59,7 +58,7 @@ export default {
 		}
 
 		await interaction.editReply({content: `Creating session...`});
-		await sessionsCollection.startNewSession(interactor.id, template);
+		await sessionsCollection.startNewSession(interactor.id, {...template, code: undefined} as SessionBlueprint);
 		await interaction.editReply({content: `Session has been made!`});
 	}
 } satisfies ICommandInteraction;
