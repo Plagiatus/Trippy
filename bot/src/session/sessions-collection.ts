@@ -29,11 +29,11 @@ export default class SessionsCollection {
 		const sessions = await utils.asyncMap(rawSessions, async (rawSession) => {
 			const session = new Session(this.provider, rawSession);
 			try {
-				await session.reloadSession();
+				await session.setup();
 				return session;
 			} catch(error) {
 				try {
-					await session.fullEndSession();
+					await session.destroy();
 					await this.errorHandler.handleSessionError(session, error, "Removed session after it failed to reload.");
 				} catch(error) {
 					await this.errorHandler.handleSessionError(session, error, "Failed to remove session after it failed to reload.");
@@ -59,8 +59,8 @@ export default class SessionsCollection {
 		}
 
 		const session = new Session(this.provider, newRawSession);
+		await session.setup();
 		this.sessions.push(session);
-		await session.startSession();
 		return session;
 	}
 

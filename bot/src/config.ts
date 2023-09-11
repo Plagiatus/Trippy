@@ -27,7 +27,10 @@ export type RawConfig = {
 	roles: {
 		mods: string,
 		hosts: string,
-	}
+	},
+	session: {
+		endingTime: number,
+	},
 }
 
 export default class Config {
@@ -82,6 +85,10 @@ export default class Config {
 
 	public get databaseName() {
 		return this.rawConfig.db.name;
+	}
+
+	public get sessionEndingTime() {
+		return this.rawConfig.session.endingTime;
 	}
 
 	public static loadConfigFile(filePath: string) {

@@ -70,7 +70,7 @@ const sessionBlueprintSchema: Schema = {
 
 const configSchema: Schema = {
 	type: "object",
-	required: ["frontendUrl","botToken","serverId","appId","port","db","channels","roles"],
+	required: ["frontendUrl","botToken","serverId","appId","port","db","channels","roles","session"],
 	properties: {
 		frontendUrl: {type: "string"},
 		botToken: {type: "string", minLength: 10},
@@ -103,6 +103,15 @@ const configSchema: Schema = {
 			properties: {
 				mods: {type: "string", minLength: 18},
 				hosts: {type: "string", minLength: 18},
+			}
+		},
+		session: {
+			type: "object",
+			required: ["endingTime"],
+			properties: {
+				endingTime: {
+					type: "number",
+				}
 			}
 		}
 	}
