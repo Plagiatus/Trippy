@@ -2,9 +2,10 @@ import DiscordClient from "../bot/discord-client";
 import Provider from "../provider";
 import * as Discord from "discord.js";
 import joinSessionButton from "../bot/interactions/buttons/join-session-button";
-import { SessionBlueprint } from "../types/session-blueprint-types";
 import Session from "./session";
 import constants from "../utils/constants";
+import utils from "../utils/utils";
+import sessionEmbedUtils from "./session-embed-utils";
 
 export default class SessionAnnouncementMessage {
 	private constructor(private readonly message: Discord.Message) {
@@ -56,9 +57,7 @@ export default class SessionAnnouncementMessage {
 	private static async createEmbed(session: Session) {
 		const host = await session.getHost();
 
-		const playerNames = session.joinedUserIds.map(id => `<@!${id}>`).join("\n");
-
-		return new Discord.EmbedBuilder()
+		const embedBuilder = new Discord.EmbedBuilder()
 			.setTitle(session.blueprint.name)
 			.setAuthor({
 				name: host?.displayName ?? "",
@@ -66,7 +65,28 @@ export default class SessionAnnouncementMessage {
 			})
 			.setColor(constants.mainColor)
 			.setDescription(session.blueprint.description)
-			.addFields({name: "Players:", value: `${session.playerCount}/${session.maxPlayers}\n\n${playerNames}`})
-			.toJSON()
+
+		const fields = [
+			sessionEmbedUtils.createEditionField(session),
+			sessionEmbedUtils.createCategoryField(session),
+			sessionEmbedUtils.createCommuncationField(session),
+			sessionEmbedUtils.createExperienceField(session),
+			sessionEmbedUtils.createEstimateField(session),
+		].filter(utils.getHasValuePredicate());
+
+		const fieldsInColumns = sessionEmbedUtils.fieldsIn2Columns(fields);
+		for (const field of fieldsInColumns) {
+			embedBuilder.addFields(field);
+		}
+
+		embedBuilder.addFields({name: " ", value: " ", inline: false});
+		embedBuilder.addFields({name: " ", value: " ", inline: false});
+		embedBuilder.addFields(sessionEmbedUtils.createPlayerCountField(session));
+
+		if (session.blueprint.image) {
+			embedBuilder.setImage(session.blueprint.image);
+		}
+	
+		return embedBuilder.toJSON();
 	}
 }

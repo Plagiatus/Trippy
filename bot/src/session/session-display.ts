@@ -95,7 +95,7 @@ export default class SessionDisplay {
 
 		this.voiceChannels = await SessionVoiceChannels.createNew(this.provider, this.categoryChannel, this.rawSession.blueprint, this.sessionRole);
 		this.announcementMessage = await SessionAnnouncementMessage.createNew(this.provider, this.session);
-		this.informationMessage = await SessionInformationMessage.createNew(this.provider, this.mainChannel.id, this.session.id, this.rawSession.blueprint);
+		this.informationMessage = await SessionInformationMessage.createNew(this.provider, this.mainChannel.id, this.session);
 		this.hostMessage = await SessionHostMessage.createNew(this.provider, this.hostChannel.id, this.session);
 
 		Object.assign(this.rawSession, {
@@ -185,7 +185,7 @@ export default class SessionDisplay {
 
 		if (this.mainChannel) {
 			try {
-				this.informationMessage = await SessionInformationMessage.recreate(this.provider, this.mainChannel.id, this.rawSession.messages.informationId, this.rawSession.blueprint);
+				this.informationMessage = await SessionInformationMessage.recreate(this.provider, this.mainChannel.id, this.rawSession.messages.informationId, this.session);
 			} catch(error) {
 				reloadErrors.push(error);
 			}
@@ -297,7 +297,7 @@ export default class SessionDisplay {
 		this.rawSession.blueprint = blueprint;
 		await Promise.all([
 			this.voiceChannels?.update(blueprint),
-			this.informationMessage?.update(blueprint),
+			this.informationMessage?.update(this.session),
 			this.announcementMessage?.update(this.session),
 		]);
 
@@ -371,6 +371,7 @@ export default class SessionDisplay {
 		this.sendPlayerJoinedMessage(player);
 
 		this.announcementMessage?.update(this.session);
+		this.informationMessage?.update(this.session);
 
 		if (this.sessionRole) {
 			await player.roles.add(this.sessionRole);
@@ -381,6 +382,7 @@ export default class SessionDisplay {
 		this.sendPlayerLeftMessage(player);
 
 		this.announcementMessage?.update(this.session);
+		this.informationMessage?.update(this.session);
 
 		if (this.sessionRole) {
 			await player.roles.remove(this.sessionRole);

@@ -54,7 +54,16 @@ const value = computed<any>({
 	},
 	set(value) {
 		data.error = "";
-		emit("update:modelValue", value);
+		if (props.type === "number") {
+			if (value === "") {
+				emit("update:modelValue", undefined);
+			} else {
+				const asNumber = Number(value);
+				emit("update:modelValue", asNumber);
+			}
+		} else {
+			emit("update:modelValue", value);
+		}
 	}
 })
 

@@ -41,7 +41,7 @@ const sessionBlueprintSchema: Schema = {
 			properties: {
 				communication: { enum: ["none", "vc_encouraged", "voice_encouraged", "vc_required", "voice_required"] },
 				newPlayers: { enum: ["none", "new", "exp"] },
-				timeEstimate: { type: "integer", minimum: 0 },
+				timeEstimate: { type: "number", minimum: 0 },
 				players: {
 					type: "object",
 					additionalProperties: false,
