@@ -59,6 +59,14 @@ export type UserData = {
 	readonly id: string;
 	discordAuthToken?: string;
 	loginId: number;
+	javaAccount?: {
+		username: string;
+		validated: boolean;
+	},
+	bedrockAccount?: {
+		username: string;
+		validated: boolean;
+	}
 }
 
 export type BanData = {

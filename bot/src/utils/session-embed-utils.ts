@@ -1,5 +1,6 @@
 import * as Discord from "discord.js";
 import Session from "./../session/session";
+import constants from "./constants";
 
 class SessionEmbedUtils {
 	public createPlayerCountField(session: Session): Discord.APIEmbedField {
@@ -12,10 +13,10 @@ class SessionEmbedUtils {
 		let text = "";
 		switch(session.blueprint.edition) {
 			case "java":
-				text = ":coffee: Java";
+				text = `${constants.javaEditionIcon} Java`;
 				break;
 			case "bedrock":
-				text = ":rock: Bedrock";
+				text = `${constants.bedrockEditionIcon} Bedrock`;
 				break;
 			case "other":
 				text = ":question: Other";

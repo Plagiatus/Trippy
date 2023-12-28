@@ -10,13 +10,12 @@ export default class UserRepository extends Repository<UserData,"id"> {
 	
 	public override async get(id: string): Promise<UserData> {
 		const data = await super.get(id);
-		return this.updateUserData(data ?? this.getNewUserData(id));
+		return data ?? this.getNewUserData(id);
 	}
 
 	public override async update(document: UserData) {
 		return await this.collection.replaceOne(this.getQueryForDocument(document), document, {upsert: true});
 	}
-
 
 	private getNewUserData(id: string): UserData {
 		return {
@@ -24,12 +23,5 @@ export default class UserRepository extends Repository<UserData,"id"> {
 			discordAuthToken: undefined,
 			loginId: 0,
 		}
-	}
-
-	private updateUserData(data: UserData): UserData {
-		if (!data.loginId) {
-			data.loginId = 0;
-		}
-		return data;
 	}
 }
