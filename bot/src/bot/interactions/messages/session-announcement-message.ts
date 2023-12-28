@@ -1,24 +1,25 @@
-import DiscordClient from "../bot/discord-client";
-import Provider from "../provider";
-import * as Discord from "discord.js";
-import joinSessionButton from "../bot/interactions/buttons/join-session-button";
-import Session from "./session";
-import constants from "../utils/constants";
-import utils from "../utils/utils";
-import sessionEmbedUtils from "./session-embed-utils";
+import DiscordClient, { ChannelParameterType } from "../../discord-client";
+import Provider from "../../../provider";
+import joinSessionButton from "../buttons/join-session-button";
+import Session from "../../../session/session";
+import constants from "../../../utils/constants";
+import utils from "../../../utils/utils";
+import sessionEmbedUtils from "../../../utils/session-embed-utils";
+import { SimpleMessageData } from "../../../types/document-types";
+import { Message, ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "discord.js";
 
 export default class SessionAnnouncementMessage {
-	private constructor(private readonly message: Discord.Message) {
+	private constructor(private readonly message: Message) {
 		
 	}
 
-	public get messageId() {
-		return this.message.id;
+	public get data(): SimpleMessageData {
+		return {messageId: this.message.id, channelId: this.message.channelId}
 	}
 
-	public static async recreate(provider: Provider, messageId: string, session: Session) {
+	public static async recreate(provider: Provider, session: Session, data: SimpleMessageData) {
 		const discordClient = provider.get(DiscordClient);
-		const message = await discordClient.getMessage("sessionList", messageId);
+		const message = await discordClient.getMessage(data.channelId, data.messageId);
 		if (!message) {
 			throw new Error("Unable to recreate announcement message because message can't be found.");
 		}
@@ -28,14 +29,14 @@ export default class SessionAnnouncementMessage {
 		return announcementMessage;
 	}
 
-	public static async createNew(provider: Provider, session: Session) {
+	public static async createNew(provider: Provider, session: Session, channel: ChannelParameterType) {
 		const discordClient = provider.get(DiscordClient);
-		const message = await discordClient.sendMessage("sessionList", {
+		const message = await discordClient.sendMessage(channel, {
 			embeds: [
 				await SessionAnnouncementMessage.createEmbed(session),
 			],
 			components: [
-				new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(joinSessionButton.create({sessionId: session.id}))
+				new ActionRowBuilder<ButtonBuilder>().addComponents(joinSessionButton.create({sessionId: session.id}))
 			]
 		});
 
@@ -57,7 +58,7 @@ export default class SessionAnnouncementMessage {
 	private static async createEmbed(session: Session) {
 		const host = await session.getHost();
 
-		const embedBuilder = new Discord.EmbedBuilder()
+		const embedBuilder = new EmbedBuilder()
 			.setTitle(session.blueprint.name)
 			.setAuthor({
 				name: host?.displayName ?? "",

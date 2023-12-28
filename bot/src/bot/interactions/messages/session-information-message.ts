@@ -1,24 +1,28 @@
-import * as Discord from "discord.js";
-import DiscordClient from "../bot/discord-client";
-import Provider from "../provider";
-import leaveSessionButton from "../bot/interactions/buttons/leave-session-button";
-import constants from "../utils/constants";
-import sessionEmbedUtils from "./session-embed-utils";
-import utils from "../utils/utils";
-import Session from "./session";
+import { Message, ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "discord.js";
+import Provider from "../../../provider";
+import Session from "../../../session/session";
+import constants from "../../../utils/constants";
+import sessionEmbedUtils from "../../../utils/session-embed-utils";
+import utils from "../../../utils/utils";
+import DiscordClient, { ChannelParameterType } from "../../discord-client";
+import leaveSessionButton from "../buttons/leave-session-button";
+import { SimpleMessageData } from "../../../types/document-types";
 
 export default class SessionInformationMessage {
-	private constructor(private readonly message: Discord.Message) {
+	private constructor(private readonly message: Message) {
 		
 	}
 
-	public get messageId() {
-		return this.message.id;
+	public get data(): SimpleMessageData {
+		return {
+			channelId: this.message.channelId,
+			messageId: this.message.id,
+		};
 	}
 
-	public static async recreate(provider: Provider, sessionMainChannelId: string, messageId: string, session: Session) {
+	public static async recreate(provider: Provider, session: Session, data: SimpleMessageData) {
 		const discordClient = provider.get(DiscordClient);
-		const message = await discordClient.getMessage(sessionMainChannelId, messageId);
+		const message = await discordClient.getMessage(data.channelId, data.messageId);
 		if (!message) {
 			throw new Error("Unable to recreate because message can't be found.");
 		}
@@ -28,14 +32,14 @@ export default class SessionInformationMessage {
 		return informationMessage;
 	}
 
-	public static async createNew(provider: Provider, sessionMainChannelId: string, session: Session) {
+	public static async createNew(provider: Provider, session: Session, channelId: ChannelParameterType) {
 		const discordClient = provider.get(DiscordClient);
-		const message = await discordClient.sendMessage(sessionMainChannelId, {
+		const message = await discordClient.sendMessage(channelId, {
 			embeds: [
 				await SessionInformationMessage.createEmbed(session),
 			],
 			components: [
-				new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(leaveSessionButton.create({sessionId: session.id}))
+				new ActionRowBuilder<ButtonBuilder>().addComponents(leaveSessionButton.create({sessionId: session.id}))
 			]
 		});
 
@@ -55,7 +59,7 @@ export default class SessionInformationMessage {
 	}
 
 	private static async createEmbed(session: Session) {
-		const embedBuilder = new Discord.EmbedBuilder()
+		const embedBuilder = new EmbedBuilder()
 			.setTitle(session.blueprint.name)
 			.setColor(constants.mainColor)
 			.setDescription(session.blueprint.description);

@@ -1,5 +1,5 @@
 import * as Discord from "discord.js";
-import Session from "./session";
+import Session from "./../session/session";
 
 class SessionEmbedUtils {
 	public createPlayerCountField(session: Session): Discord.APIEmbedField {

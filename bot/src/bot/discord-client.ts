@@ -5,7 +5,7 @@ import ErrorHandler from "./error-handler";
 import InteractionCollection from "./interaction-collection";
 import Impersonation from "../impersonation";
 
-type ChannelParameterType = (keyof Config["channelIds"]) | (string & {}) | Discord.Channel;
+export type ChannelParameterType = (keyof Config["channelIds"]) | (string & {}) | Discord.Channel;
 export default class DiscordClient {
 	private readonly client: Discord.Client;
 	private readonly config: Config;

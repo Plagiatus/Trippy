@@ -27,6 +27,13 @@ export default class Session {
 		return this.rawSession.id;
 	}
 
+	public get roleId() {
+		if (this.rawSession.state === "running" || this.rawSession.state === "stopping") {
+			return this.rawSession.roles.mainId;
+		}
+		throw new Error("Session isn't running so no session role exists.");
+	}
+
 	public get state() {
 		return this.rawSession.state;
 	}
@@ -153,12 +160,11 @@ export default class Session {
 		}
 		
 		Object.bind(this.rawSession, {
-			...this.rawSession,
 			state: "stopping",
 			endTime: Date.now(),
 			messages: {
-				hostId: this.rawSession.messages.hostId,
-				informationId: this.rawSession.messages.informationId
+				host: this.rawSession.messages.host,
+				information: this.rawSession.messages.information,
 			}
 		});
 

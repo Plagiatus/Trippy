@@ -1,5 +1,10 @@
+import { CategoryChannel, TextChannel, Role, OverwriteResolvable, ChannelType, Channel, GuildMember, EmbedBuilder, MessagePayload, BaseMessageOptions } from "discord.js";
+import SessionVoiceChannels from "../bot/channels/session-voice-channels";
 import DiscordClient from "../bot/discord-client";
 import ErrorHandler from "../bot/error-handler";
+import SessionAnnouncementMessage from "../bot/interactions/messages/session-announcement-message";
+import SessionHostMessage from "../bot/interactions/messages/session-host-message";
+import SessionInformationMessage from "../bot/interactions/messages/session-information-message";
 import Config from "../config";
 import DatabaseClient from "../database-client";
 import Provider from "../provider";
@@ -7,11 +12,6 @@ import { RawSession } from "../types/document-types";
 import { SessionBlueprint } from "../types/session-blueprint-types";
 import constants from "../utils/constants";
 import Session from "./session";
-import SessionAnnouncementMessage from "./session-announcement-message";
-import SessionHostMessage from "./session-host-message";
-import SessionInformationMessage from "./session-information-message";
-import SessionVoiceChannels from "./session-voice-channels";
-import * as Discord from "discord.js";
 
 export default class SessionDisplay {
 	private readonly discordClient: DiscordClient;
@@ -23,11 +23,11 @@ export default class SessionDisplay {
 	private voiceChannels?: SessionVoiceChannels;
 	private informationMessage?: SessionInformationMessage;
 	private hostMessage?: SessionHostMessage;
-	private categoryChannel?: Discord.CategoryChannel;
-	private hostChannel?: Discord.TextChannel;
-	private mainChannel?: Discord.TextChannel;
-	private sessionRole?: Discord.Role;
-	private hostRole?: Discord.Role;
+	private categoryChannel?: CategoryChannel;
+	private hostChannel?: TextChannel;
+	private mainChannel?: TextChannel;
+	private sessionRole?: Role;
+	private hostRole?: Role;
 
 	public constructor(private readonly provider: Provider, private readonly session: Session, private readonly rawSession: RawSession) {
 		this.discordClient = provider.get(DiscordClient);
@@ -49,7 +49,7 @@ export default class SessionDisplay {
 			name: `Session ${this.session.id} Host`
 		});
 
-		const permissions: Discord.OverwriteResolvable[] = [
+		const permissions: OverwriteResolvable[] = [
 			{
 				id: this.config.guildId,
 				deny: ["ViewChannel"]
@@ -61,7 +61,7 @@ export default class SessionDisplay {
 			this.discordClient.allowAccessToChannelPermissions,
 		]
 
-		const hostPermissions: Discord.OverwriteResolvable[] = [
+		const hostPermissions: OverwriteResolvable[] = [
 			{
 				id: this.config.guildId,
 				deny: ["ViewChannel"]
@@ -74,29 +74,29 @@ export default class SessionDisplay {
 		]
 
 		this.categoryChannel = await this.discordClient.createChannel({
-			type: Discord.ChannelType.GuildCategory,
+			type: ChannelType.GuildCategory,
 			name: `Session ${this.session.id}`,
 			permissionOverwrites: permissions,
 		});
 
 		this.mainChannel = await this.discordClient.createChannel({
-			type: Discord.ChannelType.GuildText,
+			type: ChannelType.GuildText,
 			name: "Main",
 			permissionOverwrites: permissions,
 			parent: this.categoryChannel,
 		});
 
 		this.hostChannel = await this.discordClient.createChannel({
-			type: Discord.ChannelType.GuildText,
+			type: ChannelType.GuildText,
 			name: "Host",
 			permissionOverwrites: hostPermissions,
 			parent: this.categoryChannel,
 		});
 
-		this.voiceChannels = await SessionVoiceChannels.createNew(this.provider, this.categoryChannel, this.rawSession.blueprint, this.sessionRole);
-		this.announcementMessage = await SessionAnnouncementMessage.createNew(this.provider, this.session);
-		this.informationMessage = await SessionInformationMessage.createNew(this.provider, this.mainChannel.id, this.session);
-		this.hostMessage = await SessionHostMessage.createNew(this.provider, this.hostChannel.id, this.session);
+		this.voiceChannels = await SessionVoiceChannels.createNew(this.provider, this.session, this.categoryChannel.id, this.sessionRole.id);
+		this.announcementMessage = await SessionAnnouncementMessage.createNew(this.provider, this.session, "sessionList");
+		this.informationMessage = await SessionInformationMessage.createNew(this.provider, this.session, this.mainChannel.id,);
+		this.hostMessage = await SessionHostMessage.createNew(this.provider, this.session, this.hostChannel.id);
 
 		Object.assign(this.rawSession, {
 			...this.rawSession,
@@ -106,18 +106,18 @@ export default class SessionDisplay {
 				categoryId: this.categoryChannel.id,
 				hostId: this.hostChannel.id,
 				mainTextId: this.mainChannel.id,
-				voiceIds: this.voiceChannels.channelIds,
+				voiceChannels: this.voiceChannels.data,
 			},
 			roles: {
 				hostId: this.hostRole.id,
 				mainId: this.sessionRole.id
 			},
 			messages: {
-				announcementId: this.announcementMessage.messageId,
-				hostId: this.hostMessage.messageId,
-				informationId: this.informationMessage.messageId,
+				announcement: this.announcementMessage.data,
+				host: this.hostMessage.data,
+				information: this.informationMessage.data,
 			}
-		});
+		} satisfies Partial<RawSession>);
 
 		await this.databaseClient.sessionRepository.add(this.rawSession);
 		const hostMember = await this.session.getHost();
@@ -149,21 +149,21 @@ export default class SessionDisplay {
 		}
 
 		const categoryChannel = await this.discordClient.getChannel(this.rawSession.channels.categoryId)
-		if (categoryChannel && categoryChannel.type === Discord.ChannelType.GuildCategory) {
+		if (categoryChannel && categoryChannel.type === ChannelType.GuildCategory) {
 			this.categoryChannel = categoryChannel;
 		} else {
 			reloadErrors.push(new Error("Unable to recreate session because category channel can't be found."));
 		}
 
 		const mainChannel = await this.discordClient.getChannel(this.rawSession.channels.mainTextId)
-		if (mainChannel && mainChannel.type === Discord.ChannelType.GuildText) {
+		if (mainChannel && mainChannel.type === ChannelType.GuildText) {
 			this.mainChannel = mainChannel;
 		} else {
 			reloadErrors.push(new Error("Unable to recreate session because main text channel can't be found."));
 		}
 
 		const hostChannel = await this.discordClient.getChannel(this.rawSession.channels.hostId)
-		if (hostChannel && hostChannel.type === Discord.ChannelType.GuildText) {
+		if (hostChannel && hostChannel.type === ChannelType.GuildText) {
 			this.hostChannel = hostChannel;
 		} else {
 			reloadErrors.push(new Error("Unable to recreate session because host channel can't be found."));
@@ -171,21 +171,21 @@ export default class SessionDisplay {
 
 		if (this.categoryChannel && this.sessionRole) {
 			try {
-				this.voiceChannels = await SessionVoiceChannels.recreate(this.provider, this.categoryChannel, this.sessionRole, this.rawSession.channels.voiceIds, this.rawSession.blueprint);
+				this.voiceChannels = await SessionVoiceChannels.recreate(this.provider, this.session, this.rawSession.channels.voiceChannels);
 			} catch(error) {
 				reloadErrors.push(error);
 			}
 		}
 
 		try {
-			this.announcementMessage = this.rawSession.state === "running" ? await SessionAnnouncementMessage.recreate(this.provider, this.rawSession.messages.announcementId, this.session) : undefined;
+			this.announcementMessage = this.rawSession.state === "running" ? await SessionAnnouncementMessage.recreate(this.provider, this.session, this.rawSession.messages.announcement) : undefined;
 		} catch(error) {
 			reloadErrors.push(error);
 		}
 
 		if (this.mainChannel) {
 			try {
-				this.informationMessage = await SessionInformationMessage.recreate(this.provider, this.mainChannel.id, this.rawSession.messages.informationId, this.session);
+				this.informationMessage = await SessionInformationMessage.recreate(this.provider, this.session, this.rawSession.messages.information);
 			} catch(error) {
 				reloadErrors.push(error);
 			}
@@ -193,7 +193,7 @@ export default class SessionDisplay {
 
 		if (this.hostChannel) {
 			try {
-				this.hostMessage = await SessionHostMessage.recreate(this.provider, this.hostChannel.id, this.rawSession.messages.hostId, this.session);
+				this.hostMessage = await SessionHostMessage.recreate(this.provider, this.session, this.rawSession.messages.host);
 			} catch(error) {
 				reloadErrors.push(error);
 			}
@@ -296,25 +296,27 @@ export default class SessionDisplay {
 
 		this.rawSession.blueprint = blueprint;
 		await Promise.all([
-			this.voiceChannels?.update(blueprint),
+			this.voiceChannels?.update(this.session),
 			this.informationMessage?.update(this.session),
 			this.announcementMessage?.update(this.session),
 		]);
 
-		this.rawSession.channels.voiceIds = this.voiceChannels?.channelIds ?? [];
+		if (this.voiceChannels) {
+			this.rawSession.channels.voiceChannels = this.voiceChannels.data;
+		}
 		await this.databaseClient.sessionRepository.update(this.rawSession);
 	}
 
-	public isChannelForSession(channel: string|Discord.Channel) {
+	public isChannelForSession(channel: string|Channel): boolean {
 		const channelId = typeof channel === "string" ? channel : channel.id;
-		return channelId === this.mainChannel?.id || channelId === this.hostChannel?.id || this.voiceChannels?.channelIds.includes(channelId);
+		return !!(channelId === this.mainChannel?.id || channelId === this.hostChannel?.id || this.voiceChannels?.isVoiceChannelId(channelId));
 	}
 
-	public sendEndedMessage(endedByUser: Discord.GuildMember) {
+	public sendEndedMessage(endedByUser: GuildMember) {
 		this.sendMessageToPlayers({
 			content: this.sessionRole?.toString() ?? "",
 			embeds: [
-				new Discord.EmbedBuilder()
+				new EmbedBuilder()
 					.setColor(constants.warningColor)
 					.setTitle("Session is ending")
 					.setDescription(`This session has been stopped by ${endedByUser} and will close in ${this.config.sessionEndingTime / 1000} seconds.`)
@@ -322,11 +324,11 @@ export default class SessionDisplay {
 		})
 	}
 
-	public sendForceEndedMessage(endedByUser: Discord.GuildMember) {
+	public sendForceEndedMessage(endedByUser: GuildMember) {
 		this.sendMessageToPlayers({
 			content: this.sessionRole?.toString() ?? "",
 			embeds: [
-				new Discord.EmbedBuilder()
+				new EmbedBuilder()
 					.setColor(constants.warningColor)
 					.setTitle("Session is ending")
 					.setDescription(`This session has been forced to end by ${endedByUser} and will close in ${this.config.sessionEndingTime / 1000} seconds.`)
@@ -334,10 +336,10 @@ export default class SessionDisplay {
 		})
 	}
 
-	private sendPlayerJoinedMessage(player: Discord.GuildMember) {
+	private sendPlayerJoinedMessage(player: GuildMember) {
 		this.sendMessageToPlayers({
 			embeds: [
-				new Discord.EmbedBuilder()
+				new EmbedBuilder()
 					.setColor(constants.mainColor)
 					.setThumbnail(player.user.avatarURL({size: 32}))
 					.setDescription(`${player}\n**joined the session.**`)
@@ -345,17 +347,17 @@ export default class SessionDisplay {
 		})
 	}
 
-	private sendPlayerLeftMessage(player: Discord.GuildMember) {
+	private sendPlayerLeftMessage(player: GuildMember) {
 		this.sendMessageToPlayers({
 			embeds: [
-				new Discord.EmbedBuilder()
+				new EmbedBuilder()
 					.setColor(constants.warningColor)
 					.setDescription(`${player} left the session.`)
 			]
 		})
 	}
 
-	public async sendMessageToPlayers(message: string|Discord.MessagePayload|Discord.BaseMessageOptions) {
+	public async sendMessageToPlayers(message: string|MessagePayload|BaseMessageOptions) {
 		if (!this.mainChannel) {
 			return;
 		}
@@ -367,7 +369,7 @@ export default class SessionDisplay {
 		}
 	}
 
-	public async addPlayer(player: Discord.GuildMember) {
+	public async addPlayer(player: GuildMember) {
 		this.sendPlayerJoinedMessage(player);
 
 		this.announcementMessage?.update(this.session);
@@ -378,7 +380,7 @@ export default class SessionDisplay {
 		}
 	}
 
-	public async removePlayer(player: Discord.GuildMember) {
+	public async removePlayer(player: GuildMember) {
 		this.sendPlayerLeftMessage(player);
 
 		this.announcementMessage?.update(this.session);

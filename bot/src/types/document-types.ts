@@ -9,14 +9,14 @@ export type SessionPlayer = {
 export type SessionChannels = {
 	categoryId : string;
 	mainTextId : string;
-	voiceIds : string[];
 	hostId : string;
+	voiceChannels: SessionVoiceChannelsData;
 }
 
 export type SessionMessages = {
-	informationId: string;
-	announcementId: string;
-	hostId: string;
+	information: SimpleMessageData;
+	announcement: SimpleMessageData;
+	host: SimpleMessageData;
 }
 
 export type SessionRoles = {
@@ -66,7 +66,12 @@ export type BanData = {
 	bannedUsers: string[];
 }
 
-export type CommandData = {
-	readonly name: string;
-	externalId: string;
+export type SimpleMessageData = {
+	messageId: string;
+	channelId: string;
+}
+
+export type SessionVoiceChannelsData = {
+	categoryChannelId: string;
+	channelIds: string[],
 }
