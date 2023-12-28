@@ -23,7 +23,7 @@ async function start(){
 		.add(SessionsCollection)
 		.add(Impersonation)
 		.add(AuthenticationService)
-		.addFactory(InteractionCollection, provider => new InteractionCollection(provider, InteractionCollection.importInteractions()));
+		.add(InteractionCollection);
 
 	await provider.get(DatabaseClient).connect();
 	console.log("Connected to database...");

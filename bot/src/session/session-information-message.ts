@@ -1,7 +1,6 @@
 import * as Discord from "discord.js";
 import DiscordClient from "../bot/discord-client";
 import Provider from "../provider";
-import { SessionBlueprint } from "../types/session-blueprint-types";
 import leaveSessionButton from "../bot/interactions/buttons/leave-session-button";
 import constants from "../utils/constants";
 import sessionEmbedUtils from "./session-embed-utils";
@@ -36,7 +35,7 @@ export default class SessionInformationMessage {
 				await SessionInformationMessage.createEmbed(session),
 			],
 			components: [
-				new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(leaveSessionButton.create(session.id))
+				new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(leaveSessionButton.create({sessionId: session.id}))
 			]
 		});
 

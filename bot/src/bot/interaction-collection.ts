@@ -1,71 +1,74 @@
-import { ButtonInteraction, ChatInputCommandInteraction, CommandInteraction, ContextMenuCommandInteraction, ModalSubmitInteraction, GuildMember } from "discord.js";
+import { ButtonInteraction, ChatInputCommandInteraction, GuildMember } from "discord.js";
 import utils from "../utils/utils";
-import { IBasicInteraction, IButtonInteraction, ICommandInteraction, IContextMenuInteraction, IModalInteraction } from "./interaction-types";
 import Provider from "../provider";
+import Command from "./interactions/commands/command";
+import ActionButton from "./interactions/buttons/action-button";
 
 export default class InteractionCollection {
-	public readonly commandInteractions: Map<string|RegExp,ICommandInteraction>;
-	public readonly buttonInteractions: Map<string|RegExp,IButtonInteraction<any>>;
-	public readonly contextInteractions: Map<string|RegExp,IContextMenuInteraction>;
-	public readonly modalInteractions: Map<string|RegExp,IModalInteraction>;
+	public readonly commands: ReadonlyArray<Command>;
+	public readonly buttons: ReadonlyArray<ActionButton>;
 
-	public constructor(private readonly provider: Provider, private readonly interactions: ReadonlyArray<IBasicInteraction>) {
-		this.commandInteractions = this.getInteractionsOfType<ICommandInteraction>("COMMAND");
-		this.buttonInteractions = this.getInteractionsOfType<IButtonInteraction<any>>("BUTTON");
-		this.contextInteractions = this.getInteractionsOfType<IContextMenuInteraction>("CONTEXT");
-		this.modalInteractions = this.getInteractionsOfType<IModalInteraction>("MODAL");
-	}
-
-	private getInteractionsOfType<T extends IBasicInteraction>(type: T["type"]) {
-		const interactionsOfType = this.interactions.filter(interaction => interaction.type === type);
-		const namesAndInteractions = interactionsOfType.map(interaction => [interaction.name,interaction as T] as const);
-		const interactionMap = new Map(namesAndInteractions);
-		return interactionMap;
+	public constructor(private readonly provider: Provider, interactions?: {commands?: ReadonlyArray<Command>, buttons?: ReadonlyArray<ActionButton>}) {
+		this.commands = interactions?.commands ?? InteractionCollection.importCommands();
+		this.buttons = interactions?.buttons ?? InteractionCollection.importButtons();
 	}
 
 	public executeCommandInteraction(id: string, interaction: ChatInputCommandInteraction, interactor: GuildMember) {
-		this.executeInteraction(this.commandInteractions, id, interaction, interactor);
-	}
+		const command = this.commands.find(command => command.isCommandName(id));
+		if (!command) {
+			interaction.reply({ephemeral: true, content: `The command "${id}" doesn't exist. Please contact a moderator if this problem persists.`});
+			return;
+		}
 
-	public executeButtonInteraction(id: string, interaction: ButtonInteraction, interactor: GuildMember) {
-		this.executeInteraction(this.buttonInteractions, id, interaction, interactor);
-	}
-
-	public executeContextInteraction(id: string, interaction: ContextMenuCommandInteraction, interactor: GuildMember) {
-		this.executeInteraction(this.contextInteractions, id, interaction, interactor);
-	}
-
-	public executeModalInteraction(id: string, interaction: ModalSubmitInteraction, interactor: GuildMember) {
-		this.executeInteraction(this.modalInteractions, id, interaction, interactor);
-	}
-
-	private executeInteraction<T extends IBasicInteraction>(map: Map<string|RegExp,T>, id: string, interaction: Parameters<T["execute"]>[0]["interaction"], interactor: GuildMember) {
-		const executer = this.getExecuterFromId(map, id);
-
-		executer.execute({
-			interaction,
+		command.handleExecution({
+			interaction: interaction,
+			interactor: interactor,
 			provider: this.provider,
-			interactor,
 		});
 	}
 
-	private getExecuterFromId<T extends IBasicInteraction>(map: Map<string|RegExp,T>, id: string) {
-		const foundById = map.get(id);
-		if (foundById) {
-			return foundById;
+	public executeButtonInteraction(id: string, interaction: ButtonInteraction, interactor: GuildMember) {
+		for (const button of this.buttons) {
+			const result = button.isButtonId(id);
+			if (!result) {
+				continue;
+			}
+
+			button.handleClick({
+				buttonParameters: result,
+				interaction: interaction,
+				interactor: interactor,
+				provider: this.provider,
+			})
+			return;
 		}
 
-		for (const key of map.keys()) {
-			if (key instanceof RegExp && key.exec(id)) {
-				return map.get(key)!;
+		interaction.reply({ephemeral: true, content: `The button you pressed doesn't exist. Please contact a moderator if this problem persists. Button Id: ${id}`});
+	}
+
+	public static importButtons() {
+		const actionButtons: ActionButton[] = [];
+
+		const buttonFiles = utils.dynamicImportFolder("bot/interactions/buttons");
+		for (const buttonFile of buttonFiles) {
+			if (buttonFile.imported instanceof ActionButton) {
+				actionButtons.push(buttonFile.imported);
 			}
 		}
 
-		throw new Error(`This interaction ("${id}") doesn't exist. Please contact a moderator if this problem persists.`);
+		return actionButtons;
 	}
 
-	public static importInteractions() {
-		const routeFiles = utils.dynamicImportFolder<IBasicInteraction>("bot/interactions");
-		return routeFiles.flatMap(routeFile => routeFile.imported);
+	public static importCommands() {
+		const commands: Command[] = [];
+
+		const commandFiles = utils.dynamicImportFolder("bot/interactions/commands");
+		for (const commandFile of commandFiles) {
+			if (commandFile.imported instanceof Command) {
+				commands.push(commandFile.imported);
+			}
+		}
+
+		return commands;
 	}
 }

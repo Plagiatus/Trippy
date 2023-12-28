@@ -1,19 +1,23 @@
-import { ButtonBuilder, ButtonStyle } from "discord.js";
-import { IButtonInteraction } from "../../interaction-types";
+import { ButtonStyle } from "discord.js";
 import SessionsCollection from "../../../session/sessions-collection";
 import DatabaseClient from "../../../database-client";
+import ActionButton, { ButtonClickContext } from "./action-button";
 
-export default {
-	name: /^session-join:.*$/,
-	type: "BUTTON",
-	create: (sessionId) => new ButtonBuilder()
-		.setCustomId(`session-join:${sessionId}`)
-		.setLabel("join session")
-		.setStyle(ButtonStyle.Primary),
-	async execute({interaction, provider, interactor}){
-		const sessionId = (/session-join:(.*)/).exec(interaction.customId)?.[1] ?? "";
+const buttonId = "session-join:(sessionId)";
+class joinSessionButton extends ActionButton<typeof buttonId> {
+	public constructor() {
+		super(buttonId);
+	}
+
+	public create(options: {sessionId: string}) {
+		return this.createBaseButton(options)
+			.setLabel("join session")
+			.setStyle(ButtonStyle.Primary)
+	}
+
+	public async handleClick({provider, buttonParameters, interaction, interactor}: ButtonClickContext<typeof buttonId>): Promise<void> {
 		const sessionsCollection = provider.get(SessionsCollection);
-		const session = sessionsCollection.getSession(sessionId);
+		const session = sessionsCollection.getSession(buttonParameters.sessionId);
 
 		if (!session) {
 			interaction.reply({content: "Session couldn't be found. The button shouldn't exist.", ephemeral: true});
@@ -55,4 +59,6 @@ export default {
 		await interaction.deferUpdate();
 		await session.join(interactor.id);
 	}
-} satisfies IButtonInteraction<[sessionId: string]>;
+}
+
+export default new joinSessionButton();

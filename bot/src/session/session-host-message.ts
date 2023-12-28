@@ -2,18 +2,12 @@ import * as Discord from "discord.js";
 import DiscordClient from "../bot/discord-client";
 import Provider from "../provider";
 import endSessionButton from "../bot/interactions/buttons/end-session-button";
-import editSessionButton from "../bot/interactions/buttons/edit-session-button";
-import Config from "../config";
-import AuthenticationService from "../authentication-service";
 import Session from "./session";
+import createEditSessionButton from "../bot/interactions/buttons/create-edit-session-button";
 
 export default class SessionHostMessage {
-	private readonly config: Config;
-	private readonly authenticationService: AuthenticationService;
-
-	private constructor(provider: Provider, private readonly message: Discord.Message) {
-		this.config = provider.get(Config);
-		this.authenticationService = provider.get(AuthenticationService);
+	private constructor(private readonly provider: Provider, private readonly message: Discord.Message) {
+		
 	}
 
 	public get messageId() {
@@ -34,17 +28,12 @@ export default class SessionHostMessage {
 
 	public static async createNew(provider: Provider, hostChannelId: string, session: Session) {
 		const discordClient = provider.get(DiscordClient);
-		const config = provider.get(Config);
-		const authenticationService = provider.get(AuthenticationService);
-
-		const sessionOverviewUrl = `${config.frontendUrl}/session/${session.id}`;
-		const loginAndSessionOverviewUrl = await authenticationService.createLoginLinkWithRedirect(sessionOverviewUrl, session.hostId);
 
 		const message = await discordClient.sendMessage(hostChannelId, {
 			components: [
 				new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(
-					endSessionButton.create(session.id),
-					editSessionButton.create(loginAndSessionOverviewUrl, false),
+					endSessionButton.create({sessionId: session.id}),
+					await createEditSessionButton({provider, forUserId: session.hostId, sessionId: session.id}),
 				),
 			]
 		});
@@ -53,14 +42,11 @@ export default class SessionHostMessage {
 	}
 
 	public async update(session: Session) {
-		const sessionOverviewUrl = `${this.config.frontendUrl}/session/${session.id}`;
-		const loginAndSessionOverviewUrl = await this.authenticationService.createLoginLinkWithRedirect(sessionOverviewUrl, session.hostId);
-
 		await this.message.edit({
 			components: [
 				new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(
-					endSessionButton.create(session.id),
-					editSessionButton.create(loginAndSessionOverviewUrl, false),
+					endSessionButton.create({sessionId: session.id}),
+					await createEditSessionButton({provider: this.provider, forUserId: session.hostId, sessionId: session.id}),
 				),
 			]
 		})

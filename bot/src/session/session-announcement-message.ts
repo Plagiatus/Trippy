@@ -35,7 +35,7 @@ export default class SessionAnnouncementMessage {
 				await SessionAnnouncementMessage.createEmbed(session),
 			],
 			components: [
-				new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(joinSessionButton.create(session.id))
+				new Discord.ActionRowBuilder<Discord.ButtonBuilder>().addComponents(joinSessionButton.create({sessionId: session.id}))
 			]
 		});
 

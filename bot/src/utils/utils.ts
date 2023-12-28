@@ -5,7 +5,7 @@ import crypto from "crypto";
 class Utils {
 	private readonly hasValuePredicate = (value: unknown) => value !== null && value !== undefined;
 
-	dynamicImportFolder<T>(folder: string): {path: string, imported: T}[] {
+	dynamicImportFolder<T = unknown>(folder: string): {path: string, imported: T}[] {
 		let files: string[] = fs.readdirSync(`${this.executionRootPath}/${folder}`);
 		let importedFiles: {path: string, imported: T}[] = [];
 

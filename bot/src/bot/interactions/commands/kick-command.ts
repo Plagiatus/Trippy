@@ -1,19 +1,21 @@
-import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import { ICommandInteraction } from "../../interaction-types";
 import SessionsCollection from "../../../session/sessions-collection";
+import Command, { CommandExecutionContext } from "./command";
 
-export default {
-	name: "kick",
-	type: "COMMAND",
-	data: new SlashCommandBuilder()
-		.setName("kick")
-		.setDescription("Lets you remove players from your session.")
-		.setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
-		.addUserOption(option => 
-			option.setName("user")
-			.setDescription("The user to be removed from the session")
-			.setRequired(true)),
-	async execute({interaction, provider, interactor}){
+class KickCommand extends Command {
+	public constructor() {
+		super("kick");
+	}
+
+	public create() {
+		return this.buildBaseCommand()
+			.setDescription("Lets you remove players from your session.")
+			.addUserOption(option => 
+				option.setName("user")
+				.setDescription("The user to be removed from the session")
+				.setRequired(true));
+	}
+
+	public async handleExecution({interaction, provider, interactor}: CommandExecutionContext) {
 		const sessionsCollection = provider.get(SessionsCollection);
 		const session = sessionsCollection.getSessionFromChannel(interaction.channelId) ?? sessionsCollection.getHostedSession(interactor);
 		if (!session) {
@@ -39,4 +41,6 @@ export default {
 			interaction.reply({ephemeral: true, content: `You cannot kick ${userToKick} from a session they're not in.`});
 		}
 	}
-} satisfies ICommandInteraction;
+}
+
+export default new KickCommand();

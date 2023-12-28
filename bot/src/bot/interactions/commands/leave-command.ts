@@ -1,14 +1,17 @@
-import { SlashCommandBuilder } from "discord.js";
-import { ICommandInteraction } from "../../interaction-types";
 import SessionsCollection from "../../../session/sessions-collection";
+import Command, { CommandExecutionContext } from "./command";
 
-export default {
-	name: "leave",
-	type: "COMMAND",
-	data: new SlashCommandBuilder()
-		.setName("leave")
-		.setDescription("Makes you leave the session you are in."),
-	async execute({interaction, provider, interactor}){
+class LeaveCommand extends Command {
+	public constructor() {
+		super("leave");
+	}
+
+	public create() {
+		return this.buildBaseCommand()
+			.setDescription("Makes you leave the session you are in.");
+	}
+
+	public async handleExecution({provider, interactor, interaction}: CommandExecutionContext) {
 		const sessionsCollection = provider.get(SessionsCollection);
 
 		const session = sessionsCollection.getSessionFromChannel(interaction.channelId) ?? sessionsCollection.getJoinedSession(interactor);
@@ -25,4 +28,6 @@ export default {
 			interaction.reply({ephemeral: true, content: "You cannot leave this session."});
 		}
 	}
-} satisfies ICommandInteraction;
+}
+
+export default new LeaveCommand();

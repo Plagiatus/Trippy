@@ -3,7 +3,7 @@ import Provider from "./provider";
 import * as Mongo from "mongodb";
 import Repository from "./repositories/repository";
 import SessionRepository from "./repositories/session-repository";
-import { SessionTemplate, UserData } from "./types/document-types";
+import { SessionTemplate } from "./types/document-types";
 import UserRepository from "./repositories/user-repository";
 import BansRepository from "./repositories/bans-repository";
 

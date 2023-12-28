@@ -6,11 +6,9 @@ import Session from "../session/session";
 export default class ErrorHandler {
 	private readonly discordClient: DiscordClient;
 	private readonly isHandlingTheBigOnes: boolean = false;
-	private readonly errorHandler: ErrorHandler;
 
 	public constructor(provider: Provider) {
 		this.discordClient = provider.get(DiscordClient);
-		this.errorHandler = provider.get(ErrorHandler);
 	}
 	
 	handleTheBigOnes(){

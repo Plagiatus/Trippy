@@ -1,25 +1,32 @@
-import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v10";
 import Config from "./config";
 import InteractionCollection from "./bot/interaction-collection";
 import Provider from "./provider";
+import utils from "./utils/utils";
+import DiscordClient from "./bot/discord-client";
 
+async function updateServerCommands() {
+	const provider = new Provider()
+		.add(DiscordClient)
+		.addFactory(Config, () => Config.loadConfigFile(Config.getEnvironmentConfigPath()))
+		.add(InteractionCollection);
 
-/** updates commands to servers. */
+	const interactionCollection = provider.get(InteractionCollection);
+	const config = provider.get(Config);
+	const discordClient = provider.get(DiscordClient);
 
-const provider = new Provider()
-	.addFactory(Config, () => Config.loadConfigFile(Config.getEnvironmentConfigPath()))
-	.addFactory(InteractionCollection, provider => new InteractionCollection(provider, InteractionCollection.importInteractions()));
+	const interactionsToUpdate = [
+		...await utils.asyncMap(interactionCollection.commands, async command => command.create({provider})),
+	];
 
-const interactionCollection = provider.get(InteractionCollection);
-const config = provider.get(Config);
+	try {
+		await discordClient.restClient.put(Routes.applicationGuildCommands(config.discordAppId, config.guildId), {
+			body: interactionsToUpdate.map(interaction => interaction.toJSON())
+		});
+		console.log("Successfully updated application commands");
+	} catch(error) {
+		console.error("Failed to update application commands", error);
+	}
+}
 
-const interactionsToUpdate = [
-	...interactionCollection.commandInteractions.values(),
-	...interactionCollection.contextInteractions.values(),
-].map(interaction => interaction.data);
-
-const rest = new REST({ version: "10" }).setToken(config.discordApiToken);
-rest.put(Routes.applicationGuildCommands(config.discordAppId, config.guildId), { body: interactionsToUpdate.map(interaction => interaction.toJSON()) })
-	.then(() => console.log("Successfully updated application commands"))
-	.catch(console.error);
+updateServerCommands();

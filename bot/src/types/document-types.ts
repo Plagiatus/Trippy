@@ -65,3 +65,8 @@ export type BanData = {
 	readonly userId: string;
 	bannedUsers: string[];
 }
+
+export type CommandData = {
+	readonly name: string;
+	externalId: string;
+}

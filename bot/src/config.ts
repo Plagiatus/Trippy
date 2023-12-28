@@ -97,7 +97,6 @@ export default class Config {
 		if (!fileContent) throw new Error(`Config file empty.`);
 		
 		const config: RawConfig = JSON.parse(fileContent);
-		console.log("start validate");
 		const validationResult = validate(config, jsonSchemas.configSchema);
 		if (!validationResult.valid) {
 			console.error("\n\x1b[41m Config Validation Error: \x1b[49m\n", validationResult.errors, "");

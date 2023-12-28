@@ -1,14 +1,17 @@
-import { SlashCommandBuilder } from "discord.js";
-import { ICommandInteraction } from "../../interaction-types";
 import SessionsCollection from "../../../session/sessions-collection";
+import Command, { CommandExecutionContext } from "./command";
 
-export default {
-	name: "stop",
-	type: "COMMAND",
-	data: new SlashCommandBuilder()
-		.setName("stop")
-		.setDescription("Stops your session."),
-	async execute({interaction, provider, interactor}){
+class StopCommand extends Command {
+	public constructor(){
+		super("stop");
+	}
+	
+	public create() {
+		return this.buildBaseCommand()
+			.setDescription("Stops your session.");
+	}
+
+	public async handleExecution({provider, interaction, interactor}: CommandExecutionContext) {
 		const sessionsCollection = provider.get(SessionsCollection);
 
 		const session = sessionsCollection.getSessionFromChannel(interaction.channelId) ?? sessionsCollection.getHostedSession(interactor);
@@ -30,4 +33,6 @@ export default {
 			interaction.editReply({content: "Was unable to stop the session."});
 		}
 	}
-} satisfies ICommandInteraction;
+}
+
+export default new StopCommand();

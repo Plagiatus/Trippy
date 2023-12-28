@@ -12,6 +12,7 @@ export default class DiscordClient {
 	private readonly errorHandler: ErrorHandler;
 	private readonly impersonation: Impersonation;
 	private readonly interactionCollection: InteractionCollection;
+	public readonly restClient: Discord.REST;
 
 	public constructor(private readonly provider: Provider) {
 		this.config = provider.get(Config);
@@ -20,6 +21,7 @@ export default class DiscordClient {
 		this.impersonation = provider.get(Impersonation);
 		this.client = new Discord.Client({ intents: [Discord.GatewayIntentBits.Guilds] });
 		this.addListeners();
+		this.restClient = new Discord.REST({ version: "10" }).setToken(this.config.discordApiToken);
 	}
 
 	private get user() {
@@ -174,10 +176,6 @@ export default class DiscordClient {
 			this.interactionCollection.executeCommandInteraction(interaction.commandName, interaction, interactor);
 		} else if (interaction.isButton()) {
 			this.interactionCollection.executeButtonInteraction(interaction.customId, interaction, interactor);
-		} else if (interaction.isContextMenuCommand()) {
-			this.interactionCollection.executeContextInteraction(interaction.commandName, interaction, interactor);
-		} else if (interaction.type === Discord.InteractionType.ModalSubmit) {
-			this.interactionCollection.executeModalInteraction(interaction.customId, interaction, interactor);
 		} else {
 			throw new Error("This type of interaction is not supported. If this problem persists, contact a moderator.");
 		}

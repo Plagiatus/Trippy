@@ -1,18 +1,22 @@
-import { ButtonBuilder, ButtonStyle } from "discord.js";
-import { IButtonInteraction } from "../../interaction-types";
+import { ButtonStyle } from "discord.js";
 import SessionsCollection from "../../../session/sessions-collection";
+import ActionButton, { ButtonClickContext } from "./action-button";
 
-export default {
-	name: /^session-end:.*$/,
-	type: "BUTTON",
-	create: (sessionId) => new ButtonBuilder()
-		.setCustomId(`session-end:${sessionId}`)
-		.setLabel("End Session")
-		.setStyle(ButtonStyle.Danger),
-	async execute({interaction, provider, interactor}) {
-		const sessionId = (/session-end:(.*)/).exec(interaction.customId)?.[1] ?? "";
+const buttonId = "session-end:(sessionId)";
+class EndSessionButton extends ActionButton<typeof buttonId> {
+	public constructor() {
+		super(buttonId);
+	}
+
+	public create(options: {sessionId: string}) {
+		return this.createBaseButton(options)
+			.setLabel("End Session")
+			.setStyle(ButtonStyle.Danger);
+	}
+
+	public async handleClick({provider, interaction, buttonParameters: parameters, interactor}: ButtonClickContext<typeof buttonId>): Promise<void> {
 		const sessionsCollection = provider.get(SessionsCollection);
-		const session = sessionsCollection.getSession(sessionId);
+		const session = sessionsCollection.getSession(parameters.sessionId);
 
 		if (!session) {
 			interaction.reply({content: "Session couldn't be found. The button shouldn't exist.", ephemeral: true});
@@ -32,4 +36,5 @@ export default {
 			interaction.editReply({content: "You are not able to end the session."});
 		}
 	}
-} satisfies IButtonInteraction<[sessionId: string]>;
+}
+export default new EndSessionButton();
