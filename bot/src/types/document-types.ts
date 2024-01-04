@@ -24,34 +24,50 @@ export type SessionRoles = {
 	mainId: string;
 }
 
-export type RawSession = {
+export type NewSession = {
 	readonly id: string;
+	state: "new";
 	blueprint: SessionBlueprint;
 	hostId: string;
 	players: SessionPlayer[];
-} & ({
-	state: "new",
-} | {
-	state: "running",
+}
+
+export type RunningSession = {
+	readonly id: string;
+	state: "running";
+	blueprint: SessionBlueprint;
+	hostId: string;
+	players: SessionPlayer[];
+	startTime: number;
 	channels: SessionChannels;
 	messages: SessionMessages;
 	roles: SessionRoles;
+}
+
+export type StoppingSession = {
+	readonly id: string;
+	state: "stopping";
+	blueprint: SessionBlueprint;
+	hostId: string;
+	players: SessionPlayer[];
 	startTime: number;
-} | {
-	state: "stopping",
+	endTime: number;
 	channels: SessionChannels;
-	messages: Omit<SessionMessages, "announcementId">;
+	messages: Omit<SessionMessages, "announcement">;
 	roles: SessionRoles;
+}
+
+export type EndedSession = {
+	readonly id: string;
+	state: "ended";
+	blueprint: SessionBlueprint;
+	hostId: string;
+	players: SessionPlayer[];
 	startTime: number;
 	endTime: number;
-} | {
-	state: "ended",
-	channels: null;
-	messages: null;
-	roles: null;
-	startTime: number;
-	endTime: number;
-});
+}
+
+export type RawSession = NewSession|RunningSession|StoppingSession|EndedSession;
 
 export type SessionTemplate = { readonly code: string; } & SessionBlueprint
 

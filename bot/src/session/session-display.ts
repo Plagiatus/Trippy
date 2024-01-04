@@ -6,17 +6,14 @@ import SessionAnnouncementMessage from "../bot/interactions/messages/session-ann
 import SessionHostMessage from "../bot/interactions/messages/session-host-message";
 import SessionInformationMessage from "../bot/interactions/messages/session-information-message";
 import Config from "../config";
-import DatabaseClient from "../database-client";
 import Provider from "../provider";
-import { RawSession } from "../types/document-types";
-import { SessionBlueprint } from "../types/session-blueprint-types";
 import constants from "../utils/constants";
 import Session from "./session";
+import { SessionChannels, SessionMessages, SessionRoles } from "../types/document-types";
 
 export default class SessionDisplay {
 	private readonly discordClient: DiscordClient;
 	private readonly config: Config;
-	private readonly databaseClient: DatabaseClient;
 	private readonly errorHandler: ErrorHandler;
 
 	private announcementMessage?: SessionAnnouncementMessage;
@@ -29,15 +26,14 @@ export default class SessionDisplay {
 	private sessionRole?: Role;
 	private hostRole?: Role;
 
-	public constructor(private readonly provider: Provider, private readonly session: Session, private readonly rawSession: RawSession) {
+	public constructor(private readonly provider: Provider, private readonly session: Session) {
 		this.discordClient = provider.get(DiscordClient);
 		this.config = provider.get(Config);
-		this.databaseClient = provider.get(DatabaseClient);
 		this.errorHandler = provider.get(ErrorHandler);
 	}
 
 	public async createSessionMessages() {
-		if (this.rawSession.state !== "new") {
+		if (this.session.rawSession.state !== "new") {
 			return;
 		}
 		
@@ -98,28 +94,6 @@ export default class SessionDisplay {
 		this.informationMessage = await SessionInformationMessage.createNew(this.provider, this.session, this.mainChannel.id,);
 		this.hostMessage = await SessionHostMessage.createNew(this.provider, this.session, this.hostChannel.id);
 
-		Object.assign(this.rawSession, {
-			...this.rawSession,
-			state: "running",
-			startTime: Date.now(),
-			channels: {
-				categoryId: this.categoryChannel.id,
-				hostId: this.hostChannel.id,
-				mainTextId: this.mainChannel.id,
-				voiceChannels: this.voiceChannels.data,
-			},
-			roles: {
-				hostId: this.hostRole.id,
-				mainId: this.sessionRole.id
-			},
-			messages: {
-				announcement: this.announcementMessage.data,
-				host: this.hostMessage.data,
-				information: this.informationMessage.data,
-			}
-		} satisfies Partial<RawSession>);
-
-		await this.databaseClient.sessionRepository.add(this.rawSession);
 		const hostMember = await this.session.getHost();
 		if (hostMember) {
 			this.hostRole && await hostMember.roles.add(this.hostRole);
@@ -128,41 +102,41 @@ export default class SessionDisplay {
 	}
 
 	public async reloadSessionMessages() {
-		if (this.rawSession.state !== "running" && this.rawSession.state !== "stopping") {
-			throw new Error(`Session can't be reloaded since it's state is ${this.rawSession.state}.`);
+		if (this.session.rawSession.state !== "running" && this.session.rawSession.state !== "stopping") {
+			throw new Error(`Session can't be reloaded since its state is ${this.session.rawSession.state}.`);
 		}
 
 		const reloadErrors: unknown[] = [];
 
-		const sessionRole = await this.discordClient.getRole(this.rawSession.roles.mainId);
+		const sessionRole = await this.discordClient.getRole(this.session.rawSession.roles.mainId);
 		if (sessionRole) {
 			this.sessionRole = sessionRole;
 		} else {
 			reloadErrors.push(new Error("Unable to recreate session because session role can't be found."));
 		}
 
-		const hostRole = await this.discordClient.getRole(this.rawSession.roles.hostId);
+		const hostRole = await this.discordClient.getRole(this.session.rawSession.roles.hostId);
 		if (hostRole) {
 			this.hostRole = hostRole;
 		} else {
 			reloadErrors.push(new Error("Unable to recreate session because host role can't be found."));
 		}
 
-		const categoryChannel = await this.discordClient.getChannel(this.rawSession.channels.categoryId)
+		const categoryChannel = await this.discordClient.getChannel(this.session.rawSession.channels.categoryId)
 		if (categoryChannel && categoryChannel.type === ChannelType.GuildCategory) {
 			this.categoryChannel = categoryChannel;
 		} else {
 			reloadErrors.push(new Error("Unable to recreate session because category channel can't be found."));
 		}
 
-		const mainChannel = await this.discordClient.getChannel(this.rawSession.channels.mainTextId)
+		const mainChannel = await this.discordClient.getChannel(this.session.rawSession.channels.mainTextId)
 		if (mainChannel && mainChannel.type === ChannelType.GuildText) {
 			this.mainChannel = mainChannel;
 		} else {
 			reloadErrors.push(new Error("Unable to recreate session because main text channel can't be found."));
 		}
 
-		const hostChannel = await this.discordClient.getChannel(this.rawSession.channels.hostId)
+		const hostChannel = await this.discordClient.getChannel(this.session.rawSession.channels.hostId)
 		if (hostChannel && hostChannel.type === ChannelType.GuildText) {
 			this.hostChannel = hostChannel;
 		} else {
@@ -171,21 +145,21 @@ export default class SessionDisplay {
 
 		if (this.categoryChannel && this.sessionRole) {
 			try {
-				this.voiceChannels = await SessionVoiceChannels.recreate(this.provider, this.session, this.rawSession.channels.voiceChannels);
+				this.voiceChannels = await SessionVoiceChannels.recreate(this.provider, this.session, this.session.rawSession.channels.voiceChannels);
 			} catch(error) {
 				reloadErrors.push(error);
 			}
 		}
 
 		try {
-			this.announcementMessage = this.rawSession.state === "running" ? await SessionAnnouncementMessage.recreate(this.provider, this.session, this.rawSession.messages.announcement) : undefined;
+			this.announcementMessage = this.session.rawSession.state === "running" ? await SessionAnnouncementMessage.recreate(this.provider, this.session, this.session.rawSession.messages.announcement) : undefined;
 		} catch(error) {
 			reloadErrors.push(error);
 		}
 
 		if (this.mainChannel) {
 			try {
-				this.informationMessage = await SessionInformationMessage.recreate(this.provider, this.session, this.rawSession.messages.information);
+				this.informationMessage = await SessionInformationMessage.recreate(this.provider, this.session, this.session.rawSession.messages.information);
 			} catch(error) {
 				reloadErrors.push(error);
 			}
@@ -193,7 +167,7 @@ export default class SessionDisplay {
 
 		if (this.hostChannel) {
 			try {
-				this.hostMessage = await SessionHostMessage.recreate(this.provider, this.session, this.rawSession.messages.host);
+				this.hostMessage = await SessionHostMessage.recreate(this.provider, this.session, this.session.rawSession.messages.host);
 			} catch(error) {
 				reloadErrors.push(error);
 			}
@@ -205,7 +179,7 @@ export default class SessionDisplay {
 			throw reloadErrors;
 		}
 
-		if (this.rawSession.state === "stopping") {
+		if (this.session.rawSession.state === "stopping") {
 			setTimeout(() => {
 				this.destroy();
 			}, this.config.sessionEndingTime);
@@ -213,26 +187,51 @@ export default class SessionDisplay {
 	}
 
 	public async destroy() {
-		if (this.rawSession.state === "ended" || this.rawSession.state === "new") {
+		if (this.session.rawSession.state === "ended" || this.session.rawSession.state === "new") {
 			return;
 		}
 
-		Object.assign(this.rawSession, {
-			...this.rawSession,
-			state: "ended",
-			channels: null,
-			messages: null,
-			roles: null,
-			endTime: "endTime" in this.rawSession ? this.rawSession.endTime : Date.now(),
-		});
+		try {
+			await this.hostRole?.delete();
+		} catch (error) {
+			this.errorHandler.handleSessionError(this.session, error, "Failed to remove host role.");
+		}
 
-		const voiceChannels = this.voiceChannels;
-		const announcementMessage = this.announcementMessage;
-		const hostRole = this.hostRole;
-		const sessionRole = this.sessionRole;
-		const mainChannel = this.mainChannel;
-		const hostChannel = this.hostChannel;
-		const categoryChannel = this.categoryChannel;
+		try {
+			await this.sessionRole?.delete();
+		} catch (error) {
+			this.errorHandler.handleSessionError(this.session, error, "Failed to remove session role.");
+		}
+
+		try {
+			await this.voiceChannels?.remove();
+		} catch (error) {
+			this.errorHandler.handleSessionError(this.session, error, "Failed to remove voice channels.");
+		}
+
+		try {
+			await this.announcementMessage?.remove();
+		} catch (error) {
+			this.errorHandler.handleSessionError(this.session, error, "Failed to remove announcement message.");
+		}
+
+		try {
+			await this.mainChannel?.delete();
+		} catch (error) {
+			this.errorHandler.handleSessionError(this.session, error, "Failed to remove main channel.");
+		}
+
+		try {
+			await this.hostChannel?.delete();
+		} catch (error) {
+			this.errorHandler.handleSessionError(this.session, error, "Failed to remove host channel.");
+		}
+
+		try {
+			await this.categoryChannel?.delete();
+		} catch (error) {
+			this.errorHandler.handleSessionError(this.session, error, "Failed to remove category channel.");
+		}
 
 		this.voiceChannels = undefined;
 		this.announcementMessage = undefined;
@@ -243,68 +242,18 @@ export default class SessionDisplay {
 		this.mainChannel = undefined;
 		this.hostChannel = undefined;
 		this.categoryChannel = undefined;
-
-		await this.databaseClient.sessionRepository.update(this.rawSession);
-
-		try {
-			await hostRole?.delete();
-		} catch (error) {
-			this.errorHandler.handleSessionError(this.session, error, "Failed to remove host role.");
-		}
-
-		try {
-			await sessionRole?.delete();
-		} catch (error) {
-			this.errorHandler.handleSessionError(this.session, error, "Failed to remove session role.");
-		}
-
-		try {
-			await voiceChannels?.remove();
-		} catch (error) {
-			this.errorHandler.handleSessionError(this.session, error, "Failed to remove voice channels.");
-		}
-
-		try {
-			await announcementMessage?.remove();
-		} catch (error) {
-			this.errorHandler.handleSessionError(this.session, error, "Failed to remove announcement message.");
-		}
-
-		try {
-			await mainChannel?.delete();
-		} catch (error) {
-			this.errorHandler.handleSessionError(this.session, error, "Failed to remove main channel.");
-		}
-
-		try {
-			await hostChannel?.delete();
-		} catch (error) {
-			this.errorHandler.handleSessionError(this.session, error, "Failed to remove host channel.");
-		}
-
-		try {
-			await categoryChannel?.delete();
-		} catch (error) {
-			this.errorHandler.handleSessionError(this.session, error, "Failed to remove category channel.");
-		}
 	}
 
-	public async changeBlueprint(blueprint: Readonly<SessionBlueprint>) {
-		if (this.rawSession.state !== "running") {
+	public async handleBlueprintChange() {
+		if (this.session.rawSession.state !== "running") {
 			return;
 		}
 
-		this.rawSession.blueprint = blueprint;
 		await Promise.all([
 			this.voiceChannels?.update(this.session),
 			this.informationMessage?.update(this.session),
 			this.announcementMessage?.update(this.session),
 		]);
-
-		if (this.voiceChannels) {
-			this.rawSession.channels.voiceChannels = this.voiceChannels.data;
-		}
-		await this.databaseClient.sessionRepository.update(this.rawSession);
 	}
 
 	public isChannelForSession(channel: string|Channel): boolean {
@@ -394,5 +343,60 @@ export default class SessionDisplay {
 	public async removeAnnouncementMessage() {
 		await this.announcementMessage?.remove();
 		this.announcementMessage = undefined;
+	}
+
+	public getChannelsSaveData(): SessionChannels {
+		if (!this.categoryChannel) {
+			throw new Error("Unable to get save data for category channel since there isn't one for the session.");
+		}
+		if (!this.hostChannel) {
+			throw new Error("Unable to get save data for host channel since there isn't one for the session.");
+		}
+		if (!this.mainChannel) {
+			throw new Error("Unable to get save data for main channel since there isn't one for the session.");
+		}
+		if (!this.voiceChannels) {
+			throw new Error("Unable to get save data for voice channels since there isn't one for the session.");
+		}
+		
+
+		return {
+			categoryId: this.categoryChannel.id,
+			hostId: this.hostChannel.id,
+			mainTextId: this.mainChannel.id,
+			voiceChannels: this.voiceChannels.data,
+		}
+	}
+
+	public getRolesSaveData(): SessionRoles {
+		if (!this.hostRole) {
+			throw new Error("Unable to get save data for host role since there isn't one for the session.");
+		}
+		if (!this.sessionRole) {
+			throw new Error("Unable to get save data for main session role since there isn't one for the session.");
+		}
+
+		return {
+			hostId: this.hostRole.id,
+			mainId: this.sessionRole.id,
+		}
+	}
+
+	public getMessagesSaveData(): SessionMessages {
+		if (!this.announcementMessage) {
+			throw new Error("Unable to get save data for announcement message since there isn't one for the session.");
+		}
+		if (!this.hostMessage) {
+			throw new Error("Unable to get save data for announcement message since there isn't one for the session.");
+		}
+		if (!this.informationMessage) {
+			throw new Error("Unable to get save data for announcement message since there isn't one for the session.");
+		}
+
+		return {
+			announcement: this.announcementMessage.data,
+			host: this.hostMessage.data,
+			information: this.informationMessage.data,
+		}
 	}
 }

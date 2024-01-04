@@ -15,12 +15,19 @@ export default class Session {
 	private readonly display: SessionDisplay;
 	private isSetup: boolean;
 
-	public constructor(provider: Provider, private readonly rawSession: RawSession) {
+	public constructor(provider: Provider, private _rawSession: RawSession) {
 		this.databaseClient = provider.get(DatabaseClient);
 		this.discordClient = provider.get(DiscordClient);
 		this.config= provider.get(Config);
-		this.display = new SessionDisplay(provider, this, rawSession);
+		this.display = new SessionDisplay(provider, this);
 		this.isSetup = false;
+	}
+	
+	public get rawSession(): Readonly<RawSession> {
+		return this._rawSession;
+	}
+	private set rawSession(value: RawSession) {
+		this._rawSession = value;
 	}
 
 	public get id() {
@@ -28,7 +35,7 @@ export default class Session {
 	}
 
 	public get roleId() {
-		if (this.rawSession.state === "running" || this.rawSession.state === "stopping") {
+		if ("roles" in this.rawSession) {
 			return this.rawSession.roles.mainId;
 		}
 		throw new Error("Session isn't running so no session role exists.");
@@ -63,20 +70,41 @@ export default class Session {
 	}
 
 	public async setup() {
-		if (this.isSetup) {
+		if (this.isSetup || this.rawSession.state === "ended") {
 			return;
 		}
 
 		this.isSetup = true;
-		if (this.rawSession.state === "new") {
-			await this.display.createSessionMessages();
-		} else {
+		if (this.rawSession.state !== "new") {
 			await this.display.reloadSessionMessages();
+			return;
 		}
+
+		await this.display.createSessionMessages();
+
+		this.rawSession = {
+			...this.rawSession,
+			state: "running",
+			startTime: Date.now(),
+			channels: this.display.getChannelsSaveData(),
+			roles: this.display.getRolesSaveData(),
+			messages: this.display.getMessagesSaveData(),
+		}
+
+		await this.databaseClient.sessionRepository.add(this.rawSession);
 	}
 
 	public async destroy() {
 		await this.display.destroy();
+		this.rawSession = {
+			id: this.rawSession.id,
+			state: "ended",
+			blueprint: this.rawSession.blueprint,
+			hostId: this.rawSession.hostId,
+			players: this.rawSession.players,
+			startTime: "startTime" in this.rawSession ? this.rawSession.startTime : Date.now(),
+			endTime: Date.now(),
+		}
 	}
 
 	public isChannelForSession(channel: string|Discord.Channel) {
@@ -151,28 +179,47 @@ export default class Session {
 	}
 
 	public async changeBlueprint(blueprint: Readonly<SessionBlueprint>) {
-		await this.display.changeBlueprint(blueprint);
+		this.rawSession = {
+			...this.rawSession,
+			blueprint: blueprint,
+		};
+
+		await this.display.handleBlueprintChange();
+		if (this.rawSession.state === "running" || this.rawSession.state === "stopping") {
+			this.rawSession = {
+				...this.rawSession,
+				channels: this.display.getChannelsSaveData(),
+			};
+			await this.databaseClient.sessionRepository.update(this.rawSession);
+		}
 	}
 
 	private async stopSession() {
 		if (this.rawSession.state !== "running") {
 			return;
 		}
-		
-		Object.bind(this.rawSession, {
+
+		this._rawSession = {
+			id: this.rawSession.id,
 			state: "stopping",
+			blueprint: this.rawSession.blueprint,
+			hostId: this.rawSession.hostId,
+			players: this.rawSession.players,
+			startTime: this.rawSession.startTime,
 			endTime: Date.now(),
+			channels: this.rawSession.channels,
 			messages: {
 				host: this.rawSession.messages.host,
 				information: this.rawSession.messages.information,
-			}
-		});
+			},
+			roles: this.rawSession.roles,
+		}
 
 		await this.display.removeAnnouncementMessage();
 		await this.databaseClient.sessionRepository.update(this.rawSession);
 
 		setTimeout(() => {
-			this.display.destroy();
+			this.destroy();
 		}, this.config.sessionEndingTime);
 	}
 
