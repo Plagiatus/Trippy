@@ -29,7 +29,7 @@ export default class ErrorHandler {
 	async handleSessionError(session: Session, error: unknown, message?: string) {
 		const errorMessage = this.getErrorString(error);
 		const didSendMessage = !!await this.discordClient.sendMessage("systemLog", {
-			content: `[Session ${session.id}]:${message === undefined ? "" : " " + message} ${errorMessage}`
+			content: `[Session ${session.id} ${session.uniqueId}]:${message === undefined ? "" : " " + message} ${errorMessage}`
 		});
 
 		if (!didSendMessage) {
@@ -51,6 +51,8 @@ export default class ErrorHandler {
 			return `\`\`\`${error.stack?.substring(0, 4000) }\`\`\``;
 		} else if (typeof error === "string") {
 			return "Error: ```" + error.substring(0, 4000) + "```";
+		} else if (Array.isArray(error) && error.every(element => element instanceof Error)) {
+			return "Errors: ```" + error.map(error => (error as Error).message).join("\n") + "```"
 		} else {
 			return "Unexpected error type: ```" + (error + "").substring(0, 4000) + "```";
 		}

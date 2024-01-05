@@ -34,6 +34,10 @@ export default class Session {
 		return this.rawSession.id;
 	}
 
+	public get uniqueId() {
+		return this.rawSession.uniqueId;
+	}
+
 	public get roleId() {
 		if ("roles" in this.rawSession) {
 			return this.rawSession.roles.mainId;
@@ -97,6 +101,7 @@ export default class Session {
 	public async destroy() {
 		await this.display.destroy();
 		this.rawSession = {
+			uniqueId: this.rawSession.uniqueId,
 			id: this.rawSession.id,
 			state: "ended",
 			blueprint: this.rawSession.blueprint,
@@ -200,6 +205,7 @@ export default class Session {
 		}
 
 		this._rawSession = {
+			uniqueId: this.rawSession.uniqueId,
 			id: this.rawSession.id,
 			state: "stopping",
 			blueprint: this.rawSession.blueprint,

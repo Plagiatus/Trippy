@@ -3,9 +3,9 @@ import { RawSession } from "../types/document-types";
 import Repository from "./repository";
 import * as Mongo from "mongodb";
 
-export default class SessionRepository extends Repository<RawSession,"id"> {
+export default class SessionRepository extends Repository<RawSession,"uniqueId"> {
 	public constructor(provider: Provider, collection: Mongo.Collection<RawSession>) {
-		super(provider, collection, "id");
+		super(provider, collection, "uniqueId");
 	}
 	
 	public getActiveSessions() {

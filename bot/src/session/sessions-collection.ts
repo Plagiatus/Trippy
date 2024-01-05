@@ -51,6 +51,7 @@ export default class SessionsCollection {
 
 	public async startNewSession(hostUserId: string, blueprint: SessionBlueprint) {
 		const newRawSession: RawSession = {
+			uniqueId: utils.newId(),
 			state: "new",
 			blueprint: blueprint,
 			hostId: hostUserId,
