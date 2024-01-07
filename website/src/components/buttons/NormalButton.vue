@@ -1,13 +1,17 @@
 <template>
-	<button class="normal-button" :class="color ?? 'background2'" :type="type ?? 'button'">
+	<router-or-button :route-to="routeTo" class="normal-button" :class="color ?? 'background2'" :type="type ?? 'button'">
 		<slot></slot>
-	</button>
+	</router-or-button>
 </template>
 
 <script setup lang="ts">
+import { RouteLocationRaw } from 'vue-router';
+import RouterOrButton from './RouterOrButton.vue';
+
 defineProps<{
 	color?: "background"|"background2"|"highlight";
 	type?: "button"|"submit"|"reset";
+	routeTo?: RouteLocationRaw;
 }>();
 </script>
 
@@ -20,6 +24,7 @@ defineProps<{
 	border-radius: 0.3em;
 	color: inherit;
 	white-space: nowrap;
+	width: fit-content;
 }
 
 .normal-button:hover {

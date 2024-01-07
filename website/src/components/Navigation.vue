@@ -8,8 +8,8 @@
 			</div>
 			<navigation-button route-to="/">Home</navigation-button>
 			<template v-if="authenticationHandler.isLoggedIn()">
-				<navigation-button route-to="/session">Session</navigation-button>
-				<navigation-button route-to="/profile">Profiles</navigation-button>
+				<navigation-button :route-to="{name: 'Experience'}">Experiences</navigation-button>
+				<navigation-button :route-to="{name: 'Session'}">Sessions</navigation-button>
 			</template>
 			<span id="discord-in-nav">
 				<logged-in-user-display v-if="authenticationHandler.isLoggedIn()"/>

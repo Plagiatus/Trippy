@@ -46,7 +46,7 @@ const sessionBlueprintSchema: Schema = {
 					type: "object",
 					additionalProperties: false,
 					properties: {
-						min: { type: "integer", minimum: 2 },
+						min: { type: "integer", minimum: 0 },
 						max: { type: "integer", minimum: 1 }
 					}
 				}

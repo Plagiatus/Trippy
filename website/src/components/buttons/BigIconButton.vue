@@ -1,16 +1,13 @@
 <template>
-	<router-link v-if="routeTo" class="big-icon-button" :to="routeTo">
+	<router-or-button class="big-icon-button" :to="routeTo">
 		<img class="image" :src="icon" alt="Show feedback">
 		<span class="title">{{title}}</span>
-	</router-link>
-	<button v-else class="big-icon-button">
-		<img class="image" :src="icon" alt="Show feedback">
-		<span class="title">{{title}}</span>
-	</button>
+	</router-or-button>
 </template>
 
 <script setup lang="ts">
 import { RouteLocationRaw } from 'vue-router';
+import RouterOrButton from './RouterOrButton.vue';
 
 defineProps<{
 	title: string;

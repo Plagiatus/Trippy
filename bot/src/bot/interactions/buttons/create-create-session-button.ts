@@ -7,7 +7,7 @@ export default async function createCreateSessionButton(options: {provider: Prov
 	const config = options.provider.get(Config);
 	const authenticationService = options.provider.get(AuthenticationService);
 	
-	const sessionSetupUrl = `${config.frontendUrl}/session/setup`;
+	const sessionSetupUrl = `${config.frontendUrl}/session/create`;
 	const loginAndSessionSetupUrl = await authenticationService.createLoginLinkWithRedirect(sessionSetupUrl, options.forUserId);
 
 	return new ButtonBuilder()

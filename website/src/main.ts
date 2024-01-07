@@ -3,14 +3,14 @@ import App from './App.vue'
 import { router } from './router'
 import providerPlugin from './provider/provider-plugin'
 import Config from './config'
-import SessionsApiClient from './api-clients/sessions-api-client'
-import FeedbackApiClient from './api-clients/feedback-api-client'
+import SessionApiClient from './api-clients/session-api-client'
 import MojangApiClient from './api-clients/mojang-api-client'
 import AuthenticationHandler from './authentication-handler'
 import localConfig from './config/config_local.json';
 import prodConfig from './config/config_prod.json';
 import Storage from './storage'
 import AuthenticationApiClient from './api-clients/authentication-api-client'
+import ExperienceApiClient from './api-clients/experience-api-client'
 
 createApp(App)
 	.use(router)
@@ -23,11 +23,11 @@ createApp(App)
 					return new Config(prodConfig);
 				}
 			})
-			.add(SessionsApiClient)
-			.add(FeedbackApiClient)
+			.add(SessionApiClient)
 			.add(MojangApiClient)
 			.add(AuthenticationApiClient)
 			.add(Storage)
 			.add(AuthenticationHandler)
+			.add(ExperienceApiClient)
 	}))
 	.mount('#app')

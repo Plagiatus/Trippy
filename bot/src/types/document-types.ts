@@ -27,6 +27,7 @@ export type SessionRoles = {
 export type BaseSession = {
 	readonly uniqueId: string;
 	readonly id: string;
+	experinceId?: string;
 	blueprint: SessionBlueprint;
 	hostId: string;
 	players: SessionPlayer[];
@@ -61,8 +62,6 @@ export type EndedSession = BaseSession&{
 
 export type RawSession = NewSession|RunningSession|StoppingSession|EndedSession;
 
-export type SessionTemplate = { readonly code: string; } & SessionBlueprint
-
 export type UserData = {
 	readonly id: string;
 	discordAuthToken?: string;
@@ -90,4 +89,14 @@ export type SimpleMessageData = {
 export type SessionVoiceChannelsData = {
 	categoryChannelId: string;
 	channelIds: string[],
+}
+
+export type ExperienceData = {
+	readonly id: string;
+	defaultBlueprint: SessionBlueprint;
+	owners: ExperienceOwnershipData[];
+}
+
+export type ExperienceOwnershipData = {
+	userId: string;
 }

@@ -49,12 +49,13 @@ export default class SessionsCollection {
 		}
 	}
 
-	public async startNewSession(hostUserId: string, blueprint: SessionBlueprint) {
+	public async startNewSession(options: {hostUserId: string, blueprint: SessionBlueprint, experienceId?: string}) {
 		const newRawSession: RawSession = {
 			uniqueId: utils.newId(),
 			state: "new",
-			blueprint: blueprint,
-			hostId: hostUserId,
+			blueprint: options.blueprint,
+			hostId: options.hostUserId,
+			experinceId: options.experienceId,
 			id: Session.generateSessionId(),
 			players: [],
 		}
@@ -66,7 +67,7 @@ export default class SessionsCollection {
 	}
 
 	public getSession(id: string) {
-		const sessionWithId = this.sessions.find(session => session.id === id);
+		const sessionWithId = this.sessions.find(session => session.id === id || session.uniqueId === id);
 		if (!sessionWithId || !sessionWithId.isRunningOrStopping) {
 			return null;
 		}

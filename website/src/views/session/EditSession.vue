@@ -6,23 +6,16 @@
 		</error-display>
 	</div>
 	<div class="session-information" v-else>
-		<content-box header="Users" class="section users-section">
-			<div
-				v-for="user of data.session.users"
-				:key="user.id"
-				class="user-row"
-			>
-				<img v-if="user.avatar" :src="user.avatar" class="user-image"/>
-				<div v-else class="user-image"></div>
-				{{user.name}}
-			</div>
-		</content-box>
+		<h1 class="header">Edit session {{data.session.id.toUpperCase()}}</h1>
 		<map-information-edit-section class="section" :session-blueprint="data.session.blueprint"/>
 		<join-information-edit-section class="section" :session-blueprint="data.session.blueprint"/>
 		<expectations-edit-section class="section" :session-blueprint="data.session.blueprint"/>
 		<session-edit-section class="section" :session-blueprint="data.session.blueprint"/>
-		<div class="update-session-button-holder">
-			<loading-button class="update-session-button"
+		<div class="button-holder">
+			<normal-button :route-to="{name: 'Session.Overview'}" class="option-button">Cancel</normal-button>
+		</div>
+		<div class="button-holder">
+			<loading-button class="option-button"
 				:loading="data.isUpdatingSession"
 				text="Update Session"
 				:success-text="data.updateSessionError ? undefined : 'Updated!'"
@@ -36,11 +29,11 @@
 </template>
 
 <script setup lang="ts">
-import SessionsApiClient from '@/api-clients/sessions-api-client';
-import ContentBox from '@/components/ContentBox.vue';
+import SessionApiClient from '@/api-clients/session-api-client';
 import ErrorDisplay from '@/components/ErrorDisplay.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import LoadingButton from '@/components/buttons/LoadingButton.vue';
+import NormalButton from '@/components/buttons/NormalButton.vue';
 import ExpectationsEditSection from '@/components/session/ExpectationsEditSection.vue';
 import JoinInformationEditSection from '@/components/session/JoinInformationEditSection.vue';
 import MapInformationEditSection from '@/components/session/MapInformationEditSection.vue';
@@ -58,7 +51,7 @@ const data = reactive({
 	updateSessionError: "",
 });
 
-const sessionsApiClient = useProvidedItem(SessionsApiClient);
+const sessionApiClient = useProvidedItem(SessionApiClient);
 const route = useRoute();
 const form = useValidateableForm();
 
@@ -72,7 +65,7 @@ watchEffect(async (cleanUp) => {
 	});
 
 	const sessionId = [route.params["sessionId"]].flat()[0];
-	const response = await sessionsApiClient.getSessionInformation(sessionId);
+	const response = await sessionApiClient.getSessionInformation(sessionId);
 	if (!useResult) {
 		return;
 	}
@@ -91,7 +84,7 @@ async function updateSession() {
 	data.updateSessionError = "";
 	data.isUpdatingSession = true;
 
-	const response = await sessionsApiClient.updateSessionBlueprint(data.session?.id, data.session.blueprint);
+	const response = await sessionApiClient.updateSessionBlueprint(data.session?.id, data.session.blueprint);
 	data.isUpdatingSession = false;
 	if (!response.data) {
 		data.updateSessionError = response.statusError?.statusText ?? (response.error + "");
@@ -125,39 +118,25 @@ async function updateSession() {
 	width: 100%;
 }
 
-.update-session-button {
+.option-button {
 	margin-top: 0.5em;
 	font-size: 2.5em;
 }
 
-.update-session-button-holder {
+.button-holder {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	flex-grow: 10000;
 	align-self: center;
-	min-width: 50vw;
+	min-width: 40vw;
 	order: 6;
 	gap: 1em;
 }
 
-.users-section {
-	min-height: 200px;
-}
-
-.user-row {
-	display: flex;
-	align-items: center;
-	margin-bottom: 0.5rem;
-	background-color: var(--background);
-	padding: 0.5rem 1rem;
-	border-radius: 1rem;
-}
-
-.user-image {
-	width: 2rem;
-	height: 2rem;
-	border-radius: 100%;
-	margin-right: 0.5rem;
+.header {
+	flex-grow: 1;
+	min-width: 90vw;
+	text-align: center;
 }
 </style>

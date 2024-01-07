@@ -30,7 +30,11 @@ export default class Repository<TDocument extends Mongo.Document, TId extends ke
 		return query;
 	}
 
-	private removeMongoIdField(document: Mongo.WithId<TDocument>|null): TDocument|null {
+	protected removeMongoIdFields(documents: ReadonlyArray<Mongo.WithId<TDocument>>): Array<TDocument> {
+		return documents.map(document => this.removeMongoIdField(document)!);
+	}
+
+	protected removeMongoIdField(document: Mongo.WithId<TDocument>|null): TDocument|null {
 		if (document === null) {
 			return null;
 		}

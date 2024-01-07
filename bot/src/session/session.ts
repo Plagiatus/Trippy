@@ -110,6 +110,7 @@ export default class Session {
 			startTime: "startTime" in this.rawSession ? this.rawSession.startTime : Date.now(),
 			endTime: Date.now(),
 		}
+		await this.databaseClient.sessionRepository.update(this.rawSession);
 	}
 
 	public isChannelForSession(channel: string|Discord.Channel) {

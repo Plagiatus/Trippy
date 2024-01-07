@@ -1,31 +1,30 @@
-import DatabaseClient from "../../database-client";
 import validationUtils from "../../utils/validation-utils";
 import RouteMaker from "../route";
-import hash from "object-hash";
-import { SessionTemplate } from "../../types/document-types";
 import SessionsCollection from "../../session/sessions-collection";
 import Session from "../../session/session";
 import DiscordClient from "../../bot/discord-client";
 import utils from "../../utils/utils";
+import DatabaseClient from "../../database-client";
 
 export default (({server, responses, provider, isAuthenticatedGuard}) => { 
-    const databaseClient = provider.get(DatabaseClient);
     const sessionsCollection = provider.get(SessionsCollection);
+    const databaseClient = provider.get(DatabaseClient);
     const discordClient = provider.get(DiscordClient);
 
     server.route("/session/:id?")
         .get(isAuthenticatedGuard, async (req, res) => {
             if (req.params.id) {
-                const session = sessionsCollection.getSession(req.params.id);
-                if (!session || session.hostId !== req.userId) {
+                const rawSession = await databaseClient.sessionRepository.get(req.params.id);
+                if (!rawSession || rawSession.hostId !== req.userId) {
                     return responses.sendCustomError(`Unable to get session with id "${req.params.id}".`, res);
                 }
-
-                const usersInSession = await utils.asyncMap(session.joinedUserIds, id => discordClient.getMember(id));
+                const session = sessionsCollection.getSession(rawSession.id);
+                const usersInSession = await utils.asyncMap(session?.joinedUserIds ?? [], id => discordClient.getMember(id));
 
                 return res.send({
-                    blueprint: session.blueprint,
-                    id: session.id,
+                    state: rawSession.state,
+                    blueprint: rawSession.blueprint,
+                    id: rawSession.id,
                     users: usersInSession.filter(utils.getHasValuePredicate()).map(user => ({
                         id: user.id,
                         name: user.displayName,
@@ -42,16 +41,21 @@ export default (({server, responses, provider, isAuthenticatedGuard}) => {
 
             return res.send({
                 sessions: sessions.map(session => ({
+                    uniqueId: session.uniqueId,
+                    id: session.id,
                     isHosting: session.hostId === req.userId,
                     name: session.blueprint.name,
-                    id: session.id,
+                    image: session.blueprint.image,
                 }))
             });
         })
         .post(isAuthenticatedGuard, async (req, res) => {
-            const { validationResult, validatedValue } = validationUtils.valdiateSessionBlueprint(req.body);
+            const noneValidatedBlueprint = typeof req.body === "object" && "blueprint" in req.body && req.body.blueprint;
+            const forExperienceId = typeof req.body === "object" && "experienceId" in req.body && typeof req.body.experienceId === "string" ? req.body.experienceId + "" : "";
+
+            const { validationResult, validatedValue } = validationUtils.valdiateSessionBlueprint(noneValidatedBlueprint);
             if (!validatedValue) {
-                return responses.sendCustomError("Failed to validate template: " + validationResult.errors.map(error => `"${error.property}": ${error.message}`).join(". "), res);
+                return responses.sendCustomError("Failed to validate blueprint: " + validationResult.errors.map(error => `"${error.property}": ${error.message}`).join(". "), res);
             }
 
             if (req.params.id) {
@@ -72,43 +76,12 @@ export default (({server, responses, provider, isAuthenticatedGuard}) => {
                 return responses.sendCustomError("You cannot start a session since you currently are inside of a session.", res);
             }
 
-            const session = await sessionsCollection.startNewSession(req.userId!, validatedValue);
+            const session = await sessionsCollection.startNewSession({
+                blueprint: validatedValue,
+                hostUserId: req.userId!,
+                experienceId: forExperienceId,
+            });
             res.send({sessionId: session.id});
-        })
-        .all(responses.wrongMethod);
-
-    server.route("/session/template/:code?")
-        .post(isAuthenticatedGuard, async (req, res) => {
-            const code: string = parseInt(hash(req.body), 16).toString(36).slice(0, 5);
-
-            const { validationResult, validatedValue } = validationUtils.valdiateSessionBlueprint(req.body);
-            if (!validatedValue) {
-                return responses.sendCustomError("Failed to validate template: " + validationResult.errors.map(error => `"${error.property}": ${error.message}`).join(". "), res);
-            }
-
-            const template: SessionTemplate = { 
-                ...validatedValue,
-                code,
-            }
-
-            await databaseClient.sessionTemplateRepository.add(template);
-            res.send({ code });
-        })
-        .get(isAuthenticatedGuard, async (req, res) => {
-            const code = req.params.code;
-            if (!code || code.length != 5) {
-                return responses.sendCustomError("Code needs to be 5 characters long.", res);
-            }
-            if (!validationUtils.isAlphaNumeric(code)) {
-                return responses.sendCustomError("Code can only be alphanumerical.", res);
-            }
-
-            const template = await databaseClient.sessionTemplateRepository.get(code);
-            if (!template) {
-                return responses.sendCustomError("No template with the given code.", res);
-            }
-
-            res.send({...template, code: undefined});
         })
         .all(responses.wrongMethod);
 }) satisfies RouteMaker

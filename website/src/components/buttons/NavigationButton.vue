@@ -1,14 +1,12 @@
 <template>
-	<router-link v-if="routeTo" class="navigation-button" :to="routeTo">
+	<router-or-button class="navigation-button" :route-to="routeTo">
 		<slot></slot>
-	</router-link>
-	<button v-else class="navigation-button">
-		<slot></slot>
-	</button>
+	</router-or-button>
 </template>
 
 <script setup lang="ts">
 import { RouteLocationRaw } from 'vue-router';
+import RouterOrButton from './RouterOrButton.vue';
 
 defineProps<{
 	routeTo?: RouteLocationRaw

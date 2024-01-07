@@ -1,20 +1,16 @@
 <template>
-	<div class="session-information" v-if="!data.didMakeSession">
-		<template-edit-section class="section template-section" v-model:session-blueprint="sessionBlueprint" :session-form="form"/>
+	<div class="experience-information">
+		<h1 class="header">Create new experience</h1>
 		<map-information-edit-section class="section" :session-blueprint="sessionBlueprint"/>
 		<join-information-edit-section class="section" :session-blueprint="sessionBlueprint"/>
 		<expectations-edit-section class="section" :session-blueprint="sessionBlueprint"/>
 		<session-edit-section class="section" :session-blueprint="sessionBlueprint"/>
-		<div class="create-session-button-holder">
-			<loading-button class="create-session-button" :loading="data.isCreatingSession" text="Create Session" @click="createSession"/>
-			<error-display @close="data.sessionCreationError = ''">
-				<p v-if="data.sessionCreationError">{{data.sessionCreationError}}</p>
+		<div class="create-experience-button-holder">
+			<loading-button class="create-experience-button" :loading="data.isCreatingExperience" text="Create Experience" @click="createExperience"/>
+			<error-display @close="data.experienceCreationError = ''">
+				<p v-if="data.experienceCreationError">{{data.experienceCreationError}}</p>
 			</error-display>
 		</div>
-	</div>
-	<div v-else class="session-created">
-		<p>Your session has been created!</p>
-		<p>Go back to <a :href="config.discordInviteLink" target="_blank" rel="noopener noreferrer">Discord</a>.</p>
 	</div>
 </template>
 
@@ -26,17 +22,15 @@ import JoinInformationEditSection from '@/components/session/JoinInformationEdit
 import ExpectationsEditSection from '@/components/session/ExpectationsEditSection.vue';
 import SessionEditSection from '@/components/session/SessionEditSection.vue';
 import { useValidateableForm } from '@/composables/use-validateable-form';
-import TemplateEditSection from '@/components/session/TemplateEditSection.vue';
 import useProvidedItem from '@/composables/use-provided-item';
-import SessionsApiClient from '@/api-clients/sessions-api-client';
 import ErrorDisplay from '@/components/ErrorDisplay.vue';
-import Config from '@/config';
 import LoadingButton from '@/components/buttons/LoadingButton.vue';
+import ExperienceApiClient from '@/api-clients/experience-api-client';
+import { useRouter } from 'vue-router';
 
 const data = shallowReactive({
-	sessionCreationError: "",
-	didMakeSession: false,
-	isCreatingSession: false,
+	experienceCreationError: "",
+	isCreatingExperience: false,
 });
 
 const sessionBlueprint = ref<PartialSessionBlueprint>({
@@ -44,30 +38,36 @@ const sessionBlueprint = ref<PartialSessionBlueprint>({
 	voiceChannels: [],
 });
 
-const config = useProvidedItem(Config);
-const sessionsApiClient = useProvidedItem(SessionsApiClient);
+const experienceApiClient = useProvidedItem(ExperienceApiClient);
 const form = useValidateableForm();
+const router = useRouter();
 
-async function createSession() {
-	data.sessionCreationError = "";
+async function createExperience() {
+	data.experienceCreationError = "";
 	const isValid = form.validateForm();
 	if (!isValid) {
 		return;
 	}
 
-	data.isCreatingSession = true;
-	const result = await sessionsApiClient.createSession(sessionBlueprint.value as SessionBlueprint);
-	data.isCreatingSession = false;
+	data.isCreatingExperience = true;
+	const result = await experienceApiClient.createExperience(sessionBlueprint.value as SessionBlueprint);
+	data.isCreatingExperience = false;
 	if (!result.data) {
-		data.sessionCreationError = result.statusError?.statusText ?? (result.error + "");
+		data.experienceCreationError = result.statusError?.statusText ?? (result.error + "");
 		return;
 	}
-	data.didMakeSession = true;
+
+	router.push({
+		name: "Experience.Overview",
+		params: {
+			experienceId: result.data.experienceId,
+		}
+	})
 }
 </script>
 
 <style scoped>
-.session-information {
+.experience-information {
 	display: flex;
 	justify-content: space-between;
 	flex-wrap: wrap;
@@ -85,12 +85,12 @@ async function createSession() {
 	width: 100%;
 }
 
-.create-session-button {
+.create-experience-button {
 	margin-top: 0.5em;
 	font-size: 2.5em;
 }
 
-.create-session-button-holder {
+.create-experience-button-holder {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -101,18 +101,9 @@ async function createSession() {
 	gap: 1em;
 }
 
-@media screen and (min-width: 1880px) {
-	.template-section {
-		order: 5;
-	}
-}
-
-.session-created {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	width: 100%;
-	height: 100%;
+.header {
+	flex-grow: 1;
+	min-width: 90vw;
+	text-align: center;
 }
 </style>

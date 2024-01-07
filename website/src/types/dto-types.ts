@@ -12,8 +12,25 @@ export type SessionInformationDto = {
 
 export type UserSessionsListDto = {
 	sessions: Array<{
+		uniqueId: string;
+		id: string;
 		isHosting: boolean;
 		name: string;
-		id: string;
+		image: string|undefined;
 	}>
+}
+
+export type UserExperiencesListDto = {
+	experiences: Array<{
+		id: string;
+		name: string;
+		image: string|undefined;
+	}>;
+}
+
+export type ExperienceInformationDto = {
+	experience: {
+		id: string,
+		defaultBlueprint: SessionBlueprint,
+	}
 }

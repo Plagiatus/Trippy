@@ -37,7 +37,7 @@ onMounted(() => {
 
 async function authenticateUsingDiscordCode(code: string) {
 	if (await authenticationHandler.authenticateUsingDiscordCode(code)) {
-		router.push({name: "Sessions"});
+		router.push({name: "Session"});
 	} else {
 		data.failedAuthentication = true;
 	}

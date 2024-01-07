@@ -7,7 +7,7 @@
 		<div class="input-row">
 			<p>Players</p>
 			<div class="players-count-row">
-				<input-field class="players-count-input" v-model="sessionBlueprint.preferences.players.min" type="number" placeholder="Minimum needed" :min="2" :max="sessionBlueprint.preferences.players.max"/>
+				<input-field class="players-count-input" v-model="sessionBlueprint.preferences.players.min" type="number" placeholder="Minimum needed" :min="0" :max="sessionBlueprint.preferences.players.max"/>
 				<input-field class="players-count-input" v-model="sessionBlueprint.preferences.players.max" type="number" placeholder="Maximum supported" :min="1"/>
 			</div>
 		</div>
