@@ -4,7 +4,7 @@
 	</div>
 	<div v-else-if="defaultBlueprint" class="experience-information">
 		<h1 class="header">Edit {{data.experienceName}}</h1>
-		<map-information-edit-section class="section" :session-blueprint="defaultBlueprint"/>
+		<map-information-edit-section class="section" :session-blueprint="defaultBlueprint" v-model:image="data.newImage"/>
 		<join-information-edit-section class="section" :session-blueprint="defaultBlueprint"/>
 		<expectations-edit-section class="section" :session-blueprint="defaultBlueprint"/>
 		<session-edit-section class="section" :session-blueprint="defaultBlueprint"/>
@@ -51,6 +51,7 @@ const data = shallowReactive({
 	experienceUpdateError: "",
 	experienceName: "",
 	isUpdatingExperience: false,
+	newImage: undefined as undefined|null|Blob,
 });
 const defaultBlueprint = ref<SessionBlueprint>();
 
@@ -68,7 +69,11 @@ async function updateExperience() {
 	}
 
 	data.isUpdatingExperience = true;
-	const result = await experienceApiClient.updateExperienceBlueprint(experience.data.experience.id, defaultBlueprint.value);
+	const result = await experienceApiClient.updateExperienceBlueprint({
+		experienceId: experience.data.experience.id,
+		blueprint: defaultBlueprint.value,
+		image: data.newImage,
+	});
 	data.isUpdatingExperience = false;
 	if (!result.data) {
 		data.experienceUpdateError = result.statusError?.statusText ?? (result.error + "");

@@ -8,8 +8,17 @@ export default class SessionApiClient extends BaseApiClient {
 		super(provider);
 	}
 
-	public async createSession(sessionInformation: {blueprint: SessionBlueprint, experienceId?: string}) {
-		return this.post<{sessionId: string}>(`session`, sessionInformation);
+	public async createSession(sessionInformation: {blueprint: SessionBlueprint, experienceId?: string, image?: Blob}) {
+		const formData = new FormData();
+		formData.append("blueprint", JSON.stringify(sessionInformation.blueprint));
+		if (sessionInformation.experienceId) {
+			formData.append("experienceId", sessionInformation.experienceId);
+		}
+		if (sessionInformation.image) {
+			formData.append("image", sessionInformation.image);
+		}
+		
+		return this.post<{sessionId: string, uniqueSessionId: string}>(`session`, formData);
 	};
 
 	public async getUsersSessions() {
@@ -20,7 +29,15 @@ export default class SessionApiClient extends BaseApiClient {
 		return this.get<SessionInformationDto>(`session/${sessionId}`);
 	}
 
-	public async updateSessionBlueprint(sessionId: string, blueprint: SessionBlueprint) {
-		return this.post<{}>(`session/${sessionId}`, {blueprint: blueprint})
+	public async updateSessionBlueprint(options: {sessionId: string, blueprint: SessionBlueprint, image?: Blob|null}) {
+		const formData = new FormData();
+		formData.append("blueprint", JSON.stringify(options.blueprint));
+		if (options.image) {
+			formData.append("image", options.image);
+		} else if (options.image === null) {
+			formData.append("removeImage", "true");
+		}
+
+		return this.post<{}>(`session/${options.sessionId}`, formData)
 	}
 }

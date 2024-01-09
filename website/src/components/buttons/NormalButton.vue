@@ -54,6 +54,7 @@ defineProps<{
 
 .highlight {
 	background-color: var(--highlight);
+	color: black;
 }
 
 .highlight:focus-within {

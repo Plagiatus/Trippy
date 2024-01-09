@@ -24,15 +24,35 @@ export default (({server, responses, provider, isAuthenticatedGuard}) => {
                 experiences: ownedExperiences.map(experience => ({
                     id: experience.id,
                     name: experience.defaultBlueprint.name,
-                    image: experience.defaultBlueprint.image,
+                    imageId: experience.defaultBlueprint.imageId,
                 }))
             })
         })
         .post(isAuthenticatedGuard, async (req, res) => {
-            const blueprintData = typeof req.body === "object" && "defaultBlueprint" in req.body ? req.body.defaultBlueprint : null;
+            const blueprintData = typeof req.body === "object" && "defaultBlueprint" in req.body ? JSON.parse(req.body.defaultBlueprint) : null;
             const { validationResult, validatedValue } = validationUtils.valdiateSessionBlueprint(blueprintData);
+            const removeImage = typeof req.body === "object" && "removeImage" in req.body;
+            const imageFile = Array.isArray(req.files) ? req.files.find(file => file.fieldname === "image") : undefined;
+
             if (!validatedValue) {
                 return responses.sendCustomError("Failed to validate blueprint: " + validationResult.errors.map(error => `"${error.property}": ${error.message}`).join(". "), res);
+            }
+
+            if (imageFile) {
+                try {
+                    validationUtils.validateSessionImage(imageFile);
+                } catch(error) {
+                    if (error instanceof Error) {
+                        return responses.sendCustomError(error.message, res);
+                    }
+                    throw error;
+                }
+                const imageId = await databaseClient.imageRepository.addImage(imageFile);
+                validatedValue.imageId = imageId;
+            } else if (removeImage) {
+                validatedValue.imageId = undefined;
+            } else if (validatedValue.imageId !== undefined && !await databaseClient.imageRepository.exists(validatedValue.imageId)) {
+                validatedValue.imageId = undefined;
             }
 
             if (req.params.id) {

@@ -45,17 +45,29 @@ export default (({server, responses, provider, isAuthenticatedGuard}) => {
                     id: session.id,
                     isHosting: session.hostId === req.userId,
                     name: session.blueprint.name,
-                    image: session.blueprint.image,
+                    imageId: session.blueprint.imageId,
                 }))
             });
         })
         .post(isAuthenticatedGuard, async (req, res) => {
-            const noneValidatedBlueprint = typeof req.body === "object" && "blueprint" in req.body && req.body.blueprint;
+            const noneValidatedBlueprint = typeof req.body === "object" && "blueprint" in req.body ? JSON.parse(req.body.blueprint) : null;
             const forExperienceId = typeof req.body === "object" && "experienceId" in req.body && typeof req.body.experienceId === "string" ? req.body.experienceId + "" : "";
+            const removeImage = typeof req.body === "object" && "removeImage" in req.body;
+            const imageFile = Array.isArray(req.files) ? req.files.find(file => file.fieldname === "image") : undefined;
 
             const { validationResult, validatedValue } = validationUtils.valdiateSessionBlueprint(noneValidatedBlueprint);
             if (!validatedValue) {
                 return responses.sendCustomError("Failed to validate blueprint: " + validationResult.errors.map(error => `"${error.property}": ${error.message}`).join(". "), res);
+            }
+
+            if (imageFile) {
+                validationUtils.validateSessionImage(imageFile);
+                const imageId = await databaseClient.imageRepository.addImage(imageFile);
+                validatedValue.imageId = imageId;
+            } else if (removeImage) {
+                validatedValue.imageId = undefined;
+            } else if (validatedValue.imageId !== undefined && !await databaseClient.imageRepository.exists(validatedValue.imageId)) {
+                validatedValue.imageId = undefined;
             }
 
             if (req.params.id) {
@@ -76,12 +88,19 @@ export default (({server, responses, provider, isAuthenticatedGuard}) => {
                 return responses.sendCustomError("You cannot start a session since you currently are inside of a session.", res);
             }
 
+            if (forExperienceId) {
+                const canCreateForExperience = await databaseClient.experienceRepository.isOwnedByUser(forExperienceId, req.userId!);
+                if (!canCreateForExperience) {
+                    return responses.sendCustomError("You cannot start a session for the given experience.", res);
+                }
+            }
+
             const session = await sessionsCollection.startNewSession({
                 blueprint: validatedValue,
                 hostUserId: req.userId!,
                 experienceId: forExperienceId,
             });
-            res.send({sessionId: session.id});
+            res.send({sessionId: session.id, uniqueSessionId: session.uniqueId});
         })
         .all(responses.wrongMethod);
 }) satisfies RouteMaker

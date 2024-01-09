@@ -4,7 +4,7 @@
 	</div>
 	<div v-else-if="experience.data" class="overview-page">
 		<content-box class="experience-overview">
-			<img v-if="experience.data.experience.defaultBlueprint.image" :src="experience.data.experience.defaultBlueprint.image" class="experience-image"/>
+			<img v-if="experience.data.experience.defaultBlueprint.imageId" :src="imageApiClient.getImageLink(experience.data.experience.defaultBlueprint.imageId)" class="experience-image"/>
 			<div v-else class="experience-image"></div>
 			<h1 class="map-name">{{experience.data.experience.defaultBlueprint.name}}</h1>
 			<div class="details">
@@ -30,6 +30,7 @@
 
 <script setup lang="ts">
 import ExperienceApiClient from '@/api-clients/experience-api-client';
+import ImageApiClient from '@/api-clients/image-api-client';
 import ContentBox from '@/components/ContentBox.vue';
 import ErrorDisplay from '@/components/ErrorDisplay.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
@@ -40,6 +41,7 @@ import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 const experienceApiClient = useProvidedItem(ExperienceApiClient);
+const imageApiClient = useProvidedItem(ImageApiClient);
 const route = useRoute();
 const experience = useLoadData(() => experienceApiClient.getExperience(route.params.experienceId + ""), () => !!route.params.experienceId);
 

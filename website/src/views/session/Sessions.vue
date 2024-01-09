@@ -10,7 +10,7 @@
 			:to="{name: 'Session.Overview', params: {sessionId: session.uniqueId}}"
 		>
 			<section class="session">
-				<img v-if="session.image" :src="session.image" class="session-image"/>
+				<img v-if="session.imageId" :src="imageApiClient.getImageLink(session.imageId)" class="session-image"/>
 				<div v-else class="session-image"></div>
 				<div class="session-name-holder">
 					<p class="session-name">{{session.name}} ({{session.id.toUpperCase()}})</p>
@@ -26,6 +26,7 @@
 </template>
 
 <script setup lang="ts">
+import ImageApiClient from '@/api-clients/image-api-client';
 import SessionApiClient from '@/api-clients/session-api-client';
 import NormalButton from '@/components/buttons/NormalButton.vue';
 import useLoadData from '@/composables/use-load-data';
@@ -33,7 +34,7 @@ import useProvidedItem from '@/composables/use-provided-item';
 import { computed } from 'vue';
 
 const sessionsApiClient = useProvidedItem(SessionApiClient);
-
+const imageApiClient = useProvidedItem(ImageApiClient);
 const sessionResponse = useLoadData(() => sessionsApiClient.getUsersSessions());
 const hostedSessions = computed(() => sessionResponse.data?.sessions.filter(session => session.isHosting) ?? []);
 </script>

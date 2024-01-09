@@ -5,6 +5,7 @@ import SessionRepository from "./repositories/session-repository";
 import UserRepository from "./repositories/user-repository";
 import BansRepository from "./repositories/bans-repository";
 import ExperienceRepository from "./repositories/experience-repository";
+import ImageRepository from "./repositories/image-repository";
 
 export default class DatabaseClient {
 	private client: Mongo.MongoClient;
@@ -14,6 +15,7 @@ export default class DatabaseClient {
 	public readonly userRepository: UserRepository;
 	public readonly bansRepository: BansRepository;
 	public readonly experienceRepository: ExperienceRepository;
+	public readonly imageRepository: ImageRepository;
 
 	public constructor(provider: Provider) {
 		this.config = provider.get(Config);
@@ -24,6 +26,7 @@ export default class DatabaseClient {
 		this.userRepository = new UserRepository(provider, db.collection("Users"));
 		this.bansRepository = new BansRepository(provider, db.collection("Bans"));
 		this.experienceRepository = new ExperienceRepository(provider, db.collection("Experiences"));
+		this.imageRepository = new ImageRepository(provider, db.collection("Images"));
 	}
 
 	public async connect() {

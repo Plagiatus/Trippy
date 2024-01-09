@@ -16,7 +16,7 @@ export type UserSessionsListDto = {
 		id: string;
 		isHosting: boolean;
 		name: string;
-		image: string|undefined;
+		imageId: string|undefined;
 	}>
 }
 
@@ -24,7 +24,7 @@ export type UserExperiencesListDto = {
 	experiences: Array<{
 		id: string;
 		name: string;
-		image: string|undefined;
+		imageId: string|undefined;
 	}>;
 }
 

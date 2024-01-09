@@ -81,6 +81,11 @@ export default class Session {
 		this.isSetup = true;
 		if (this.rawSession.state !== "new") {
 			await this.display.reloadSessionMessages();
+			if (this.rawSession.state === "stopping") {
+				setTimeout(() => {
+					this.destroy();
+				}, this.config.sessionEndingTime);
+			}
 			return;
 		}
 

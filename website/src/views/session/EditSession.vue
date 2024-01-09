@@ -7,7 +7,7 @@
 	</div>
 	<div class="session-information" v-else>
 		<h1 class="header">Edit session {{data.session.id.toUpperCase()}}</h1>
-		<map-information-edit-section class="section" :session-blueprint="data.session.blueprint"/>
+		<map-information-edit-section class="section" :session-blueprint="data.session.blueprint" v-model:image="data.newImage"/>
 		<join-information-edit-section class="section" :session-blueprint="data.session.blueprint"/>
 		<expectations-edit-section class="section" :session-blueprint="data.session.blueprint"/>
 		<session-edit-section class="section" :session-blueprint="data.session.blueprint"/>
@@ -42,17 +42,19 @@ import useProvidedItem from '@/composables/use-provided-item';
 import { useValidateableForm } from '@/composables/use-validateable-form';
 import { SessionInformationDto } from '@/types/dto-types';
 import { reactive, watchEffect } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const data = reactive({
 	session: null as null | SessionInformationDto,
 	loadingError: null as null | string,
 	isUpdatingSession: false,
 	updateSessionError: "",
+	newImage: undefined as undefined|Blob|null,
 });
 
 const sessionApiClient = useProvidedItem(SessionApiClient);
 const route = useRoute();
+const router = useRouter();
 const form = useValidateableForm();
 
 watchEffect(async (cleanUp) => {
@@ -84,11 +86,18 @@ async function updateSession() {
 	data.updateSessionError = "";
 	data.isUpdatingSession = true;
 
-	const response = await sessionApiClient.updateSessionBlueprint(data.session?.id, data.session.blueprint);
+	const response = await sessionApiClient.updateSessionBlueprint({
+		sessionId: data.session?.id,
+		blueprint: data.session.blueprint,
+		image: data.newImage,
+	});
 	data.isUpdatingSession = false;
 	if (!response.data) {
 		data.updateSessionError = response.statusError?.statusText ?? (response.error + "");
+		return;
 	}
+
+	router.push({name: "Session.Overview"});
 }
 </script>
 

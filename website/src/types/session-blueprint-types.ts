@@ -10,7 +10,7 @@ export type SessionBlueprint = {
 	voiceChannels: VoiceChannelBlueprint[];
 	
 	rpLink?: string;
-	image?: string;
+	imageId?: string;
 	ping?: boolean;
 }
 

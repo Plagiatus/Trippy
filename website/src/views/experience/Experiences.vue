@@ -10,7 +10,7 @@
 			:to="{name: 'Experience.Overview', params: {experienceId: experience.id}}"
 		>
 			<section class="experience">
-				<img v-if="experience.image" :src="experience.image" class="experience-image"/>
+				<img v-if="experience.imageId" :src="imageApiClient.getImageLink(experience.imageId)" class="experience-image"/>
 				<div v-else class="experience-image"></div>
 				<div class="experience-name-holder">
 					<p class="experience-name">{{experience.name}}</p>
@@ -27,6 +27,7 @@
 
 <script setup lang="ts">
 import ExperienceApiClient from '@/api-clients/experience-api-client';
+import ImageApiClient from '@/api-clients/image-api-client';
 import ErrorDisplay from '@/components/ErrorDisplay.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import NormalButton from '@/components/buttons/NormalButton.vue';
@@ -34,6 +35,7 @@ import useLoadData from '@/composables/use-load-data';
 import useProvidedItem from '@/composables/use-provided-item';
 
 const experienceApiClient = useProvidedItem(ExperienceApiClient);
+const imageApiClient = useProvidedItem(ImageApiClient);
 const experiencesResponse = useLoadData(() => experienceApiClient.getUsersExperiences());
 
 

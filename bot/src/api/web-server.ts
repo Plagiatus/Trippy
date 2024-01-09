@@ -7,6 +7,7 @@ import RouteMaker from "./route";
 import WebResponses from "./responses";
 import bodyParser from "body-parser";
 import isAuthenticatedGuardFactory from "./guards/is-authenticated-guard-factory";
+import upload, { memoryStorage } from "multer";
 
 export class WebServer {
 	private readonly server: Express;
@@ -24,6 +25,10 @@ export class WebServer {
 		this.server.use(cors({
 			origin: [this.config.frontendUrl],
 		}));
+
+		const fileStorage = memoryStorage();
+		const fileUpload = upload({ storage: fileStorage });
+		this.server.use(fileUpload.any());
 
 		for (const route of WebServer.importRoutes()) {
 			this.addRoute(route);

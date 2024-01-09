@@ -1,7 +1,7 @@
 <template>
 	<div class="experience-information">
 		<h1 class="header">Create new experience</h1>
-		<map-information-edit-section class="section" :session-blueprint="sessionBlueprint"/>
+		<map-information-edit-section class="section" :session-blueprint="sessionBlueprint" v-model:image="data.image"/>
 		<join-information-edit-section class="section" :session-blueprint="sessionBlueprint"/>
 		<expectations-edit-section class="section" :session-blueprint="sessionBlueprint"/>
 		<session-edit-section class="section" :session-blueprint="sessionBlueprint"/>
@@ -31,6 +31,7 @@ import { useRouter } from 'vue-router';
 const data = shallowReactive({
 	experienceCreationError: "",
 	isCreatingExperience: false,
+	image: undefined as undefined|Blob|null,
 });
 
 const sessionBlueprint = ref<PartialSessionBlueprint>({
@@ -50,7 +51,10 @@ async function createExperience() {
 	}
 
 	data.isCreatingExperience = true;
-	const result = await experienceApiClient.createExperience(sessionBlueprint.value as SessionBlueprint);
+	const result = await experienceApiClient.createExperience({
+		blueprint: sessionBlueprint.value as SessionBlueprint,
+		image: data.image ?? undefined,
+	});
 	data.isCreatingExperience = false;
 	if (!result.data) {
 		data.experienceCreationError = result.statusError?.statusText ?? (result.error + "");

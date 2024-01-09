@@ -11,4 +11,9 @@ export default class ExperienceRepository extends Repository<ExperienceData,"id"
 	public async getOwnedByUser(userId: string) {
 		return this.removeMongoIdFields(await this.collection.find({"owners.userId": userId}).toArray());
 	}
+
+	public async isOwnedByUser(experienceId: string, userId: string) {
+		const experience = await this.get(experienceId);
+		return !!experience?.owners.some(owner => owner.userId === userId);
+	}
 }

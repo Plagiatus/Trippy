@@ -11,6 +11,8 @@ import prodConfig from './config/config_prod.json';
 import Storage from './storage'
 import AuthenticationApiClient from './api-clients/authentication-api-client'
 import ExperienceApiClient from './api-clients/experience-api-client'
+import FileAccess from './file-access'
+import ImageApiClient from './api-clients/image-api-client'
 
 createApp(App)
 	.use(router)
@@ -29,5 +31,7 @@ createApp(App)
 			.add(Storage)
 			.add(AuthenticationHandler)
 			.add(ExperienceApiClient)
+			.add(FileAccess)
+			.add(ImageApiClient)
 	}))
 	.mount('#app')

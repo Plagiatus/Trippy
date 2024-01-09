@@ -6,11 +6,14 @@ import constants from "../../../utils/constants";
 import utils from "../../../utils/utils";
 import sessionEmbedUtils from "../../../utils/session-embed-utils";
 import { SimpleMessageData } from "../../../types/document-types";
-import { Message, ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "discord.js";
+import { Message, ActionRowBuilder, ButtonBuilder, EmbedBuilder, AttachmentBuilder } from "discord.js";
+import DatabaseClient from "../../../database-client";
 
 export default class SessionAnnouncementMessage {
-	private constructor(private readonly message: Message) {
-		
+	private readonly databaseClient: DatabaseClient;
+
+	private constructor(provider: Provider, private readonly message: Message, private lastImageId: string|undefined|null) {
+		this.databaseClient = provider.get(DatabaseClient);
 	}
 
 	public get data(): SimpleMessageData {
@@ -24,30 +27,37 @@ export default class SessionAnnouncementMessage {
 			throw new Error("Unable to recreate announcement message because message can't be found.");
 		}
 
-		const announcementMessage = new SessionAnnouncementMessage(message);
+		const announcementMessage = new SessionAnnouncementMessage(provider, message, session.blueprint.imageId);
 		await announcementMessage.update(session);
 		return announcementMessage;
 	}
 
 	public static async createNew(provider: Provider, session: Session, channel: ChannelParameterType) {
 		const discordClient = provider.get(DiscordClient);
+		const embedAndFiles = await SessionAnnouncementMessage.createEmbed(session, provider.get(DatabaseClient));
+
 		const message = await discordClient.sendMessage(channel, {
 			embeds: [
-				await SessionAnnouncementMessage.createEmbed(session),
+				embedAndFiles.embed,
 			],
+			files: embedAndFiles.files,
 			components: [
 				new ActionRowBuilder<ButtonBuilder>().addComponents(joinSessionButton.create({sessionId: session.id}))
 			]
 		});
 
-		return new SessionAnnouncementMessage(message);
+		return new SessionAnnouncementMessage(provider, message, session.blueprint.imageId);
 	}
 
 	public async update(session: Session) {
+		const embedAndFiles = await SessionAnnouncementMessage.createEmbed(session, this.databaseClient, this.lastImageId);
+		this.lastImageId = session.blueprint.imageId;
+
 		await this.message.edit({
 			embeds: [
-				await SessionAnnouncementMessage.createEmbed(session),
-			]
+				embedAndFiles.embed,
+			],
+			files: embedAndFiles.files,
 		})
 	}
 
@@ -55,7 +65,7 @@ export default class SessionAnnouncementMessage {
 		await this.message.delete();
 	}
 
-	private static async createEmbed(session: Session) {
+	private static async createEmbed(session: Session, databaseClient: DatabaseClient, lastImageId?: string|null) {
 		const host = await session.getHost();
 
 		const embedBuilder = new EmbedBuilder()
@@ -84,10 +94,23 @@ export default class SessionAnnouncementMessage {
 		embedBuilder.addFields({name: " ", value: " ", inline: false});
 		embedBuilder.addFields(sessionEmbedUtils.createPlayerCountField(session));
 
-		if (session.blueprint.image) {
-			embedBuilder.setImage(session.blueprint.image);
+		let attachment: AttachmentBuilder|null = null;
+		if (session.blueprint.imageId) {
+			const imageName = `${session.blueprint.imageId}.png`;
+			if (session.blueprint.imageId !== lastImageId) {
+				const imageData = await databaseClient.imageRepository.get(session.blueprint.imageId);
+				if (imageData) {
+					const image = new AttachmentBuilder(imageData.imageData.buffer, {name: imageName});
+					attachment = image;
+				}
+			}
+
+			embedBuilder.setImage(`attachment://${imageName}`);
 		}
 	
-		return embedBuilder.toJSON();
+		return {
+			embed: embedBuilder.toJSON(),
+			files: attachment ? [attachment] : (session.blueprint.imageId ? undefined : []),
+		}
 	}
 }

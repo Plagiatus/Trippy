@@ -178,12 +178,6 @@ export default class SessionDisplay {
 		} else if (reloadErrors.length > 1) {
 			throw reloadErrors;
 		}
-
-		if (this.session.rawSession.state === "stopping") {
-			setTimeout(() => {
-				this.destroy();
-			}, this.config.sessionEndingTime);
-		}
 	}
 
 	public async destroy() {

@@ -5,7 +5,8 @@
 	"jwtSecret": "aRandomSecretValue",
 	"serverId": "",
 	"port": 9009,
-	"frontendUrl": "http://localhost:3000",
+	"frontendUrl": "http://localhost:5173",
+	"backendUrl": "http://localhost:9009",
 	"db": {
 		"user": "",
 		"password": "",

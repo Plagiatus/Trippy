@@ -23,8 +23,12 @@ export default class Repository<TDocument extends Mongo.Document, TId extends ke
 		return await this.collection.deleteOne(this.getQueryForDocument(documentOrId));
 	}
 
+	public async exists(documentOrId: TDocument|TDocument[TId]) {
+		return !!(await this.get(this.getId(documentOrId)));
+	}
+
 	protected getQueryForDocument(documentOrId: TDocument|TDocument[TId]): Mongo.Filter<TDocument> {
-		const id = (documentOrId && typeof documentOrId === "object") ? documentOrId[this.idField] : documentOrId;
+		const id = this.getId(documentOrId);
 		const query: Partial<TDocument> = {}
 		query[this.idField] = id;
 		return query;
@@ -32,6 +36,11 @@ export default class Repository<TDocument extends Mongo.Document, TId extends ke
 
 	protected removeMongoIdFields(documents: ReadonlyArray<Mongo.WithId<TDocument>>): Array<TDocument> {
 		return documents.map(document => this.removeMongoIdField(document)!);
+	}
+
+	protected getId(documentOrId: TDocument|TDocument[TId]) {
+		const id = (documentOrId && typeof documentOrId === "object") ? documentOrId[this.idField] : documentOrId;
+		return id;
 	}
 
 	protected removeMongoIdField(document: Mongo.WithId<TDocument>|null): TDocument|null {

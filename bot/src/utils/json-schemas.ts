@@ -63,7 +63,7 @@ const sessionBlueprintSchema: Schema = {
 				}
 			}
 		},
-		image: { type: "string", pattern: "^(.+:\\/\\/)?([^.]+\\.)+[^.]+(\\/.)?" },
+		imageId: { oneOf: [{type: "string"}, {type: "null"}] },
 		ping: {type: "boolean"},
 	}
 }
@@ -73,6 +73,7 @@ const configSchema: Schema = {
 	required: ["frontendUrl","botToken","serverId","appId","port","db","channels","roles","session"],
 	properties: {
 		frontendUrl: {type: "string"},
+		backendUrl: {type: "string"},
 		botToken: {type: "string", minLength: 10},
 		serverId: {type: "string", minLength: 18},
 		appId: {type: "string", minLength: 18},

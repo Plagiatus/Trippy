@@ -31,14 +31,21 @@ export default abstract class BaseApiClient {
 	}
 
 	protected async post<TResult>(path: string, data?: unknown, options?: {useAuth?: boolean}) {
+		const headers: HeadersInit = {...await this.getAuthHeader(options?.useAuth)};
+
+		let requestBody: undefined|string|FormData = undefined;
+		if (data instanceof FormData) {
+			requestBody = data;
+		} else {
+			requestBody = JSON.stringify(data);
+			headers["Content-Type"] = "application/json";
+		}
+		
 		return this.wrapRequest<TResult>(async () => {
 			return await fetch(this.getFullPath(path), {
 				method: "POST",
-				body: data === undefined ? undefined : JSON.stringify(data),
-				headers: {
-					"Content-Type": "application/json",
-					...await this.getAuthHeader(options?.useAuth),
-				}
+				body: requestBody,
+				headers: headers,
 			});
 		});
 	}

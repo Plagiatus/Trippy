@@ -1,6 +1,7 @@
 import { SessionBlueprint } from "../types/session-blueprint-types";
 import { validate, type Schema } from "jsonschema";
 import jsonSchemas from "./json-schemas";
+import sizeOfImage from "image-size";
 
 class ValidationUtils {
 	isAlphaNumeric(str: string): boolean {
@@ -25,6 +26,17 @@ class ValidationUtils {
 		return {
 			validationResult,
 			validatedValue: validationResult.valid ? value as T : null,
+		}
+	}
+
+	public validateSessionImage(image: Express.Multer.File) {
+		const size = sizeOfImage(image.buffer);
+		if (size.type !== "png") {
+			throw new Error("Image has to be a png image.");
+		}
+
+		if ((size.width ?? 0) > 1280 || (size.height ?? 0) > 720) {
+			throw new Error("Image can't be bigger than 1280x720.");
 		}
 	}
 }

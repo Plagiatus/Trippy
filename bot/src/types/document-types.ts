@@ -1,3 +1,4 @@
+import { Binary } from "mongodb";
 import { SessionBlueprint } from "./session-blueprint-types";
 
 export type SessionPlayer = {
@@ -99,4 +100,10 @@ export type ExperienceData = {
 
 export type ExperienceOwnershipData = {
 	userId: string;
+}
+
+export type ImageData = {
+	readonly id: string;
+	imageData: Binary;
+	createdAt: Date;
 }

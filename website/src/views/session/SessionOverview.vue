@@ -4,7 +4,7 @@
 	</div>
 	<div v-else-if="sessionResponse.data" class="overview-page">
 		<content-box class="session-overview">
-			<img v-if="sessionResponse.data.blueprint.image" :src="sessionResponse.data.blueprint.image" class="session-image"/>
+			<img v-if="sessionResponse.data.blueprint.imageId" :src="imageApiClient.getImageLink(sessionResponse.data.blueprint.imageId)" class="session-image"/>
 			<div v-else class="session-image"></div>
 			<h1 class="map-name">{{sessionResponse.data.blueprint.name}}</h1>
 			<h2 class="session-id">({{sessionResponse.data.id}})</h2>
@@ -40,6 +40,7 @@
 </template>
 
 <script setup lang="ts">
+import ImageApiClient from '@/api-clients/image-api-client';
 import SessionApiClient from '@/api-clients/session-api-client';
 import ContentBox from '@/components/ContentBox.vue';
 import ErrorDisplay from '@/components/ErrorDisplay.vue';
@@ -51,6 +52,7 @@ import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 const sessionApiClient = useProvidedItem(SessionApiClient);
+const imageApiClient = useProvidedItem(ImageApiClient);
 const route = useRoute();
 const sessionResponse = useLoadData(() => sessionApiClient.getSessionInformation(route.params.sessionId + ""), () => !!route.params.sessionId);
 

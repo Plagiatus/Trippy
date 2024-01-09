@@ -12,6 +12,7 @@ export type RawConfig = {
 	jwtSecret: string,
 	port: number,
 	frontendUrl: string,
+	backendUrl: string,
 	db: {
 		user: string,
 		password: string,
@@ -53,6 +54,10 @@ export default class Config {
 
 	public get frontendUrl() {
 		return this.rawConfig.frontendUrl;
+	}
+
+	public get backendUrl() {
+		return this.rawConfig.backendUrl;
 	}
 
 	public get discordApiToken() {
