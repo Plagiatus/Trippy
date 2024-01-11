@@ -1,6 +1,9 @@
 <template>
 	<content-box header="Session">
-		<input-checkbox v-model="sessionBlueprint.ping" name="Ping" class="input-row"/>
+		<transition-size v-if="data.canPingInMilliseconds">
+			<input-checkbox v-if="data.canPingInMilliseconds <= 0" v-model="sessionBlueprint.ping" name="Ping" class="input-row"/>
+			<div v-else class="ping-timer-message">You can ping again in <span class="ping-timer">{{formattedPingTimer}}</span>.</div>
+		</transition-size>
 		<p>Voice Channels:</p>
 		<div class="add-voice-channel">
 			<validateable-form-provider :form="voiceChannelForm">
@@ -31,21 +34,59 @@
 import InputField from '@/components/inputs/InputField.vue';
 import InputCheckbox from '@/components/inputs/InputCheckbox.vue';
 import { PartialSessionBlueprint } from '@/types/session-blueprint-types';
-import { shallowReactive } from 'vue';
+import { computed, shallowReactive, watchEffect } from 'vue';
 import ContentBox from '../ContentBox.vue';
 import NormalButton from '../buttons/NormalButton.vue';
 import ValidateableForm from '@/validateable-form';
 import ValidateableFormProvider from '../ValidateableFormProvider.vue';
+import TransitionSize from '../TransitionSize.vue';
+import useProvidedItem from '@/composables/use-provided-item';
+import AuthenticationHandler from '@/authentication-handler';
+import TimeHelper from '@/time-helper';
 
 const props = defineProps<{
 	sessionBlueprint: PartialSessionBlueprint;
 }>()
 
+const voiceChannelForm = new ValidateableForm();
+const authenticationHandler = useProvidedItem(AuthenticationHandler);
+const timeHelper = useProvidedItem(TimeHelper);
+
 const data = shallowReactive({
 	newVoiceChannelName: "",
+	canPingInMilliseconds: null as null|number,
 });
 
-const voiceChannelForm = new ValidateableForm();
+watchEffect((cleanup) => {
+	const beginningPingDelay = authenticationHandler.userInformation?.timeTillNextPing ?? null;
+	data.canPingInMilliseconds = beginningPingDelay;
+	if (beginningPingDelay === null || beginningPingDelay <= 0) {
+		return;
+	}
+
+	const pingTimerStartedAt = timeHelper.currentDate.getTime();
+	const interval = setInterval(() => {
+		data.canPingInMilliseconds = beginningPingDelay - (timeHelper.currentDate.getTime() - pingTimerStartedAt);
+	}, 1000);
+
+	cleanup(() => {
+		clearInterval(interval);
+	});
+});
+
+const formattedPingTimer = computed(() => {
+	if (data.canPingInMilliseconds === null) {
+		return "never";
+	}
+
+	const totalSeconds = Math.ceil(data.canPingInMilliseconds / 1000);
+	const seconds = totalSeconds % 60;
+	const totalMinutes = Math.floor(totalSeconds / 60);
+	const minutes = totalMinutes % 60;
+	const totalHours = Math.floor(totalMinutes / 60);
+
+	return `${totalHours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+});
 
 function addVoiceChannel() {
 	if (!voiceChannelForm.validateForm()) {
@@ -101,5 +142,14 @@ function removeVoiceChannel(index: number) {
 
 .voice-channel:hover>.remove-channel {
 	visibility: visible;
+}
+
+.ping-timer {
+	color: var(--highlight);
+	font-weight: bold;
+}
+
+.ping-timer-message {
+	margin-bottom: 1em;
 }
 </style>

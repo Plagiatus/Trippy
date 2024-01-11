@@ -6,10 +6,12 @@ import { RawSession } from "../types/document-types";
 import { SessionBlueprint } from "../types/session-blueprint-types";
 import SessionDisplay from "./session-display";
 import Config from "../config";
+import TimeHelper from "../time-helper";
 
 export default class Session {
 	private readonly databaseClient: DatabaseClient;
 	private readonly discordClient: DiscordClient;
+	private readonly timeHelper: TimeHelper;
 	private readonly config: Config;
 
 	private readonly display: SessionDisplay;
@@ -18,6 +20,7 @@ export default class Session {
 	public constructor(provider: Provider, private _rawSession: RawSession) {
 		this.databaseClient = provider.get(DatabaseClient);
 		this.discordClient = provider.get(DiscordClient);
+		this.timeHelper = provider.get(TimeHelper);
 		this.config= provider.get(Config);
 		this.display = new SessionDisplay(provider, this);
 		this.isSetup = false;
@@ -94,13 +97,16 @@ export default class Session {
 		this.rawSession = {
 			...this.rawSession,
 			state: "running",
-			startTime: Date.now(),
+			startTime: this.timeHelper.currentDate.getTime(),
 			channels: this.display.getChannelsSaveData(),
 			roles: this.display.getRolesSaveData(),
 			messages: this.display.getMessagesSaveData(),
 		}
 
 		await this.databaseClient.sessionRepository.add(this.rawSession);
+		if (this.rawSession.blueprint.ping) {
+			this.databaseClient.userRepository.updateLastPingTime(this.rawSession.hostId);
+		}
 	}
 
 	public async destroy() {
@@ -112,8 +118,8 @@ export default class Session {
 			blueprint: this.rawSession.blueprint,
 			hostId: this.rawSession.hostId,
 			players: this.rawSession.players,
-			startTime: "startTime" in this.rawSession ? this.rawSession.startTime : Date.now(),
-			endTime: Date.now(),
+			startTime: "startTime" in this.rawSession ? this.rawSession.startTime : this.timeHelper.currentDate.getTime(),
+			endTime: "endTime" in this.rawSession ? this.rawSession.endTime : this.timeHelper.currentDate.getTime(),
 		}
 		await this.databaseClient.sessionRepository.update(this.rawSession);
 	}
@@ -138,7 +144,7 @@ export default class Session {
 
 		this.rawSession.players.push({
 			id: userId,
-			joinTime: Date.now(),
+			joinTime: this.timeHelper.currentDate.getTime(),
 		});
 
 		await this.databaseClient.sessionRepository.update(this.rawSession);
@@ -158,7 +164,7 @@ export default class Session {
 		}
 
 		//Updating value in object ref - updating it here updates the value in rawSession.
-		playerInformation.leaveTime = Date.now();
+		playerInformation.leaveTime = this.timeHelper.currentDate.getTime();
 		await this.databaseClient.sessionRepository.update(this.rawSession);
 
 		const leftMember = await this.discordClient.getMember(userId);
@@ -218,7 +224,7 @@ export default class Session {
 			hostId: this.rawSession.hostId,
 			players: this.rawSession.players,
 			startTime: this.rawSession.startTime,
-			endTime: Date.now(),
+			endTime: this.timeHelper.currentDate.getTime(),
 			channels: this.rawSession.channels,
 			messages: {
 				host: this.rawSession.messages.host,

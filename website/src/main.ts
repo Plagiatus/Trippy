@@ -13,6 +13,7 @@ import AuthenticationApiClient from './api-clients/authentication-api-client'
 import ExperienceApiClient from './api-clients/experience-api-client'
 import FileAccess from './file-access'
 import ImageApiClient from './api-clients/image-api-client'
+import TimeHelper from './time-helper'
 
 createApp(App)
 	.use(router)
@@ -33,5 +34,6 @@ createApp(App)
 			.add(ExperienceApiClient)
 			.add(FileAccess)
 			.add(ImageApiClient)
+			.add(TimeHelper)
 	}))
 	.mount('#app')

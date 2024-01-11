@@ -6,6 +6,7 @@ import { AccessTokenResponse, UserObject } from "./types/discord-types";
 import DatabaseClient from "./database-client";
 import DiscordClient from "./bot/discord-client";
 import jsonWebToken, { SignOptions } from "jsonwebtoken";
+import RecommendationHelper from "./recommendation-helper";
 
 type TokenAndRefreshInformation = {
 	jwt: string;
@@ -21,11 +22,13 @@ export default class AuthenticationService {
 	private readonly config: Config;
 	private readonly dbClient: DatabaseClient;
 	private readonly discordClient: DiscordClient;
+	private readonly recommendationHelper: RecommendationHelper; 
 
 	public constructor(provider: Provider) {
 		this.config = provider.get(Config);
 		this.dbClient = provider.get(DatabaseClient);
 		this.discordClient = provider.get(DiscordClient);
+		this.recommendationHelper = provider.get(RecommendationHelper);
 	}
 
 	public async authenticateFromAuthorizationCode(code: string): Promise<TokenAndRefreshInformation> {
@@ -192,6 +195,7 @@ export default class AuthenticationService {
 
 	private async createJwtForUserId(userId: string) {
 		const member = await this.discordClient.getMember(userId);
+		const userInformation = await this.dbClient.userRepository.get(userId);
 		if (!member) {
 			throw new Error(`Member with id ${userId} doesn't exist in the server.`);
 		}
@@ -201,6 +205,11 @@ export default class AuthenticationService {
 			userId,
 			name: member.displayName,
 			avatar: member.displayAvatarURL({size: 256}),
+			recommendationScore: this.recommendationHelper.getRecommendationScore(userInformation),
+			javaAccount: userInformation.javaAccount,
+			bedrockAccount: userInformation.bedrockAccount,
+			timeTillNextPing: this.recommendationHelper.getMillisecondsTillNextAllowedPing(userInformation),
+			canUseImages: this.recommendationHelper.canUseImages(userInformation),
 		};
 
 		const options: SignOptions = {

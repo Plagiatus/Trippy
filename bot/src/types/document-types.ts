@@ -74,7 +74,11 @@ export type UserData = {
 	bedrockAccount?: {
 		username: string;
 		validated: boolean;
-	}
+	},
+	totalRecommendationScore: number;
+	recommendationScore: number;
+	lastRecommendationScoreUpdate: Date;
+	lastPingAt?: Date;
 }
 
 export type BanData = {

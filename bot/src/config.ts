@@ -3,40 +3,10 @@ import path from "path";
 import { validate } from "jsonschema";
 import utils from "./utils/utils";
 import jsonSchemas from "./utils/json-schemas";
-
-export type RawConfig = {
-	botToken: string,
-	appId: string,
-	serverId: string,
-	oAuthSecret: string,
-	jwtSecret: string,
-	port: number,
-	frontendUrl: string,
-	backendUrl: string,
-	db: {
-		user: string,
-		password: string,
-		url: string,
-		name: string,
-	},
-	channels: {
-		modLog: string,
-		systemLog: string,
-		sessionList: string,
-		activeSessions: string,
-	},
-	roles: {
-		mods: string,
-		hosts: string,
-	},
-	session: {
-		endingTime: number,
-	},
-}
+import { RawConfig } from "./types/config";
 
 export default class Config {
-
-	public constructor(private readonly rawConfig: RawConfig) {
+	public constructor(public readonly rawConfig: RawConfig) {
 
 	}
 
@@ -54,10 +24,6 @@ export default class Config {
 
 	public get frontendUrl() {
 		return this.rawConfig.frontendUrl;
-	}
-
-	public get backendUrl() {
-		return this.rawConfig.backendUrl;
 	}
 
 	public get discordApiToken() {

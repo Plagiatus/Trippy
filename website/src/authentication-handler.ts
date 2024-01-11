@@ -19,11 +19,22 @@ export type OAuthOptions = {
 	redirect?: string;
 }
 
-export type UserInformation = {
-	readonly userId: string;
-	readonly avatar: string;
-	readonly name: string|null;
-}
+export type UserInformation = Readonly<{
+	userId: string;
+	avatar: string;
+	name: string|null;
+	recommendationScore: number;
+	javaAccount?: {
+		username: string,
+		validated: boolean,
+	},
+	bedrockAccount?: {
+		username: string,
+		validated: boolean,
+	},
+	timeTillNextPing: number|null,
+	canUseImages: boolean,
+}>;
 
 export default class AuthenticationHandler {
 	private static readonly stateStorageKey = "oauthState";
@@ -194,6 +205,11 @@ export default class AuthenticationHandler {
 				avatar: jwtBody.avatar,
 				name: jwtBody.name,
 				userId: jwtBody.userId,
+				bedrockAccount: jwtBody.bedrockAccount,
+				javaAccount: jwtBody.javaAccount,
+				recommendationScore: jwtBody.recommendationScore,
+				timeTillNextPing: jwtBody.timeTillNextPing,
+				canUseImages: jwtBody.canUseImages,
 			};
 			this.storage.set(AuthenticationHandler.useInformationStorageKey, this.changeableUserInformationRef.value);
 		}

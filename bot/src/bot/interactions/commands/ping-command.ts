@@ -1,3 +1,4 @@
+import TimeHelper from "../../../time-helper";
 import Command, { CommandExecutionContext } from "./command";
 
 class PingCommand extends Command {
@@ -10,8 +11,8 @@ class PingCommand extends Command {
 			.setDescription("Replies if the bot is online.");
 	}
 
-	public handleExecution({interaction}: CommandExecutionContext) {
-		const latency = Date.now() - interaction.createdTimestamp;
+	public handleExecution({interaction, provider}: CommandExecutionContext) {
+		const latency = provider.get(TimeHelper).currentDate.getTime() - interaction.createdTimestamp;
 		interaction.reply({ephemeral: true, content: `Ping Pong, my latency is long! (${latency}ms)`});
 	}
 }

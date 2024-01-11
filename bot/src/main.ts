@@ -9,6 +9,8 @@ import InteractionCollection from "./bot/interaction-collection";
 import SessionsCollection from "./session/sessions-collection";
 import Impersonation from "./impersonation";
 import AuthenticationService from "./authentication-service";
+import TimeHelper from "./time-helper";
+import RecommendationHelper from "./recommendation-helper";
 
 async function start(){
 	console.log("Starting...");
@@ -23,7 +25,9 @@ async function start(){
 		.add(SessionsCollection)
 		.add(Impersonation)
 		.add(AuthenticationService)
-		.add(InteractionCollection);
+		.add(InteractionCollection)
+		.add(TimeHelper)
+		.add(RecommendationHelper);
 
 	await provider.get(DatabaseClient).connect();
 	console.log("Connected to database...");

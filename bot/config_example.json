@@ -6,7 +6,6 @@
 	"serverId": "",
 	"port": 9009,
 	"frontendUrl": "http://localhost:5173",
-	"backendUrl": "http://localhost:9009",
 	"db": {
 		"user": "",
 		"password": "",
@@ -25,5 +24,14 @@
 	},
 	"session": {
 		"endingTime": 30000
+	},
+	"recommendation": {
+		"baseAmountOfScoreToLosePerHour": 0.041667,
+		"imageUnlockAt": 100,
+		"pingUnlock": {
+			"partialUnlockAt": 100,
+			"fullUnlockAt": 1000,
+			"hoursOfDelayAtPartialUnlock": 48
+		}
 	}
 }

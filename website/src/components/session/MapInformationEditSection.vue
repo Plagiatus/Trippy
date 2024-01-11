@@ -3,13 +3,15 @@
 		<input-field v-model="sessionBlueprint.name" type="text" name="Name" class="input-row" required/>
 		<input-textarea v-model="sessionBlueprint.description" name="Description" class="input-row" required/>
 		<input-select v-model="sessionBlueprint.category" :values="categoryOptions" name="Category" class="input-row" required/>
-		<normal-button @click="uploadImage" color="highlight" class="upload-button">Upload image</normal-button>
-		<transition-size>
-			<div v-if="image === null ? false : (data.newImage ?? props.sessionBlueprint.imageId)" class="image-holder">
-				<img class="map-image" :src="data.newImage ?? imageApiClient.getImageLink(props.sessionBlueprint.imageId)"/>
-				<normal-button @click="removeImage" color="highlight">Remove</normal-button>
-			</div>
-		</transition-size>
+		<template v-if="authenticationHandler.userInformation?.canUseImages">
+			<normal-button @click="uploadImage" color="highlight" class="upload-button">Upload image</normal-button>
+			<transition-size>
+				<div v-if="image === null ? false : (data.newImage ?? props.sessionBlueprint.imageId)" class="image-holder">
+					<img class="map-image" :src="data.newImage ?? imageApiClient.getImageLink(props.sessionBlueprint.imageId)"/>
+					<normal-button @click="removeImage" color="highlight">Remove</normal-button>
+				</div>
+			</transition-size>
+		</template>
 	</content-box>
 </template>
 
@@ -25,6 +27,7 @@ import FileAccess from '@/file-access';
 import TransitionSize from '../TransitionSize.vue';
 import { shallowReactive } from 'vue';
 import ImageApiClient from '@/api-clients/image-api-client';
+import AuthenticationHandler from '@/authentication-handler';
 
 const props = defineProps<{
 	sessionBlueprint: PartialSessionBlueprint;
@@ -36,6 +39,7 @@ const image = defineModel<Blob|null>("image");
 
 const imageApiClient = useProvidedItem(ImageApiClient);
 const fileAccess = useProvidedItem(FileAccess);
+const authenticationHandler = useProvidedItem(AuthenticationHandler);
 
 const categoryOptions: InputSelectValueType<SessionBlueprint["category"]>[] = [
 	{value: "ctm", name: "CTM"},

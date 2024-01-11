@@ -5,11 +5,13 @@ import Session from "../../session/session";
 import DiscordClient from "../../bot/discord-client";
 import utils from "../../utils/utils";
 import DatabaseClient from "../../database-client";
+import RecommendationHelper from "../../recommendation-helper";
 
 export default (({server, responses, provider, isAuthenticatedGuard}) => { 
     const sessionsCollection = provider.get(SessionsCollection);
     const databaseClient = provider.get(DatabaseClient);
     const discordClient = provider.get(DiscordClient);
+    const recommendationHelper = provider.get(RecommendationHelper);
 
     server.route("/session/:id?")
         .get(isAuthenticatedGuard, async (req, res) => {
@@ -60,14 +62,23 @@ export default (({server, responses, provider, isAuthenticatedGuard}) => {
                 return responses.sendCustomError("Failed to validate blueprint: " + validationResult.errors.map(error => `"${error.property}": ${error.message}`).join(". "), res);
             }
 
-            if (imageFile) {
-                validationUtils.validateSessionImage(imageFile);
-                const imageId = await databaseClient.imageRepository.addImage(imageFile);
-                validatedValue.imageId = imageId;
-            } else if (removeImage) {
+            const userInformation = await databaseClient.userRepository.get(req.params.id!);
+            if (recommendationHelper.canUseImages(userInformation)) {
+                if (imageFile) {
+                    validationUtils.validateSessionImage(imageFile);
+                    const imageId = await databaseClient.imageRepository.addImage(imageFile);
+                    validatedValue.imageId = imageId;
+                } else if (removeImage) {
+                    validatedValue.imageId = undefined;
+                } else if (validatedValue.imageId !== undefined && !await databaseClient.imageRepository.exists(validatedValue.imageId)) {
+                    validatedValue.imageId = undefined;
+                }
+            } else {
                 validatedValue.imageId = undefined;
-            } else if (validatedValue.imageId !== undefined && !await databaseClient.imageRepository.exists(validatedValue.imageId)) {
-                validatedValue.imageId = undefined;
+            }
+
+            if (recommendationHelper.getMillisecondsTillNextAllowedPing(userInformation) ?? 1 > 0) {
+                validatedValue.ping = false;
             }
 
             if (req.params.id) {

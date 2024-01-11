@@ -70,7 +70,7 @@ const sessionBlueprintSchema: Schema = {
 
 const configSchema: Schema = {
 	type: "object",
-	required: ["frontendUrl","botToken","serverId","appId","port","db","channels","roles","session"],
+	required: ["frontendUrl","botToken","serverId","appId","port","db","channels","roles","session","recommendation"],
 	properties: {
 		frontendUrl: {type: "string"},
 		backendUrl: {type: "string"},
@@ -112,6 +112,23 @@ const configSchema: Schema = {
 			properties: {
 				endingTime: {
 					type: "number",
+				}
+			}
+		},
+		recommendation: {
+			type: "object",
+			required: ["baseAmountOfScoreToLosePerHour","imageUnlockAt","pingUnlock"],
+			properties: {
+				baseAmountOfScoreToLosePerHour: {type: "number", minimum: 0},
+				imageUnlockAt: {type: "number", minimum: 0},
+				pingUnlock: {
+					type: "object",
+					required: ["partialUnlockAt","fullUnlockAt","hoursOfDelayAtPartialUnlock"],
+					properties: {
+						partialUnlockAt: {type: "number", minimum: 0},
+						fullUnlockAt: {type: "number", minimum: 0},
+						hoursOfDelayAtPartialUnlock: {type: "number", minimum: 0},
+					}
 				}
 			}
 		}
