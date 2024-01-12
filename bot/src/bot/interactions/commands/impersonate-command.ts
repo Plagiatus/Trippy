@@ -56,7 +56,7 @@ class ImpersonateCommand extends Command {
 		impersonation.addImpersonation(impersonator.id, impersonate.id);
 
 		if (impersonate.id === impersonator.id) {
-			interaction.reply({ephemeral: true, content: `${impersonator} is not longer impersonating.`});
+			interaction.reply({ephemeral: true, content: `${impersonator} is no longer impersonating.`});
 		} else {
 			interaction.reply({ephemeral: true, content: `${impersonator} is now impersonating as ${impersonate}.`});
 		}

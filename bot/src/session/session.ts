@@ -2,17 +2,20 @@ import DiscordClient from "../bot/discord-client";
 import DatabaseClient from "../database-client";
 import Provider from "../provider";
 import * as Discord from "discord.js";
-import { RawSession } from "../types/document-types";
+import { RawSession, SessionPlayer } from "../types/document-types";
 import { SessionBlueprint } from "../types/session-blueprint-types";
 import SessionDisplay from "./session-display";
 import Config from "../config";
 import TimeHelper from "../time-helper";
+import utils from "../utils/utils";
+import RecommendationHelper from "../recommendation-helper";
 
 export default class Session {
 	private readonly databaseClient: DatabaseClient;
 	private readonly discordClient: DiscordClient;
 	private readonly timeHelper: TimeHelper;
 	private readonly config: Config;
+	private readonly recommendationHelper: RecommendationHelper;
 
 	private readonly display: SessionDisplay;
 	private isSetup: boolean;
@@ -21,7 +24,8 @@ export default class Session {
 		this.databaseClient = provider.get(DatabaseClient);
 		this.discordClient = provider.get(DiscordClient);
 		this.timeHelper = provider.get(TimeHelper);
-		this.config= provider.get(Config);
+		this.config = provider.get(Config);
+		this.recommendationHelper = provider.get(RecommendationHelper);
 		this.display = new SessionDisplay(provider, this);
 		this.isSetup = false;
 	}
@@ -110,6 +114,7 @@ export default class Session {
 	}
 
 	public async destroy() {
+		const wasNoneEndedSession = this.rawSession.state !== "ended";
 		await this.display.destroy();
 		this.rawSession = {
 			uniqueId: this.rawSession.uniqueId,
@@ -117,11 +122,81 @@ export default class Session {
 			state: "ended",
 			blueprint: this.rawSession.blueprint,
 			hostId: this.rawSession.hostId,
-			players: this.rawSession.players,
+			players: this.rawSession.players.map<SessionPlayer>(player => ({
+				...player,
+				leaveTime: player.leaveTime ?? this.timeHelper.currentDate.getTime(),
+			})),
 			startTime: "startTime" in this.rawSession ? this.rawSession.startTime : this.timeHelper.currentDate.getTime(),
 			endTime: "endTime" in this.rawSession ? this.rawSession.endTime : this.timeHelper.currentDate.getTime(),
 		}
 		await this.databaseClient.sessionRepository.update(this.rawSession);
+
+		if (wasNoneEndedSession) {
+			await this.giveOutRecommendation();
+		}
+	}
+
+	private async giveOutRecommendation() {
+		await Promise.all([
+			this.giveOutRecommendationToPlayers(),
+			this.giveOutRecommendationToHost(),
+		]);
+	}
+
+	private async giveOutRecommendationToPlayers() {
+		if (this.rawSession.state !== "ended" && this.rawSession.state !== "stopping") {
+			return;
+		}
+
+		const playersAndPlayTimeInMilliseconds = new Map<string,number>();
+		for (const player of this.rawSession.players) {
+			let playTime = playersAndPlayTimeInMilliseconds.get(player.id) ?? 0;
+			playTime += (player.leaveTime ?? this.rawSession.endTime) - player.joinTime;
+			playersAndPlayTimeInMilliseconds.set(player.id, playTime);
+		}
+
+		await utils.asyncForeach([...playersAndPlayTimeInMilliseconds.entries()], async ([playerId, playTime]) => {
+			const amountOfMinutesPlayed = Math.floor(playTime / (1000 * 60 /*1 minute*/));
+			if (amountOfMinutesPlayed < this.config.rawConfig.recommendation.playingSession.firstGiveOutAfterMinutes) {
+				return;
+			}
+			
+			const gottenRecommendation = this.config.rawConfig.recommendation.playingSession.scorePerMinute * amountOfMinutesPlayed + this.config.rawConfig.recommendation.playingSession.bonusForJoining;
+			await this.recommendationHelper.addRecommendationScore(playerId, gottenRecommendation);
+		});
+	}
+
+	private async giveOutRecommendationToHost() {
+		if (this.rawSession.state !== "ended" && this.rawSession.state !== "stopping") {
+			return;
+		}
+		type Period = {from: number, to: number};
+
+		const periodsWithPlayers: Period[] = [];
+		for (const player of this.rawSession.players) {
+			let periodStart = player.joinTime;
+			let periodEnd = player.leaveTime ?? this.rawSession.endTime;
+			for (let i = periodsWithPlayers.length - 1; i >= 0; i--) {
+				if (periodsWithPlayers[i].from > periodEnd || periodsWithPlayers[i].to < periodStart) {
+					continue;
+				}
+
+				const period = periodsWithPlayers.splice(i, 1)[0];
+				periodStart = Math.min(periodStart, period.from);
+				periodEnd = Math.max(periodEnd, period.to);
+			}
+
+			periodsWithPlayers.push({from: periodStart, to: periodEnd});
+		}
+
+		const totalMillisecondsWithPlayers = periodsWithPlayers.reduce((sum, period) => sum + (period.to - period.from), 0);
+		const minutesWithPlayers = Math.floor(totalMillisecondsWithPlayers / (1000 * 60 /*1 minute*/));
+		if (minutesWithPlayers < this.config.rawConfig.recommendation.hostingSession.firstGiveOutAfterMinutes) {
+			return;
+		}
+
+		const gottenRecommendation = this.config.rawConfig.recommendation.hostingSession.scorePerMinuteWithUsers * minutesWithPlayers + this.config.rawConfig.recommendation.hostingSession.bonusForJoining;
+		await this.recommendationHelper.addRecommendationScore(this.hostId, gottenRecommendation);
 	}
 
 	public isChannelForSession(channel: string|Discord.Channel) {

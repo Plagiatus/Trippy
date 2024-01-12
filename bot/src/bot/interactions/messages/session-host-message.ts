@@ -37,7 +37,7 @@ export default class SessionHostMessage {
 			components: [
 				new ActionRowBuilder<ButtonBuilder>().addComponents(
 					endSessionButton.create({sessionId: session.id}),
-					await createEditSessionButton({provider, forUserId: session.hostId, sessionId: session.id}),
+					await createEditSessionButton({provider, forUserId: session.hostId, sessionId: session.uniqueId}),
 				),
 			]
 		});
@@ -50,7 +50,7 @@ export default class SessionHostMessage {
 			components: [
 				new ActionRowBuilder<ButtonBuilder>().addComponents(
 					endSessionButton.create({sessionId: session.id}),
-					await createEditSessionButton({provider: this.provider, forUserId: session.hostId, sessionId: session.id}),
+					await createEditSessionButton({provider: this.provider, forUserId: session.hostId, sessionId: session.uniqueId}),
 				),
 			]
 		})

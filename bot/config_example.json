@@ -27,6 +27,16 @@
 	},
 	"recommendation": {
 		"baseAmountOfScoreToLosePerHour": 0.041667,
+		"playingSession": {
+			"firstGiveOutAfterMinutes": 10,
+			"scorePerMinute": 1,
+			"bonusForJoining": 3
+		},
+		"hostingSession": {
+			"firstGiveOutAfterMinutes": 10,
+			"scorePerMinuteWithUsers": 1,
+			"bonusForJoining": 10
+		},
 		"imageUnlockAt": 100,
 		"pingUnlock": {
 			"partialUnlockAt": 100,

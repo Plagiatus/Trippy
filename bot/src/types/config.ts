@@ -28,6 +28,16 @@ export type RawConfig = Readonly<{
 	}>,
 	recommendation: Readonly<{
 		baseAmountOfScoreToLosePerHour: number,
+		playingSession: {
+			firstGiveOutAfterMinutes: number,
+			scorePerMinute: number,
+			bonusForJoining: number
+		},
+		hostingSession: {
+			firstGiveOutAfterMinutes: number,
+			scorePerMinuteWithUsers: number,
+			bonusForJoining: number
+		},
 		imageUnlockAt: number,
 		pingUnlock: Readonly<{
 			partialUnlockAt: number,

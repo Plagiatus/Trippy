@@ -117,9 +117,27 @@ const configSchema: Schema = {
 		},
 		recommendation: {
 			type: "object",
-			required: ["baseAmountOfScoreToLosePerHour","imageUnlockAt","pingUnlock"],
+			required: ["baseAmountOfScoreToLosePerHour","playingSession","hostingSession","imageUnlockAt","pingUnlock"],
 			properties: {
 				baseAmountOfScoreToLosePerHour: {type: "number", minimum: 0},
+				playingSession: {
+					type: "object",
+					required: ["firstGiveOutAfterMinutes","scorePerMinute","bonusForJoining"],
+					properties: {
+						firstGiveOutAfterMinutes: {type: "number", minimum: 0},
+						scorePerMinute: {type: "number", minimum: 0},
+						bonusForJoining: {type: "number", minimum: 0},
+					}
+				},
+				hostingSession: {
+					type: "object",
+					required: ["firstGiveOutAfterMinutes","scorePerMinuteWithUsers","bonusForJoining"],
+					properties: {
+						firstGiveOutAfterMinutes: {type: "number", minimum: 0},
+						scorePerMinuteWithUsers: {type: "number", minimum: 0},
+						bonusForJoining: {type: "number", minimum: 0},
+					}
+				},
 				imageUnlockAt: {type: "number", minimum: 0},
 				pingUnlock: {
 					type: "object",

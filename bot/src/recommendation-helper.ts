@@ -42,7 +42,10 @@ export default class RecommendationHelper {
 		const hoursSincelastUpdate = timeSinceLastUpdate / (1000 * 60 * 60 /*1 hour*/);
 
 		const actualScore = user.recommendationScore * Math.pow(1 - (baseAmountOfScoreToLosePerHour / user.totalRecommendationScore), hoursSincelastUpdate);
-		return actualScore;
+		if (Number.isFinite(actualScore)) {
+			return actualScore;
+		}
+		return 0;
 	}
 
 	public getTotalPingDelayInMilliseconds(user: UserData) {

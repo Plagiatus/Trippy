@@ -30,15 +30,19 @@ export default class UserRepository extends Repository<UserData,"id"> {
 
 	public async updateLastPingTime(id: string) {
 		await this.collection.updateOne(this.getQueryForDocument(id), {
-			lastPingAt: this.timeHelper.currentDate,
+			$set: {
+				lastPingAt: this.timeHelper.currentDate,
+			}
 		});
 	}
 
 	public async updateRecommendationScore(document: UserData) {
 		await this.collection.updateOne(this.getQueryForDocument(document), {
-			recommendationScore: document.recommendationScore,
-			lastRecommendationScoreUpdate: document.lastRecommendationScoreUpdate,
-			totalRecommendationScore: document.totalRecommendationScore,
+			$set: {
+				recommendationScore: document.recommendationScore,
+				lastRecommendationScoreUpdate: document.lastRecommendationScoreUpdate,
+				totalRecommendationScore: document.totalRecommendationScore,
+			}
 		});
 	}
 
