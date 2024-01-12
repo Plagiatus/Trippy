@@ -8,7 +8,15 @@ export default class SessionRepository extends Repository<RawSession,"uniqueId">
 		super(provider, collection, "uniqueId");
 	}
 	
-	public getActiveSessions() {
-		return this.collection.find({ state: {$in: ["running","stopping"]} }).toArray();
+	public async getActiveSessions() {
+		return this.removeMongoIdFields(await this.collection.find({ state: {$in: ["running","stopping"]} }).toArray());
+	}
+
+	public async getHostedSessions(byUserId: string) {
+		return this.removeMongoIdFields(await this.collection.find({hostId: byUserId}).toArray());
+	}
+
+	public async getJoinedSessions(byUserId: string) {
+		return this.removeMongoIdFields(await this.collection.find({"players": {$elemMatch: {id: byUserId}}}).toArray());
 	}
 }
