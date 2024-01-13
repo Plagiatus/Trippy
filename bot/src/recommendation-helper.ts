@@ -79,4 +79,15 @@ export default class RecommendationHelper {
 	public canUseImages(user: UserData) {
 		return user.totalRecommendationScore >= this.config.rawConfig.recommendation.imageUnlockAt;
 	}
+
+	public async getMillisecondsLeftBeforeBeingAbleToRecommend(recommender: UserData|string, recommend: string) {
+		const lastRecommendationForUser = await this.databaseClient.userRepository.getLastRecommendationForUser(recommender, recommend);
+		if (!lastRecommendationForUser) {
+			return 0;
+		}
+
+		const millisecondsSinceLastRecommendation = this.timeHelper.currentDate.getTime() - lastRecommendationForUser.recommendedAt.getTime();
+		const recommendTimeoutMilliseconds = this.config.rawConfig.recommendation.give.cooldownHours * (1000 * 60 * 60 /*1 hour*/);
+		return Math.max(0, recommendTimeoutMilliseconds - millisecondsSinceLastRecommendation);
+	}
 }

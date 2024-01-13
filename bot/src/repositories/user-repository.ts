@@ -1,4 +1,4 @@
-import { UserData } from "../types/document-types";
+import { RecommendationData, UserData } from "../types/document-types";
 import Repository from "./repository";
 import Provider from "../provider";
 import * as Mongo from "mongodb";
@@ -33,7 +33,7 @@ export default class UserRepository extends Repository<UserData,"id"> {
 			$set: {
 				lastPingAt: this.timeHelper.currentDate,
 			}
-		});
+		}, {upsert: true});
 	}
 
 	public async updateRecommendationScore(document: UserData) {
@@ -43,7 +43,48 @@ export default class UserRepository extends Repository<UserData,"id"> {
 				lastRecommendationScoreUpdate: document.lastRecommendationScoreUpdate,
 				totalRecommendationScore: document.totalRecommendationScore,
 			}
-		});
+		}, {upsert: true});
+	}
+
+	public async getLastRecommendationForUser(recommender: UserData|string, recommended: string) {
+		const recommenderId = this.getId(recommender);
+		const newestRecommendation = await this.collection.aggregate([
+			{
+				"$match": {
+					"id": recommenderId, 
+				}
+			},
+			{
+				"$unwind": "$givenRecommendations"
+			},
+			{
+				"$replaceRoot": {
+					"newRoot": "$givenRecommendations"
+				}
+			},
+			{
+				"$match": {
+					"userId": recommended,
+				}
+			},
+			{
+				"$sort": {
+					"recommendedAt": -1,
+				}
+			}
+		]).next();
+		return newestRecommendation as RecommendationData|null;
+	}
+
+	public async addGivenRecommendation(recommenderId: string, recommendedId: string) {
+		await this.collection.updateOne(this.getQueryForDocument(recommenderId), {
+			"$push": {
+				"givenRecommendations": {
+					userId: recommendedId,
+					recommendedAt: this.timeHelper.currentDate
+				} satisfies RecommendationData
+			}
+		}, {upsert: true})
 	}
 
 	private getNewUserData(id: string): UserData {
@@ -54,6 +95,7 @@ export default class UserRepository extends Repository<UserData,"id"> {
 			lastRecommendationScoreUpdate: new Date(),
 			recommendationScore: 0,
 			totalRecommendationScore: 0,
+			givenRecommendations: [],
 		}
 	}
 }

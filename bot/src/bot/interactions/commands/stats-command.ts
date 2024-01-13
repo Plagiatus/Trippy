@@ -37,6 +37,8 @@ class StatsCommand extends Command {
 						{name: " ", value: " ", inline: false},
 						{name: "Hosted sessions", value: hostedSessions.length.toString(), inline: true},
 						{name: "Joined sessions", value: joinedSessions.length.toString(), inline: true},
+						{name: " ", value: " ", inline: false},
+						{name: "Given recommendations", value: userData.givenRecommendations.length.toString(), inline: false},
 					)
 					.toJSON(),
 			]

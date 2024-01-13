@@ -27,6 +27,10 @@
 	},
 	"recommendation": {
 		"baseAmountOfScoreToLosePerHour": 0.041667,
+		"give": {
+			"cooldownHours": 8,
+			"amount": 10
+		},
 		"playingSession": {
 			"firstGiveOutAfterMinutes": 10,
 			"scorePerMinute": 1,

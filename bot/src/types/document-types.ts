@@ -79,6 +79,12 @@ export type UserData = {
 	recommendationScore: number;
 	lastRecommendationScoreUpdate: Date;
 	lastPingAt?: Date;
+	givenRecommendations: Array<RecommendationData>;
+}
+
+export type RecommendationData = {
+	userId: string;
+	recommendedAt: Date;
 }
 
 export type BanData = {
