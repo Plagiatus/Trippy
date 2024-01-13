@@ -53,11 +53,15 @@ export default class SessionAnnouncementMessage {
 		const embedAndFiles = await SessionAnnouncementMessage.createEmbed(session, this.databaseClient, this.lastImageId);
 		this.lastImageId = session.blueprint.imageId;
 
+		const isFull = session.playerCount >= session.maxPlayers;
 		await this.message.edit({
 			embeds: [
 				embedAndFiles.embed,
 			],
 			files: embedAndFiles.files,
+			components: [
+				new ActionRowBuilder<ButtonBuilder>().addComponents(joinSessionButton.create({sessionId: session.id, disabled: isFull}))
+			]
 		})
 	}
 

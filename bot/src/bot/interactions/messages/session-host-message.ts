@@ -5,6 +5,7 @@ import DiscordClient, { ChannelParameterType } from "../../discord-client";
 import endSessionButton from "../buttons/end-session-button";
 import createEditSessionButton from "../buttons/create-edit-session-button";
 import { SimpleMessageData } from "../../../types/document-types";
+import editSessionLinkMakerButton from "../buttons/edit-session-link-maker-button";
 
 export default class SessionHostMessage {
 	private constructor(private readonly provider: Provider, private readonly message: Message) {
@@ -50,7 +51,7 @@ export default class SessionHostMessage {
 			components: [
 				new ActionRowBuilder<ButtonBuilder>().addComponents(
 					endSessionButton.create({sessionId: session.id}),
-					await createEditSessionButton({provider: this.provider, forUserId: session.hostId, sessionId: session.uniqueId}),
+					editSessionLinkMakerButton.create({sessionId: session.uniqueId}),
 				),
 			]
 		})

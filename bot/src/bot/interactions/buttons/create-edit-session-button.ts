@@ -3,7 +3,7 @@ import Provider from "../../../provider";
 import Config from "../../../config";
 import AuthenticationService from "../../../authentication-service";
 
-export default async function createEditSessionButton(options: {provider: Provider, forUserId: string, sessionId: string, disabled?: false}) {
+export default async function createEditSessionButton(options: {provider: Provider, forUserId: string, sessionId: string, disabled?: boolean}) {
 	const config = options.provider.get(Config);
 	const authenticationService = options.provider.get(AuthenticationService);
 

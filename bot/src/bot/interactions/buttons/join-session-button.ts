@@ -9,9 +9,10 @@ class joinSessionButton extends ActionButton<typeof buttonId> {
 		super(buttonId);
 	}
 
-	public create(options: {sessionId: string}) {
+	public create(options: {sessionId: string, disabled?: boolean}) {
 		return this.createBaseButton(options)
 			.setLabel("join session")
+			.setDisabled(options.disabled)
 			.setStyle(ButtonStyle.Primary)
 	}
 
