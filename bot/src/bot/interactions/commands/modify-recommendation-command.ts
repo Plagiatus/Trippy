@@ -135,7 +135,7 @@ class ImpersonateCommand extends Command {
 			embeds: [
 				new EmbedBuilder()
 					.setThumbnail(viewUser.avatarURL({size: 32}))
-					.setTitle(`Modified ${viewUser.username}`)
+					.setTitle(`${viewUser.username}'${/[sz]$/g.test(viewUser.username) ? "" : "s"} recommendation`)
 					.addFields(utils.fieldsInColumns([
 						{name: "Recommendation", value: Math.round(score).toString()},
 						{name: "Total recommendation", value: Math.round(totalScore).toString()},

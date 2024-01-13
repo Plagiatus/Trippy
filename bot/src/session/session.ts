@@ -150,6 +150,10 @@ export default class Session {
 
 		const playersAndPlayTimeInMilliseconds = new Map<string,number>();
 		for (const player of this.rawSession.players) {
+			if (player.type === "kicked" || player.type === "banned") {
+				continue;
+			}
+
 			let playTime = playersAndPlayTimeInMilliseconds.get(player.id) ?? 0;
 			playTime += (player.leaveTime ?? this.rawSession.endTime) - player.joinTime;
 			playersAndPlayTimeInMilliseconds.set(player.id, playTime);
@@ -232,7 +236,7 @@ export default class Session {
 		return this.rawSession.players.some(player => player.id === userId && player.leaveTime === undefined);
 	}
 
-	public async leave(userId: string) {
+	public async leave(userId: string, leaveType?: SessionPlayer["type"]) {
 		const playerInformation = this.rawSession.players.find(player => player.id === userId && player.leaveTime === undefined);
 		if (!playerInformation) {
 			return;
@@ -240,6 +244,7 @@ export default class Session {
 
 		//Updating value in object ref - updating it here updates the value in rawSession.
 		playerInformation.leaveTime = this.timeHelper.currentDate.getTime();
+		playerInformation.type = leaveType;
 		await this.databaseClient.sessionRepository.update(this.rawSession);
 
 		const leftMember = await this.discordClient.getMember(userId);
@@ -248,6 +253,12 @@ export default class Session {
 		}
 
 		await this.display.removePlayer(leftMember);
+		switch(leaveType) {
+			case "kicked":
+				return await this.recommendationHelper.addRecommendationScore(userId, -this.config.rawConfig.recommendation.scoreLostOnBeingKicked);
+			case "banned":
+				return await this.recommendationHelper.addRecommendationScore(userId, -this.config.rawConfig.recommendation.scoreLostOnBeingBanned);
+		}
 	}
 
 	public async tryStopSession(endingUser: Discord.GuildMember): Promise<boolean> {

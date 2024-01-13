@@ -35,7 +35,7 @@ class KickCommand extends Command {
 		
 		if (session.isUserInSession(userToKick.id)) {
 			await interaction.deferReply({ephemeral: true});
-			await session.leave(userToKick.id);
+			await session.leave(userToKick.id, "kicked");
 			interaction.editReply(`You have removed ${userToKick} from the session.`)
 		} else {
 			interaction.reply({ephemeral: true, content: `You cannot kick ${userToKick} from a session they're not in.`});

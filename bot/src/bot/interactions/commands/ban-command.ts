@@ -69,7 +69,7 @@ class BanCommand extends Command {
 		if (!session) return;
 		if (session.hostId !== interactor.id) return;
 		if (session.isUserInSession(userToBan.id)) {
-			await session.leave(userToBan.id);
+			await session.leave(userToBan.id, "banned");
 		}
 	}
 

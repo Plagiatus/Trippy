@@ -5,6 +5,7 @@ export type SessionPlayer = {
 	id: string;
 	joinTime: number;
 	leaveTime?: number;
+	type?: "normal"|"kicked"|"banned";
 }
 
 export type SessionChannels = {
