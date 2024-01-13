@@ -1,6 +1,6 @@
 <template>
 	<content-box header="Session">
-		<transition-size v-if="data.canPingInMilliseconds">
+		<transition-size v-if="data.canPingInMilliseconds !== null">
 			<input-checkbox v-if="data.canPingInMilliseconds <= 0" v-model="sessionBlueprint.ping" name="Ping" class="input-row"/>
 			<div v-else class="ping-timer-message">You can ping again in <span class="ping-timer">{{formattedPingTimer}}</span>.</div>
 		</transition-size>

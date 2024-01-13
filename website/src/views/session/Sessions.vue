@@ -28,6 +28,7 @@
 <script setup lang="ts">
 import ImageApiClient from '@/api-clients/image-api-client';
 import SessionApiClient from '@/api-clients/session-api-client';
+import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import NormalButton from '@/components/buttons/NormalButton.vue';
 import useLoadData from '@/composables/use-load-data';
 import useProvidedItem from '@/composables/use-provided-item';
