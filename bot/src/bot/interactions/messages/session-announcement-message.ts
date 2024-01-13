@@ -85,7 +85,7 @@ export default class SessionAnnouncementMessage {
 			sessionEmbedUtils.createEstimateField(session),
 		].filter(utils.getHasValuePredicate());
 
-		const fieldsInColumns = sessionEmbedUtils.fieldsIn2Columns(fields);
+		const fieldsInColumns = utils.fieldsInColumns(fields, 2);
 		for (const field of fieldsInColumns) {
 			embedBuilder.addFields(field);
 		}

@@ -2,6 +2,7 @@ import { EmbedBuilder } from "discord.js";
 import Command, { CommandExecutionContext } from "./command";
 import DatabaseClient from "../../../database-client";
 import RecommendationHelper from "../../../recommendation-helper";
+import utils from "../../../utils/utils";
 
 class StatsCommand extends Command {
 	public constructor() {
@@ -32,13 +33,13 @@ class StatsCommand extends Command {
 					.setThumbnail(interactor.user.avatarURL({size: 32}))
 					.setTitle(`${interactor.user.username}'${/[sz]$/g.test(interactor.user.username) ? "" : "s"} stats`)
 					.setFields(
-						{name: "Recommendation score", value: Math.round(recommendationHelper.getRecommendationScore(userData)).toString(), inline: true},
-						{name: "Total recommendation score", value: Math.round(userData.totalRecommendationScore).toString(), inline: true},
-						{name: " ", value: " ", inline: false},
-						{name: "Hosted sessions", value: hostedSessions.length.toString(), inline: true},
-						{name: "Joined sessions", value: joinedSessions.length.toString(), inline: true},
-						{name: " ", value: " ", inline: false},
-						{name: "Given recommendations", value: userData.givenRecommendations.length.toString(), inline: false},
+						utils.fieldsInColumns([
+							{name: "Recommendation", value: Math.round(recommendationHelper.getRecommendationScore(userData)).toString()},
+							{name: "Total recommendation", value: Math.round(userData.totalRecommendationScore).toString()},
+							{name: "Hosted sessions", value: hostedSessions.length.toString()},
+							{name: "Joined sessions", value: joinedSessions.length.toString()},
+							{name: "Given recommendations", value: userData.givenRecommendations.length.toString()},
+						], 2)
 					)
 					.toJSON(),
 			]

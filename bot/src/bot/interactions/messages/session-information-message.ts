@@ -70,7 +70,7 @@ export default class SessionInformationMessage {
 			sessionEmbedUtils.createResourcepackField(session),
 		].filter(utils.getHasValuePredicate());
 
-		const fieldsInColumns = sessionEmbedUtils.fieldsIn2Columns(fields);
+		const fieldsInColumns = utils.fieldsInColumns(fields, 2);
 		for (const field of fieldsInColumns) {
 			embedBuilder.addFields(field);
 		}

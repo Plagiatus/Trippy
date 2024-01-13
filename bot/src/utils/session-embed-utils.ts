@@ -158,16 +158,6 @@ class SessionEmbedUtils {
 
 		return {name: "Resource Pack:", value: `[Link](${rpLink})`};
 	}
-
-	public fieldsIn2Columns(fields: ReadonlyArray<Discord.APIEmbedField>) {
-		const fieldsInColumns = fields.map(field => ({...field, inline: true}));
-
-		for (let i = 2; i < fieldsInColumns.length; i += 3) {
-			fieldsInColumns.splice(i, 0, {name: " ", value: " ", inline: false});
-		}
-
-		return fieldsInColumns;
-	}
 }
 
 export default new SessionEmbedUtils();

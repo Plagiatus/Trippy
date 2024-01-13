@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import path from "path";
 import crypto from "crypto";
+import { APIEmbedField } from "discord.js";
 
 class Utils {
 	private readonly hasValuePredicate = (value: unknown) => value !== null && value !== undefined;
@@ -57,6 +58,16 @@ class Utils {
 
 	public getHasValuePredicate<TValue>()  {
 		return this.hasValuePredicate as ((value: TValue|null|undefined) => value is TValue);
+	}
+
+	public fieldsInColumns(fields: ReadonlyArray<APIEmbedField>, columns: number) {
+		const fieldsInColumns = fields.map(field => ({...field, inline: true}));
+
+		for (let i = columns; i < fieldsInColumns.length; i += (columns + 1)) {
+			fieldsInColumns.splice(i, 0, {name: " ", value: " ", inline: false});
+		}
+
+		return fieldsInColumns;
 	}
 }
 
