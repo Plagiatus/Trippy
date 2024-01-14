@@ -62,7 +62,7 @@ export default (({server, responses, provider, isAuthenticatedGuard}) => {
                 return responses.sendCustomError("Failed to validate blueprint: " + validationResult.errors.map(error => `"${error.property}": ${error.message}`).join(". "), res);
             }
 
-            const userInformation = await databaseClient.userRepository.get(req.params.id!);
+            const userInformation = await databaseClient.userRepository.get(req.userId!);
             if (recommendationHelper.canUseImages(userInformation)) {
                 if (imageFile) {
                     validationUtils.validateSessionImage(imageFile);

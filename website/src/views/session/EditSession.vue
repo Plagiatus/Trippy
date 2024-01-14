@@ -10,7 +10,7 @@
 		<map-information-edit-section class="section" :session-blueprint="data.session.blueprint" v-model:image="data.newImage"/>
 		<join-information-edit-section class="section" :session-blueprint="data.session.blueprint"/>
 		<expectations-edit-section class="section" :session-blueprint="data.session.blueprint"/>
-		<session-edit-section class="section" :session-blueprint="data.session.blueprint"/>
+		<session-edit-section class="section" :session-blueprint="data.session.blueprint" :is-editing-session="true"/>
 		<div class="button-holder">
 			<normal-button :route-to="{name: 'Session.Overview'}" class="option-button">Cancel</normal-button>
 		</div>

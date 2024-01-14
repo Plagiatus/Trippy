@@ -17,7 +17,7 @@ export type SessionChannels = {
 
 export type SessionMessages = {
 	information: SimpleMessageData;
-	announcement: SimpleMessageData;
+	announcements: SimpleMessageData[];
 	host: SimpleMessageData;
 }
 
@@ -52,7 +52,7 @@ export type StoppingSession = BaseSession&{
 	startTime: number;
 	endTime: number;
 	channels: SessionChannels;
-	messages: Omit<SessionMessages, "announcement">;
+	messages: Omit<SessionMessages, "announcements">;
 	roles: SessionRoles;
 }
 

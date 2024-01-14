@@ -90,12 +90,12 @@ const configSchema: Schema = {
 		},
 		channels: {
 			type: "object",
-			required: ["modLog","systemLog","sessionList","activeSessions"],
+			required: ["modLog","systemLog","sessionList","sessionListNoPing"],
 			properties: {
 				modLog: {type: "string", minLength: 18},
 				systemLog: {type: "string", minLength: 18},
 				sessionlist: {type: "string", minLength: 18},
-				activeSessions: {type: "string", minLength: 18},
+				sessionListNoPing: {type: "string", minLength: 18},
 			}
 		},
 		roles: {

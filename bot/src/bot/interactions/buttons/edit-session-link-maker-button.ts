@@ -3,7 +3,7 @@ import SessionsCollection from "../../../session/sessions-collection";
 import ActionButton, { ButtonClickContext } from "./action-button";
 import createEditSessionButton from "./create-edit-session-button";
 
-const buttonId = "session-end:(sessionId)";
+const buttonId = "edit-session:(sessionId)";
 class EndSessionButton extends ActionButton<typeof buttonId> {
 	public constructor() {
 		super(buttonId);

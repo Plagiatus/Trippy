@@ -38,7 +38,7 @@ export default class SessionHostMessage {
 			components: [
 				new ActionRowBuilder<ButtonBuilder>().addComponents(
 					endSessionButton.create({sessionId: session.id}),
-					await createEditSessionButton({provider, forUserId: session.hostId, sessionId: session.uniqueId}),
+					editSessionLinkMakerButton.create({sessionId: session.uniqueId}),
 				),
 			]
 		});

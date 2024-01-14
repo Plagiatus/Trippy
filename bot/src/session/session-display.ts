@@ -10,13 +10,14 @@ import Provider from "../provider";
 import constants from "../utils/constants";
 import Session from "./session";
 import { SessionChannels, SessionMessages, SessionRoles } from "../types/document-types";
+import utils from "../utils/utils";
 
 export default class SessionDisplay {
 	private readonly discordClient: DiscordClient;
 	private readonly config: Config;
 	private readonly errorHandler: ErrorHandler;
 
-	private announcementMessage?: SessionAnnouncementMessage;
+	private announcementMessages: SessionAnnouncementMessage[];
 	private voiceChannels?: SessionVoiceChannels;
 	private informationMessage?: SessionInformationMessage;
 	private hostMessage?: SessionHostMessage;
@@ -30,6 +31,7 @@ export default class SessionDisplay {
 		this.discordClient = provider.get(DiscordClient);
 		this.config = provider.get(Config);
 		this.errorHandler = provider.get(ErrorHandler);
+		this.announcementMessages = [];
 	}
 
 	public async createSessionMessages() {
@@ -77,7 +79,7 @@ export default class SessionDisplay {
 
 		this.mainChannel = await this.discordClient.createChannel({
 			type: ChannelType.GuildText,
-			name: "Main",
+			name: "Chat",
 			permissionOverwrites: permissions,
 			parent: this.categoryChannel,
 		});
@@ -90,13 +92,16 @@ export default class SessionDisplay {
 		});
 
 		this.voiceChannels = await SessionVoiceChannels.createNew(this.provider, this.session, this.categoryChannel.id, this.sessionRole.id);
-		this.announcementMessage = await SessionAnnouncementMessage.createNew(this.provider, this.session, "sessionList");
+		this.announcementMessages = [
+			await SessionAnnouncementMessage.createNew(this.provider, this.session, "sessionList", true),
+			await SessionAnnouncementMessage.createNew(this.provider, this.session, "sessionListNoPing", false)
+		];
 		this.informationMessage = await SessionInformationMessage.createNew(this.provider, this.session, this.mainChannel.id,);
 		this.hostMessage = await SessionHostMessage.createNew(this.provider, this.session, this.hostChannel.id);
 
 		const hostMember = await this.session.getHost();
 		if (hostMember) {
-			this.hostRole && await hostMember.roles.add(this.hostRole);
+			this.hostRole && await hostMember.roles.add([this.hostRole, this.config.roleIds.hosts]);
 			this.sessionRole && await hostMember.roles.add(this.sessionRole);
 		}
 	}
@@ -152,7 +157,11 @@ export default class SessionDisplay {
 		}
 
 		try {
-			this.announcementMessage = this.session.rawSession.state === "running" ? await SessionAnnouncementMessage.recreate(this.provider, this.session, this.session.rawSession.messages.announcement) : undefined;
+			if (this.session.rawSession.state === "running") {
+				this.announcementMessages = await utils.asyncMap(this.session.rawSession.messages.announcements, async message => {
+					return await SessionAnnouncementMessage.recreate(this.provider, this.session, message);
+				});
+			}
 		} catch(error) {
 			reloadErrors.push(error);
 		}
@@ -192,6 +201,13 @@ export default class SessionDisplay {
 		}
 
 		try {
+			const host = await this.session.getHost();
+			host?.roles.remove(this.config.roleIds.hosts);
+		} catch (error) {
+			this.errorHandler.handleSessionError(this.session, error, "Failed to remove host role from host.");
+		}
+
+		try {
 			await this.sessionRole?.delete();
 		} catch (error) {
 			this.errorHandler.handleSessionError(this.session, error, "Failed to remove session role.");
@@ -204,7 +220,7 @@ export default class SessionDisplay {
 		}
 
 		try {
-			await this.announcementMessage?.remove();
+			await utils.asyncForeach(this.announcementMessages, message => message.remove());
 		} catch (error) {
 			this.errorHandler.handleSessionError(this.session, error, "Failed to remove announcement message.");
 		}
@@ -228,7 +244,7 @@ export default class SessionDisplay {
 		}
 
 		this.voiceChannels = undefined;
-		this.announcementMessage = undefined;
+		this.announcementMessages = [];
 		this.informationMessage = undefined;
 		this.hostMessage = undefined;
 		this.hostRole = undefined;
@@ -246,7 +262,7 @@ export default class SessionDisplay {
 		await Promise.all([
 			this.voiceChannels?.update(this.session),
 			this.informationMessage?.update(this.session),
-			this.announcementMessage?.update(this.session),
+			utils.asyncForeach(this.announcementMessages, message => message.update(this.session)),
 		]);
 	}
 
@@ -315,7 +331,7 @@ export default class SessionDisplay {
 	public async addPlayer(player: GuildMember) {
 		this.sendPlayerJoinedMessage(player);
 
-		this.announcementMessage?.update(this.session);
+		utils.asyncForeach(this.announcementMessages, message => message.update(this.session));
 		this.informationMessage?.update(this.session);
 
 		if (this.sessionRole) {
@@ -326,7 +342,7 @@ export default class SessionDisplay {
 	public async removePlayer(player: GuildMember) {
 		this.sendPlayerLeftMessage(player);
 
-		this.announcementMessage?.update(this.session);
+		utils.asyncForeach(this.announcementMessages, message => message.update(this.session));
 		this.informationMessage?.update(this.session);
 
 		if (this.sessionRole) {
@@ -335,8 +351,8 @@ export default class SessionDisplay {
 	}
 
 	public async removeAnnouncementMessage() {
-		await this.announcementMessage?.remove();
-		this.announcementMessage = undefined;
+		await utils.asyncForeach(this.announcementMessages, message => message.remove());
+		this.announcementMessages = [];
 	}
 
 	public getChannelsSaveData(): SessionChannels {
@@ -377,9 +393,6 @@ export default class SessionDisplay {
 	}
 
 	public getMessagesSaveData(): SessionMessages {
-		if (!this.announcementMessage) {
-			throw new Error("Unable to get save data for announcement message since there isn't one for the session.");
-		}
 		if (!this.hostMessage) {
 			throw new Error("Unable to get save data for announcement message since there isn't one for the session.");
 		}
@@ -388,7 +401,7 @@ export default class SessionDisplay {
 		}
 
 		return {
-			announcement: this.announcementMessage.data,
+			announcements: this.announcementMessages.map(message => message.data),
 			host: this.hostMessage.data,
 			information: this.informationMessage.data,
 		}

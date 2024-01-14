@@ -32,11 +32,13 @@ export default class SessionAnnouncementMessage {
 		return announcementMessage;
 	}
 
-	public static async createNew(provider: Provider, session: Session, channel: ChannelParameterType) {
+	public static async createNew(provider: Provider, session: Session, channel: ChannelParameterType, maySendPing: boolean) {
 		const discordClient = provider.get(DiscordClient);
 		const embedAndFiles = await SessionAnnouncementMessage.createEmbed(session, provider.get(DatabaseClient));
 
+		const shouldSendPing = maySendPing && (session.blueprint.ping ?? false);
 		const message = await discordClient.sendMessage(channel, {
+			content: shouldSendPing ? '@here' : undefined,
 			embeds: [
 				embedAndFiles.embed,
 			],

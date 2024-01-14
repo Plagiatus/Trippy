@@ -17,7 +17,7 @@ export type RawConfig = Readonly<{
 		modLog: string,
 		systemLog: string,
 		sessionList: string,
-		activeSessions: string,
+		sessionListNoPing: string,
 	}>,
 	roles: Readonly<{
 		mods: string,
