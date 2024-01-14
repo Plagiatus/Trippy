@@ -20,7 +20,13 @@
 	},
 	"roles": {
 		"mods": "",
-		"hosts": ""
+		"hosts": "",
+		"unlocks": [
+			{
+				"roleId": "",
+				"requiredRecommendation": 10
+			}
+		]
 	},
 	"session": {
 		"endingTime": 30000

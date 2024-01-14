@@ -1,3 +1,4 @@
+import DiscordClient from "./bot/discord-client";
 import Config from "./config";
 import DatabaseClient from "./database-client";
 import Provider from "./provider";
@@ -8,11 +9,13 @@ export default class RecommendationHelper {
 	private readonly databaseClient: DatabaseClient;
 	private readonly timeHelper: TimeHelper;
 	private readonly config: Config;
+	private readonly discordClient: DiscordClient;
 
 	public constructor(provider: Provider) {
 		this.databaseClient = provider.get(DatabaseClient);
 		this.timeHelper = provider.get(TimeHelper);
 		this.config = provider.get(Config);
+		this.discordClient = provider.get(DiscordClient);
 	}
 
 	public async addRecommendationScore(user: UserData|string, addAmount: number) {
@@ -28,6 +31,7 @@ export default class RecommendationHelper {
 		userToUpdate.recommendationScore = Math.max(0, score + addAmount);
 		userToUpdate.lastRecommendationScoreUpdate = new Date();
 		await this.databaseClient.userRepository.updateRecommendationScore(userToUpdate);
+		await this.updateRecommendationRole(userToUpdate);
 	}
 
 	public getRecommendationScore(user: UserData): number {
@@ -89,5 +93,37 @@ export default class RecommendationHelper {
 		const millisecondsSinceLastRecommendation = this.timeHelper.currentDate.getTime() - lastRecommendationForUser.recommendedAt.getTime();
 		const recommendTimeoutMilliseconds = this.config.rawConfig.recommendation.give.cooldownHours * (1000 * 60 * 60 /*1 hour*/);
 		return Math.max(0, recommendTimeoutMilliseconds - millisecondsSinceLastRecommendation);
+	}
+
+	public async updateRecommendationRole(user: string|UserData) {
+		const userData = typeof user === "string" ? await this.databaseClient.userRepository.get(user) : user;
+		const discordUser = await this.discordClient.getMember(userData.id);
+		if (!discordUser){
+			return;
+		}
+
+		const score = this.getRecommendationScore(userData);
+		const roleToGive = this.getRoleForRecommendation(score);
+		if (roleToGive && discordUser.roles.cache.has(roleToGive.roleId)) {
+			return;
+		}
+
+		const rolesToRemove = this.config.roleIds.unlocks.filter(unlock => unlock.roleId !== roleToGive?.roleId);
+
+		await discordUser.roles.remove(rolesToRemove.map(role => role.roleId));
+		if (roleToGive) {
+			discordUser.roles.add(roleToGive.roleId);
+		}
+	}
+
+	private getRoleForRecommendation(recommendation: number) {
+		let highestedUnlockedRole: null|{roleId: string, requiredRecommendation: number} = null;
+		for (const roleUnlock of this.config.roleIds.unlocks) {
+			if (roleUnlock.requiredRecommendation <= recommendation && (highestedUnlockedRole === null || highestedUnlockedRole.requiredRecommendation < roleUnlock.requiredRecommendation)) {
+				highestedUnlockedRole = roleUnlock;
+			}
+		}
+
+		return highestedUnlockedRole;
 	}
 }

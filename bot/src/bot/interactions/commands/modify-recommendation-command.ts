@@ -100,7 +100,8 @@ class ImpersonateCommand extends Command {
 		const oldTotalScore = userData.totalRecommendationScore;
 		userData.totalRecommendationScore = Math.max(recommendation, oldTotalScore);
 		userData.recommendationScore = recommendation;
-		await databaseClient.userRepository.updateRecommendationScore(userData)
+		await databaseClient.userRepository.updateRecommendationScore(userData);
+		await recommendationHelper.updateRecommendationRole(userData);
 		const newScore = recommendationHelper.getRecommendationScore(userData);
 		const newTotalScore = userData.totalRecommendationScore;
 
@@ -116,7 +117,8 @@ class ImpersonateCommand extends Command {
 		const oldTotalScore = userData.totalRecommendationScore;
 		userData.totalRecommendationScore = recommendation;
 		userData.recommendationScore = Math.min(oldScore, recommendation);
-		await databaseClient.userRepository.updateRecommendationScore(userData)
+		await databaseClient.userRepository.updateRecommendationScore(userData);
+		await recommendationHelper.updateRecommendationRole(userData);
 		const newScore = recommendationHelper.getRecommendationScore(userData);
 		const newTotalScore = userData.totalRecommendationScore;
 

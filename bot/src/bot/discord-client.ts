@@ -112,9 +112,21 @@ export default class DiscordClient {
 
 	public async validateGuildIsSetup() {
 		const guild = await this.validateGuildExists(this.config.guildId);
+		const roleIds: Record<string,string> = {};
+		for (const [roleName, roleId] of Object.entries(this.config.roleIds)) {
+			if (typeof roleId === "string") {
+				roleIds[roleName] = roleId;
+				continue;
+			}
+
+			for (let i = 0; i < roleId.length; i++) {
+				roleIds[roleName + " " + i] = roleId[i].roleId;
+			}
+		}
+
 		await Promise.all([
 			this.validateChannelsExists(guild, this.config.channelIds),
-			this.validateRolesExists(guild, this.config.roleIds),
+			this.validateRolesExists(guild, roleIds),
 		]);
 	}
 

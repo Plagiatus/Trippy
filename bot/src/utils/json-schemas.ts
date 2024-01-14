@@ -100,10 +100,21 @@ const configSchema: Schema = {
 		},
 		roles: {
 			type: "object",
-			required: ["mods","hosts"],
+			required: ["mods","hosts","unlocks"],
 			properties: {
 				mods: {type: "string", minLength: 18},
 				hosts: {type: "string", minLength: 18},
+				unlocks: {
+					type: "array",
+					items: {
+						type: "object",
+						required:["roleId","requiredRecommendation"],
+						properties: {
+							roleId: {type: "string", minLength: 18},
+							requiredRecommendation: {type: "number"},
+						}
+					}
+				}
 			}
 		},
 		session: {

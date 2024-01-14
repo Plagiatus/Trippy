@@ -22,6 +22,10 @@ export type RawConfig = Readonly<{
 	roles: Readonly<{
 		mods: string,
 		hosts: string,
+		unlocks: ReadonlyArray<Readonly<{
+			roleId: string,
+			requiredRecommendation: number,
+		}>>;
 	}>,
 	session: Readonly<{
 		endingTime: number,
