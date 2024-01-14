@@ -4,7 +4,7 @@ import type { Schema } from "jsonschema";
 
 const sessionBlueprintSchema: Schema = {
 	type: "object",
-	required: ["name", "description", "type", "category", "edition", "version", "server", "preferences"],
+	required: ["name", "description", "type", "category", "edition", "server", "preferences"],
 	additionalProperties: false,
 	properties: {
 		name: { type: "string", minLength: 1 },

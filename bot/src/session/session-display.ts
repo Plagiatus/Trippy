@@ -11,9 +11,11 @@ import constants from "../utils/constants";
 import Session from "./session";
 import { SessionChannels, SessionMessages, SessionRoles } from "../types/document-types";
 import utils from "../utils/utils";
+import DatabaseClient from "../database-client";
 
 export default class SessionDisplay {
 	private readonly discordClient: DiscordClient;
+	private readonly databaseClient: DatabaseClient;
 	private readonly config: Config;
 	private readonly errorHandler: ErrorHandler;
 
@@ -31,6 +33,7 @@ export default class SessionDisplay {
 		this.discordClient = provider.get(DiscordClient);
 		this.config = provider.get(Config);
 		this.errorHandler = provider.get(ErrorHandler);
+		this.databaseClient = provider.get(DatabaseClient);
 		this.announcementMessages = [];
 	}
 
@@ -295,13 +298,22 @@ export default class SessionDisplay {
 		})
 	}
 
-	private sendPlayerJoinedMessage(player: GuildMember) {
+	private async sendPlayerJoinedMessage(player: GuildMember) {
+		const userData = await this.databaseClient.userRepository.get(player.id);
+		const account = this.session.blueprint.edition === "bedrock" ? userData?.bedrockAccount : (this.session.blueprint.edition === "java" ? userData?.javaAccount : undefined);
+
+		let description = player.toString();
+		if (account) {
+			description += ` (${utils.getUsernameString(account)})`;
+		}
+		description += "\n**joined the session.**";
+
 		this.sendMessageToPlayers({
 			embeds: [
 				new EmbedBuilder()
 					.setColor(constants.mainColor)
 					.setThumbnail(player.user.avatarURL({size: 32}))
-					.setDescription(`${player}\n**joined the session.**`)
+					.setDescription(description)
 			]
 		})
 	}
@@ -329,7 +341,7 @@ export default class SessionDisplay {
 	}
 
 	public async addPlayer(player: GuildMember) {
-		this.sendPlayerJoinedMessage(player);
+		await this.sendPlayerJoinedMessage(player);
 
 		utils.asyncForeach(this.announcementMessages, message => message.update(this.session));
 		this.informationMessage?.update(this.session);

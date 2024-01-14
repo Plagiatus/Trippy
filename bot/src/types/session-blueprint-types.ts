@@ -4,7 +4,7 @@ export type SessionBlueprint = {
 	type: SessionType;
 	category: SessionCategory;
 	edition: MinecraftEdition;
-	version: string;
+	version?: string;
 	server: ServerType;
 	preferences: SessionPreferences;
 	voiceChannels: VoiceChannelBlueprint[];

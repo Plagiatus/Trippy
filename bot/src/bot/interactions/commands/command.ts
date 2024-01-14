@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction, GuildMember, SlashCommandBuilder } from "d
 import Provider from "../../../provider";
 
 export default abstract class Command {
-	public constructor(private readonly name: string) {
+	public constructor(public readonly name: string) {
 
 	}
 

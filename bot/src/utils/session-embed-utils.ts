@@ -1,6 +1,9 @@
 import * as Discord from "discord.js";
 import Session from "./../session/session";
 import constants from "./constants";
+import Provider from "../provider";
+import DatabaseClient from "../database-client";
+import utils from "./utils";
 
 class SessionEmbedUtils {
 	public createPlayerCountField(session: Session): Discord.APIEmbedField {
@@ -133,13 +136,16 @@ class SessionEmbedUtils {
 		return {name: "Time Estimate", value: text};
 	}
 
-	public async createServerOrRealmsField(session: Session): Promise<Discord.APIEmbedField> {
+	public async createServerOrRealmsField(provider: Provider, session: Session): Promise<Discord.APIEmbedField> {
 		if (session.blueprint.server.type === "realms") {
 			if (session.blueprint.server.owner) {
 				return {name: "Realms Host:", value: "`" + session.blueprint.server.owner + "`"};
 			} else {
 				const host = await session.getHost();
-				return {name: "Realms Host:", value: "`" + (host?.displayName ?? " ") + "`"};
+				const userData = await (host && provider.get(DatabaseClient).userRepository.get(host.id));
+				const account = session.blueprint.edition === "bedrock" ? userData?.bedrockAccount : (session.blueprint.edition === "java" ? userData?.javaAccount : undefined);
+				const displayedUsername = utils.getUsernameString(account) ?? ("`" + ( host?.displayName ?? " ") + "`");
+				return {name: "Realms Host:", value: displayedUsername};
 			}
 		} else {
 			return {name: "Server Ip:", value: "`" + session.blueprint.server.ip + "`"};

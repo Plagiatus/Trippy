@@ -69,6 +69,16 @@ class Utils {
 
 		return fieldsInColumns;
 	}
+
+	public getUsernameString(userData: {username: string, validated: boolean}|undefined): string|undefined
+	public getUsernameString(userData: {username: string, validated: boolean}): string
+	public getUsernameString(userData: {username: string, validated: boolean}|undefined): string|undefined {
+		if (!userData) {
+			return undefined;
+		}
+
+		return "`" + userData.username + "`" + (userData.validated ? " :white_check_mark:" : "") 
+	}
 }
 
 export default new Utils();

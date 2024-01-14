@@ -6,6 +6,7 @@ import DiscordClient from "../../bot/discord-client";
 import utils from "../../utils/utils";
 import DatabaseClient from "../../database-client";
 import RecommendationHelper from "../../recommendation-helper";
+import registerCommand from "../../bot/interactions/commands/register-command";
 
 export default (({server, responses, provider, isAuthenticatedGuard}) => { 
     const sessionsCollection = provider.get(SessionsCollection);
@@ -63,6 +64,15 @@ export default (({server, responses, provider, isAuthenticatedGuard}) => {
             }
 
             const userInformation = await databaseClient.userRepository.get(req.userId!);
+            if (validatedValue.server.type === "realms" && !validatedValue.server.owner) {
+                if (validatedValue.edition === "java" && !userInformation.javaAccount) {
+                    return responses.sendCustomError(`You don't have a Java username set. Please use the /${registerCommand.name} command to set your username.`, res);
+                }
+                if (validatedValue.edition === "bedrock" && !userInformation.bedrockAccount) {
+                    return responses.sendCustomError(`You don't have a Bedrock username set. Please use the /${registerCommand.name} command to set your username.`, res);
+                }
+            }
+
             if (recommendationHelper.canUseImages(userInformation)) {
                 if (imageFile) {
                     validationUtils.validateSessionImage(imageFile);

@@ -9,7 +9,7 @@ import leaveSessionButton from "../buttons/leave-session-button";
 import { SimpleMessageData } from "../../../types/document-types";
 
 export default class SessionInformationMessage {
-	private constructor(private readonly message: Message) {
+	private constructor(private readonly provider: Provider, private readonly message: Message) {
 		
 	}
 
@@ -27,7 +27,7 @@ export default class SessionInformationMessage {
 			throw new Error("Unable to recreate because message can't be found.");
 		}
 
-		const informationMessage = new SessionInformationMessage(message);
+		const informationMessage = new SessionInformationMessage(provider, message);
 		await informationMessage.update(session);
 		return informationMessage;
 	}
@@ -36,20 +36,20 @@ export default class SessionInformationMessage {
 		const discordClient = provider.get(DiscordClient);
 		const message = await discordClient.sendMessage(channelId, {
 			embeds: [
-				await SessionInformationMessage.createEmbed(session),
+				await SessionInformationMessage.createEmbed(provider, session),
 			],
 			components: [
 				new ActionRowBuilder<ButtonBuilder>().addComponents(leaveSessionButton.create({sessionId: session.id}))
 			]
 		});
 
-		return new SessionInformationMessage(message);
+		return new SessionInformationMessage(provider, message);
 	}
 
 	public async update(session: Session) {
 		await this.message.edit({
 			embeds: [
-				await SessionInformationMessage.createEmbed(session),
+				await SessionInformationMessage.createEmbed(this.provider, session),
 			]
 		})
 	}
@@ -58,7 +58,7 @@ export default class SessionInformationMessage {
 		await this.message.delete();
 	}
 
-	private static async createEmbed(session: Session) {
+	private static async createEmbed(provider: Provider, session: Session) {
 		const embedBuilder = new EmbedBuilder()
 			.setTitle(session.blueprint.name)
 			.setColor(constants.mainColor)
@@ -66,7 +66,7 @@ export default class SessionInformationMessage {
 
 		const fields = [
 			sessionEmbedUtils.createEditionField(session),
-			await sessionEmbedUtils.createServerOrRealmsField(session),
+			await sessionEmbedUtils.createServerOrRealmsField(provider, session),
 			sessionEmbedUtils.createResourcepackField(session),
 		].filter(utils.getHasValuePredicate());
 

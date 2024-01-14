@@ -58,7 +58,7 @@ const route = useRoute();
 const router = useRouter();
 
 const creatingSessionForExperienceId = computed(() => {
-	return route.params.experienceId;
+	return typeof route.params.experienceId === "string" ? route.params.experienceId : undefined;
 });
 
 watchEffect(async (cleanUp) => {
@@ -71,7 +71,7 @@ watchEffect(async (cleanUp) => {
 	cleanUp(() => useResponse = false);
 
 	data.hasLoadedBlueprint = false;
-	const experienceResponse = await experienceApiClient.getExperience(creatingSessionForExperienceId.value + "");
+	const experienceResponse = await experienceApiClient.getExperience(creatingSessionForExperienceId.value);
 	if (!useResponse) {
 		return;
 	}

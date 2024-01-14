@@ -3,6 +3,7 @@ import Command, { CommandExecutionContext } from "./command";
 import DatabaseClient from "../../../database-client";
 import UserRepository from "../../../repositories/user-repository";
 import constants from "../../../utils/constants";
+import utils from "../../../utils/utils";
 
 class RegisterCommand extends Command {
 	public constructor() {
@@ -95,10 +96,10 @@ class RegisterCommand extends Command {
 		let nameLines: string[] = [];
 
 		if (user.javaAccount) {
-			nameLines.push(`${constants.javaEditionIcon} Java: \`${user.javaAccount.username}\` ${user.javaAccount.validated ? " :white_check_mark:" : ""}`);
+			nameLines.push(`${constants.javaEditionIcon} Java: ${utils.getUsernameString(user.javaAccount)}`);
 		}
 		if (user.bedrockAccount) {
-			nameLines.push(`${constants.bedrockEditionIcon} Bedrock: \`${user.bedrockAccount.username}\` ${user.bedrockAccount.validated ? " :white_check_mark:" : ""}`);
+			nameLines.push(`${constants.bedrockEditionIcon} Bedrock: ${utils.getUsernameString(user.bedrockAccount)}`);
 		}
 
 		if (nameLines.length === 0) {
