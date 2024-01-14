@@ -60,14 +60,29 @@ class Utils {
 		return this.hasValuePredicate as ((value: TValue|null|undefined) => value is TValue);
 	}
 
-	public fieldsInColumns(fields: ReadonlyArray<APIEmbedField>, columns: number) {
-		const fieldsInColumns = fields.map(field => ({...field, inline: true}));
+	public fieldsInColumns(fields: ReadonlyArray<APIEmbedField>, columns: number, spacing: number = 5) {
+		const rows: APIEmbedField[][] = [];
+		const spacingSpaces = new Array(spacing).fill(" ").join("");
+		for (let i = 0; i < fields.length; i += columns) {
+			const row = fields.slice(i, i + columns).map(field => ({...field, inline: true}));
 
-		for (let i = columns; i < fieldsInColumns.length; i += (columns + 1)) {
-			fieldsInColumns.splice(i, 0, {name: " ", value: " ", inline: false});
+			if (spacing > 0) {
+				for (let i = 1; i < row.length; i += 2) {
+					row.splice(i, 0, {name: spacingSpaces, value: spacingSpaces, inline: true});
+				}
+			}
+
+			row.push({name: " ", value: " ", inline: false});
+
+			rows.push(row);
 		}
 
-		return fieldsInColumns;
+		if (rows.length > 0) {
+			const lastRow = rows[rows.length - 1];
+			lastRow.splice(lastRow.length - 1, 1);
+		}
+
+		return rows.flatMap(row => row);
 	}
 
 	public getUsernameString(userData: {username: string, validated: boolean}|undefined): string|undefined

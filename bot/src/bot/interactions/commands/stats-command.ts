@@ -3,6 +3,7 @@ import Command, { CommandExecutionContext } from "./command";
 import DatabaseClient from "../../../database-client";
 import RecommendationHelper from "../../../recommendation-helper";
 import utils from "../../../utils/utils";
+import constants from "../../../utils/constants";
 
 class StatsCommand extends Command {
 	public constructor() {
@@ -30,6 +31,7 @@ class StatsCommand extends Command {
 		interaction.editReply({
 			embeds: [
 				new EmbedBuilder()
+					.setColor(constants.mainColor)
 					.setThumbnail(interactor.user.avatarURL({size: 32}))
 					.setTitle(`${interactor.user.username}'${/[sz]$/g.test(interactor.user.username) ? "" : "s"} stats`)
 					.setFields(

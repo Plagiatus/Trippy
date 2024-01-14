@@ -13,28 +13,28 @@ export default class InteractionCollection {
 		this.buttons = interactions?.buttons ?? InteractionCollection.importButtons();
 	}
 
-	public executeCommandInteraction(id: string, interaction: ChatInputCommandInteraction, interactor: GuildMember) {
+	public async executeCommandInteraction(id: string, interaction: ChatInputCommandInteraction, interactor: GuildMember) {
 		const command = this.commands.find(command => command.isCommandName(id));
 		if (!command) {
 			interaction.reply({ephemeral: true, content: `The command "${id}" doesn't exist. Please contact a moderator if this problem persists.`});
 			return;
 		}
 
-		command.handleExecution({
+		await command.handleExecution({
 			interaction: interaction,
 			interactor: interactor,
 			provider: this.provider,
 		});
 	}
 
-	public executeButtonInteraction(id: string, interaction: ButtonInteraction, interactor: GuildMember) {
+	public async executeButtonInteraction(id: string, interaction: ButtonInteraction, interactor: GuildMember) {
 		for (const button of this.buttons) {
 			const result = button.isButtonId(id);
 			if (!result) {
 				continue;
 			}
 
-			button.handleClick({
+			await button.handleClick({
 				buttonParameters: result,
 				interaction: interaction,
 				interactor: interactor,

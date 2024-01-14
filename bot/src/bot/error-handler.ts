@@ -2,6 +2,7 @@ import { CommandInteraction, EmbedBuilder, Message, MessageType, Interaction } f
 import Provider from "../provider";
 import DiscordClient from "./discord-client";
 import Session from "../session/session";
+import constants from "../utils/constants";
 
 export default class ErrorHandler {
 	private readonly discordClient: DiscordClient;
@@ -68,6 +69,7 @@ export default class ErrorHandler {
 
 	private makeMessageEmbed(error: unknown, message: Message): EmbedBuilder {
 		return new EmbedBuilder()
+			.setColor(constants.warningColor)
 			.setTitle("An Error Occured")
 			.setFields([
 				{ name: "Error", value: "```" + String(error).substring(0, 4000) + "```" },
@@ -78,6 +80,7 @@ export default class ErrorHandler {
 
 	private makeInteractionEmbed(error: unknown, interaction: Interaction): EmbedBuilder {
 		return new EmbedBuilder()
+			.setColor(constants.warningColor)
 			.setTitle("An Error Occured")
 			.setFields([
 				{ name: "Error", value: "```" + String(error).substring(0, 4000) + "```" },

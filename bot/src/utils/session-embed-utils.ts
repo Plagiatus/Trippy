@@ -9,7 +9,13 @@ class SessionEmbedUtils {
 	public createPlayerCountField(session: Session): Discord.APIEmbedField {
 		const playerNames = session.joinedUserIds.map(id => `<@!${id}>`).join("\n");
 
-		return {name: "Players:", value: `${session.playerCount}/${session.maxPlayers}\n\n${playerNames}`};
+		let playersString = `:busts_in_silhouette: ${session.playerCount}/${session.maxPlayers}`;
+		if (session.blueprint.preferences.players.min && session.blueprint.preferences.players.min > 1) {
+			playersString += ` (Need atleast ${session.blueprint.preferences.players.min} players)`
+		}
+		playersString += `\n\n${playerNames}`;
+
+		return {name: "Players:", value: playersString};
 	}
 
 	public createEditionField(session: Session): Discord.APIEmbedField|undefined {
@@ -139,16 +145,16 @@ class SessionEmbedUtils {
 	public async createServerOrRealmsField(provider: Provider, session: Session): Promise<Discord.APIEmbedField> {
 		if (session.blueprint.server.type === "realms") {
 			if (session.blueprint.server.owner) {
-				return {name: "Realms Host:", value: "`" + session.blueprint.server.owner + "`"};
+				return {name: "Realms Host:", value: ":bust_in_silhouette: `" + session.blueprint.server.owner + "`"};
 			} else {
 				const host = await session.getHost();
 				const userData = await (host && provider.get(DatabaseClient).userRepository.get(host.id));
 				const account = session.blueprint.edition === "bedrock" ? userData?.bedrockAccount : (session.blueprint.edition === "java" ? userData?.javaAccount : undefined);
 				const displayedUsername = utils.getUsernameString(account) ?? ("`" + ( host?.displayName ?? " ") + "`");
-				return {name: "Realms Host:", value: displayedUsername};
+				return {name: "Realms Host:", value: ":bust_in_silhouette: " + displayedUsername};
 			}
 		} else {
-			return {name: "Server Ip:", value: "`" + session.blueprint.server.ip + "`"};
+			return {name: "Server Ip:", value: ":mag: `" + session.blueprint.server.ip + "`"};
 		}
 	}
 
@@ -162,7 +168,15 @@ class SessionEmbedUtils {
 			rpLink = "https://" + session.blueprint.rpLink;
 		}
 
-		return {name: "Resource Pack:", value: `[Link](${rpLink})`};
+		return {name: "Resource Pack:", value: `:frame_photo: [Link](${rpLink})`};
+	}
+
+	public createVersionField(session: Session) {
+		if (session.blueprint.edition !== "java" || !session.blueprint.version) {
+			return undefined;
+		}
+
+		return {name: "Version:", value: ":newspaper: " + session.blueprint.version}
 	}
 }
 

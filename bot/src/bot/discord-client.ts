@@ -185,9 +185,9 @@ export default class DiscordClient {
 		}
 
 		if (interaction.isChatInputCommand()) {
-			this.interactionCollection.executeCommandInteraction(interaction.commandName, interaction, interactor);
+			await this.interactionCollection.executeCommandInteraction(interaction.commandName, interaction, interactor);
 		} else if (interaction.isButton()) {
-			this.interactionCollection.executeButtonInteraction(interaction.customId, interaction, interactor);
+			await this.interactionCollection.executeButtonInteraction(interaction.customId, interaction, interactor);
 		} else {
 			throw new Error("This type of interaction is not supported. If this problem persists, contact a moderator.");
 		}

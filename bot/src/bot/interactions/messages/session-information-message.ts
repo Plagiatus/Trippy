@@ -66,14 +66,13 @@ export default class SessionInformationMessage {
 
 		const fields = [
 			sessionEmbedUtils.createEditionField(session),
+			sessionEmbedUtils.createVersionField(session),
 			await sessionEmbedUtils.createServerOrRealmsField(provider, session),
 			sessionEmbedUtils.createResourcepackField(session),
 		].filter(utils.getHasValuePredicate());
 
 		const fieldsInColumns = utils.fieldsInColumns(fields, 2);
-		for (const field of fieldsInColumns) {
-			embedBuilder.addFields(field);
-		}
+		embedBuilder.addFields(...fieldsInColumns);
 
 		embedBuilder.addFields({name: " ", value: " ", inline: false});
 		embedBuilder.addFields({name: " ", value: " ", inline: false});

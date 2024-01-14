@@ -4,6 +4,7 @@ import DatabaseClient from "../../../database-client";
 import RecommendationHelper from "../../../recommendation-helper";
 import Provider from "../../../provider";
 import utils from "../../../utils/utils";
+import constants from "../../../utils/constants";
 
 class ImpersonateCommand extends Command {
 	public constructor() {
@@ -136,6 +137,7 @@ class ImpersonateCommand extends Command {
 		await interaction.editReply({
 			embeds: [
 				new EmbedBuilder()
+					.setColor(constants.mainColor)
 					.setThumbnail(viewUser.avatarURL({size: 32}))
 					.setTitle(`${viewUser.username}'${/[sz]$/g.test(viewUser.username) ? "" : "s"} recommendation`)
 					.addFields(utils.fieldsInColumns([
@@ -151,6 +153,7 @@ class ImpersonateCommand extends Command {
 		await interaction.editReply({
 			embeds: [
 				new EmbedBuilder()
+					.setColor(constants.mainColor)
 					.setThumbnail(user.avatarURL({size: 32}))
 					.setTitle(`Modified ${user.username}`)
 					.addFields(utils.fieldsInColumns([

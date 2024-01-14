@@ -6,24 +6,34 @@ export default class MojangApiClient {
 	}
 
 	public async getJavaVersions() {
-		const reply = await (await fetch("https://launchermeta.mojang.com/mc/game/version_manifest.json")).json();
+		type VersionResponse = {
+            "id": string;
+            "type": "snapshot"|"release"|"old_beta"|"old_alpha";
+            "url": string;
+            "time": string;
+            "releaseTime": string;
+        };
+
+		const reply: {versions: VersionResponse[]} = await (await fetch("https://launchermeta.mojang.com/mc/game/version_manifest.json")).json();
 		const versions: JavaVersion[] = [];
-		let prevMajor = "";
-		if (reply.versions) {
-			let javaVersion: JavaVersion = { label: "", versions: [] };
-			for (let i: number = 0; i < reply.versions.length; i++) {
-				if (reply.versions[i].type == "release") {
-					let id = reply.versions[i].id;
-					let v = id.split(".");
-					if (+v[1] < MojangApiClient.oldestVersion) break;
-					if (v[1] != prevMajor) {
-						javaVersion = { label: `${v[0]}.${v[1]}`, versions: [] };
-						prevMajor = v[1];
-						versions.push(javaVersion);
+		let currentVersion: JavaVersion = {label: "snapshots", versions: []};
+		for (const version of reply.versions) {
+			if (version.type === "snapshot" && currentVersion.label === "snapshots") {
+				currentVersion.versions.push(version.id);
+			} else if (version.type === "release") {
+				const versionParts = version.id.split(".");
+				const majorVersion = `${versionParts[0]}.${versionParts[1]}`;
+				if (majorVersion !== currentVersion.label) {
+					if (currentVersion.versions.length > 0) {
+						versions.push(currentVersion);
 					}
-					javaVersion.versions.push(id);
+					currentVersion = {label: majorVersion, versions: []};
 				}
+				currentVersion.versions.push(version.id);
 			}
+		}
+		if (currentVersion.versions.length > 0) {
+			versions.push(currentVersion);
 		}
 
 		return versions;
