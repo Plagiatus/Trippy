@@ -1,9 +1,10 @@
 import { Ref, shallowRef } from "vue";
 import Provider from "./provider/provider";
-import { router } from "./router";
+import RouterWrapper from "./router";
 import Storage from "./storage";
 import AuthenticationApiClient, { JwtInformation } from "./api-clients/authentication-api-client";
 import utils from "./utils/utils";
+import { Router } from "vue-router";
 
 type RefreshInformation = {
 	jwtExpiresAt: number;
@@ -43,6 +44,7 @@ export default class AuthenticationHandler {
 
 	private readonly storage: Storage;
 	private readonly authenticationApiClient: AuthenticationApiClient;
+	private readonly router: Router;
 
 	private readonly changeableUserInformationRef: Ref<UserInformation|null>;
 	private ongoingJwtGetPromise: Promise<string|null>|null;
@@ -51,6 +53,7 @@ export default class AuthenticationHandler {
 	public constructor(provider: Provider) {
 		this.storage = provider.get(Storage);
 		this.authenticationApiClient = provider.get(AuthenticationApiClient);
+		this.router = provider.get(RouterWrapper).router;
 
 		const userInformation = this.storage.get<UserInformation>(AuthenticationHandler.useInformationStorageKey);
 		this.changeableUserInformationRef = shallowRef(userInformation ?? null);
@@ -166,6 +169,7 @@ export default class AuthenticationHandler {
 			const refreshResponse = await this.authenticationApiClient.refreshJwt(refreshInformation.refreshToken);
 			if (!refreshResponse.data) {
 				this.setJwt(null);
+				this.router.push({name: "Home"});
 				return null;
 			}
 
@@ -217,7 +221,7 @@ export default class AuthenticationHandler {
 
 	private get defaultAuthenticatedRedirectUrl() {
 		const origin = new URL(location.href).origin;
-		const authenticatedPath = router.resolve({name: "Login.Authenticated"}).fullPath;
+		const authenticatedPath = this.router.resolve({name: "Login.Authenticated"}).fullPath;
 		return origin + authenticatedPath;
 	}
 

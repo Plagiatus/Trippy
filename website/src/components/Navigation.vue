@@ -2,11 +2,11 @@
 	<header id="nav-spacer">
 		<nav id="main-nav">
 			<div id="nav-logo-wrapper">
-				<router-link class="nav-link-logo" to="/">
+				<router-link class="nav-link-logo" :to="{name: 'Home'}">
 					<img id="nav-logo" src="/logo.png" alt="">
 				</router-link>
 			</div>
-			<navigation-button route-to="/">Home</navigation-button>
+			<navigation-button :route-to="{name: 'Home'}">Home</navigation-button>
 			<template v-if="authenticationHandler.isLoggedIn()">
 				<navigation-button :route-to="{name: 'Experience'}">Experiences</navigation-button>
 				<navigation-button :route-to="{name: 'Session'}">Sessions</navigation-button>
