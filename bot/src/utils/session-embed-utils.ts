@@ -66,7 +66,31 @@ class SessionEmbedUtils {
 				text = ":crossed_swords: PVP";
 				break;
 			case "stategy":
-				text = ":chess_pawn: Strategy";
+				text = ":brain: Strategy";
+				break;
+			case "adventure":
+				text = ":shield: Adventure";
+				break;
+			case "creation":
+				text = ":classical_building: Creation";
+				break;
+			case "horror":
+				text = ":zombie: Horror";
+				break;
+			case "race":
+				text = ":race_car: Race";
+				break;
+			case "sandbox":
+				text = ":yellow_square: Sandbox";
+				break;
+			case "survival":
+				text = ":apple: Survival";
+				break;
+			case "tabletop":
+				text = ":chess_pawn: Tabletop Game";
+				break;
+			default:
+				text = ":question: Unknown";
 				break;
 		}
 

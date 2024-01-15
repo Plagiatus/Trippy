@@ -51,7 +51,15 @@ const categoryOptions: InputSelectValueType<SessionBlueprint["category"]>[] = [
 	{value: "pve", name: "PvE"},
 	{value: "pvp", name: "PvP"},
 	{value: "stategy", name: "Strategy"},
+	{value: "adventure", name: "Adventure"},
+	{value: "survival", name: "Survival"},
+	{value: "horror", name: "Horror"},
+	{value: "sandbox", name: "Sandbox"},
+	{value: "creation", name: "Creation"},
+	{value: "tabletop", name: "Tabletop Game"},
+	{value: "race", name: "Race"},
 ];
+categoryOptions.sort((a,b) => a.name.localeCompare(b.name));
 
 async function uploadImage() {
 	const imageFile = await fileAccess.openFileDialog({accept: ".png,.jpg"});

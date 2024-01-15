@@ -93,7 +93,7 @@ async function createSession() {
 	data.isCreatingSession = true;
 	const result = await sessionApiClient.createSession({
 		blueprint: sessionBlueprint.value as SessionBlueprint,
-		experienceId: creatingSessionForExperienceId.value + "",
+		experienceId: creatingSessionForExperienceId.value,
 		image: data.image ?? undefined,
 	});
 	data.isCreatingSession = false;

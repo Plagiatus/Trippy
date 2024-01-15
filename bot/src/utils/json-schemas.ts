@@ -10,7 +10,7 @@ const sessionBlueprintSchema: Schema = {
 		name: { type: "string", minLength: 1 },
 		description: { type: "string", minLength: 1 },
 		type: { enum: ["test", "record", "fun", "stream"] },
-		category: { enum: ["parkour", "pvp", "pve", "puzzle", "stategy", "hns", "ctm", "multiple", "other"] },
+		category: { enum: ["parkour", "pvp", "pve", "puzzle", "stategy", "hns", "ctm", "multiple", "other", "adventure", "survival", "horror", "sandbox", "creation", "tabletop", "race"] },
 		edition: { enum: ["java", "bedrock", "other"] },
 		version: { type: "string" },
 		server: {
