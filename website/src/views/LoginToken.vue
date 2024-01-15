@@ -1,14 +1,18 @@
 <template>
 	<div class="token-login-view">
 		<loading-spinner v-if="!data.loggingInAs"/>
-		<template v-else>
-			<img class="avatar" v-if="data.loggingInAs.avatar" :src="data.loggingInAs.avatar"/>
-			<p class="text">You are about to login as <span class="username">{{data.loggingInAs.name}}</span></p>
-			<div class="buttons-collection">
-				<normal-button @click="cancelLogin">Cancel</normal-button>
-				<loading-button @click="login" :loading="data.isLoggingIn" text="Login"/>
+		<content-box v-else>
+			<div class="login-box">
+				<div class="spacing"></div>
+				<img class="avatar" v-if="data.loggingInAs.avatar" :src="data.loggingInAs.avatar"/>
+				<p class="text">You are about to login as <span class="username">{{data.loggingInAs.name}}</span></p>
+				<div class="spacing"></div>
+				<div class="buttons-collection">
+					<normal-button color="highlight" @click="cancelLogin">Cancel</normal-button>
+					<loading-button color="highlight" @click="login" :loading="data.isLoggingIn" text="Login"/>
+				</div>
 			</div>
-		</template>
+		</content-box>
 	</div>
 </template>
 
@@ -22,6 +26,7 @@ import utils from '@/utils/utils';
 import AuthenticationApiClient from '@/api-clients/authentication-api-client';
 import LoadingButton from '@/components/buttons/LoadingButton.vue';
 import NormalButton from '@/components/buttons/NormalButton.vue';
+import ContentBox from '@/components/ContentBox.vue';
 
 const data = shallowReactive({
 	loggingInAs: null as {name: string, avatar: string|null}|null,
@@ -130,13 +135,48 @@ function checkIfTokenShouldBeIgnored() {
 </script>
 
 <style scoped>
-
 .token-login-view {
 	display: flex;
-	flex-flow: column;
 	justify-content: center;
 	align-items: center;
 	height: 100%;
 }
 
+.login-box {
+	display: flex;
+	flex-flow: column;
+	justify-content: center;
+	align-items: center;
+	aspect-ratio: 1/1;
+	padding: 32px;
+}
+
+.spacing {
+	flex-grow: 1;
+}
+
+.avatar {
+	width: 100px;
+	height: 100px;
+	object-fit: contain;
+	border-radius: 4px;
+}
+
+.buttons-collection {
+	display: flex;
+	gap: 32px;
+	font-size: 1.1em;
+}
+
+.text {
+	font-size: 1.1em;
+	margin-top: 16px;
+	margin-bottom: 8px;
+}
+
+.username {
+	background-color: var(--background);
+	padding: 4px;
+	border-radius: 8px;
+}
 </style>
