@@ -4,7 +4,7 @@
 		<map-information-edit-section class="section" :session-blueprint="sessionBlueprint" v-model:image="data.image"/>
 		<join-information-edit-section class="section" :session-blueprint="sessionBlueprint"/>
 		<expectations-edit-section class="section" :session-blueprint="sessionBlueprint"/>
-		<session-edit-section class="section" :session-blueprint="sessionBlueprint"/>
+		<session-edit-section class="section" :session-blueprint="sessionBlueprint" :force-allow-pinging="true"/>
 		<div class="create-experience-button-holder">
 			<loading-button class="create-experience-button" :loading="data.isCreatingExperience" text="Create Experience" @click="createExperience"/>
 			<error-display @close="data.experienceCreationError = ''">

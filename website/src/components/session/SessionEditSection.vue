@@ -1,7 +1,7 @@
 <template>
 	<content-box header="Session">
-		<transition-size v-if="data.canPingInMilliseconds !== null && !isEditingSession">
-			<input-checkbox v-if="data.canPingInMilliseconds <= 0" v-model="sessionBlueprint.ping" name="Ping" class="input-row"/>
+		<transition-size v-if="data.canPingInMilliseconds !== null && !isEditingSession || forceAllowPinging">
+			<input-checkbox v-if="forceAllowPinging || (data.canPingInMilliseconds ?? 1) <= 0" v-model="sessionBlueprint.ping" name="Ping" class="input-row"/>
 			<div v-else class="ping-timer-message">You can ping again in <span class="ping-timer">{{formattedPingTimer}}</span>.</div>
 		</transition-size>
 		<p>Voice Channels:</p>
@@ -47,6 +47,7 @@ import TimeHelper from '@/time-helper';
 const props = defineProps<{
 	sessionBlueprint: PartialSessionBlueprint;
 	isEditingSession?: boolean;
+	forceAllowPinging?: boolean;
 }>()
 
 const voiceChannelForm = new ValidateableForm();

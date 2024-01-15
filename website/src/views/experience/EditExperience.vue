@@ -7,7 +7,7 @@
 		<map-information-edit-section class="section" :session-blueprint="defaultBlueprint" v-model:image="data.newImage"/>
 		<join-information-edit-section class="section" :session-blueprint="defaultBlueprint"/>
 		<expectations-edit-section class="section" :session-blueprint="defaultBlueprint"/>
-		<session-edit-section class="section" :session-blueprint="defaultBlueprint"/>
+		<session-edit-section class="section" :session-blueprint="defaultBlueprint" :force-allow-pinging="true"/>
 		<div class="button-holder">
 			<normal-button :route-to="{name: 'Experience.Overview'}" class="option-button">Cancel</normal-button>
 		</div>
