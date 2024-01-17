@@ -14,6 +14,15 @@ export default (({server, responses, provider, isAuthenticatedGuard}) => {
     const discordClient = provider.get(DiscordClient);
     const recommendationHelper = provider.get(RecommendationHelper);
 
+    server.route("/session/millisecondsTillPing")
+        .get(isAuthenticatedGuard, async (req, res) => {
+            const userData = await databaseClient.userRepository.get(req.userId!);
+			const millisecondsTillNextPing = recommendationHelper.getMillisecondsTillNextAllowedPing(userData);
+
+			res.send({millisecondsTillNextPing});
+        })
+        .all(responses.wrongMethod);
+
     server.route("/session/:id?")
         .get(isAuthenticatedGuard, async (req, res) => {
             if (req.params.id) {

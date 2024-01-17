@@ -40,4 +40,8 @@ export default class SessionApiClient extends BaseApiClient {
 
 		return this.post<{}>(`session/${options.sessionId}`, formData)
 	}
+
+	public async getMillisecondsTillBeingAbleToPing() {
+		return this.get<{millisecondsTillNextPing: number|null}>("/session/millisecondsTillPing");
+	}
 }

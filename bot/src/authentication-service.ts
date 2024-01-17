@@ -203,12 +203,11 @@ export default class AuthenticationService {
 		const payload = {
 			type: "jwt",
 			userId,
-			name: member.displayName,
+			name: member.user.username,
 			avatar: member.displayAvatarURL({size: 256}),
 			recommendationScore: this.recommendationHelper.getRecommendationScore(userInformation),
 			javaAccount: userInformation.javaAccount,
 			bedrockAccount: userInformation.bedrockAccount,
-			timeTillNextPing: this.recommendationHelper.getMillisecondsTillNextAllowedPing(userInformation),
 			canUseImages: this.recommendationHelper.canUseImages(userInformation),
 		};
 

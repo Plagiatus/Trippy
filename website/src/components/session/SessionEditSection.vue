@@ -1,6 +1,6 @@
 <template>
 	<content-box header="Session">
-		<transition-size v-if="data.canPingInMilliseconds !== null && !isEditingSession || forceAllowPinging">
+		<transition-size v-if="data.canPingInMilliseconds !== null && !isEditingSession">
 			<input-checkbox v-if="forceAllowPinging || (data.canPingInMilliseconds ?? 1) <= 0" v-model="sessionBlueprint.ping" name="Ping" class="input-row"/>
 			<div v-else class="ping-timer-message">You can ping again in <span class="ping-timer">{{formattedPingTimer}}</span>.</div>
 		</transition-size>
@@ -41,8 +41,9 @@ import ValidateableForm from '@/validateable-form';
 import ValidateableFormProvider from '../ValidateableFormProvider.vue';
 import TransitionSize from '../TransitionSize.vue';
 import useProvidedItem from '@/composables/use-provided-item';
-import AuthenticationHandler from '@/authentication-handler';
 import TimeHelper from '@/time-helper';
+import SessionApiClient from '@/api-clients/session-api-client';
+import useLoadData from '@/composables/use-load-data';
 
 const props = defineProps<{
 	sessionBlueprint: PartialSessionBlueprint;
@@ -51,16 +52,19 @@ const props = defineProps<{
 }>()
 
 const voiceChannelForm = new ValidateableForm();
-const authenticationHandler = useProvidedItem(AuthenticationHandler);
 const timeHelper = useProvidedItem(TimeHelper);
+const sessionApiClient = useProvidedItem(SessionApiClient);
 
 const data = shallowReactive({
 	newVoiceChannelName: "",
 	canPingInMilliseconds: null as null|number,
+	totalPingCooldownInMilliseconds: null as null|number,
 });
 
-watchEffect((cleanup) => {
-	const beginningPingDelay = authenticationHandler.userInformation?.timeTillNextPing ?? null;
+const pingCooldown = useLoadData(() => sessionApiClient.getMillisecondsTillBeingAbleToPing())
+
+watchEffect(async (cleanup) => {
+	const beginningPingDelay = pingCooldown.data?.millisecondsTillNextPing ?? null;
 	data.canPingInMilliseconds = beginningPingDelay;
 	if (beginningPingDelay === null || beginningPingDelay <= 0) {
 		return;

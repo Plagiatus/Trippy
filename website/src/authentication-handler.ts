@@ -33,7 +33,6 @@ export type UserInformation = Readonly<{
 		username: string,
 		validated: boolean,
 	},
-	timeTillNextPing: number|null,
 	canUseImages: boolean,
 }>;
 
@@ -212,7 +211,6 @@ export default class AuthenticationHandler {
 				bedrockAccount: jwtBody.bedrockAccount,
 				javaAccount: jwtBody.javaAccount,
 				recommendationScore: jwtBody.recommendationScore,
-				timeTillNextPing: jwtBody.timeTillNextPing,
 				canUseImages: jwtBody.canUseImages,
 			};
 			this.storage.set(AuthenticationHandler.useInformationStorageKey, this.changeableUserInformationRef.value);
