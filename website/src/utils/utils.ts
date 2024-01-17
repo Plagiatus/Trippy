@@ -1,9 +1,9 @@
 class Utils {
-	getJwtBody(jwt: string): unknown {
+	getJwtBody(jwt: string): null|Record<string,any> {
 		try {
 			const jwtParts = jwt.split(".");
 			if (jwtParts.length !== 3) {
-				return {};
+				return null;
 			}
 
 			const jwtBody = jwtParts[1];
@@ -11,7 +11,7 @@ class Utils {
 			const parsedJwtBody = JSON.parse(jwtBodyJson);
 			return parsedJwtBody;
 		} catch {
-			return {};
+			return null;
 		}
 	}
 }

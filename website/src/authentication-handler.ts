@@ -202,7 +202,11 @@ export default class AuthenticationHandler {
 			this.changeableUserInformationRef.value = null;
 			return;
 		} else {
-			const jwtBody: any = utils.getJwtBody(newJwt); // jwt is coming from the backend so we trust it's of the correct type.
+			const jwtBody = utils.getJwtBody(newJwt); // jwt is coming from the backend so we trust it's of the correct type.
+			if (!jwtBody) {
+				this.setJwt(null);
+				return;
+			}
 
 			this.changeableUserInformationRef.value = {
 				avatar: jwtBody.avatar,
