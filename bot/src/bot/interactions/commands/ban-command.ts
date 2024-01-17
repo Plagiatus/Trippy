@@ -4,6 +4,7 @@ import Command, { CommandExecutionContext } from "./command";
 import BansRepository from "../../../repositories/bans-repository";
 import { ChatInputCommandInteraction, GuildMember } from "discord.js";
 import Provider from "../../../provider";
+import ModLogMessages from "../messages/mod-log-messages";
 
 class BanCommand extends Command {
 	public constructor() {
@@ -39,7 +40,7 @@ class BanCommand extends Command {
 		if (subCommand === "ban") {
 			await this.handleBanSubCommand(provider, bans, interaction, interactor);
 		} else if (subCommand === "unban") {
-			await this.handleUnbanSubCommand(bans, interaction, interactor);
+			await this.handleUnbanSubCommand(provider, bans, interaction, interactor);
 		} else if (subCommand === "list") {
 			await this.handleListSubCommand(bans, interaction, interactor);
 		} else {
@@ -62,6 +63,7 @@ class BanCommand extends Command {
 		await interaction.deferReply({ ephemeral: true });
 		await bans.ban(interactor.id, userToBan.id);
 		interaction.editReply(`${userToBan} was banned from your sessions.`);
+		ModLogMessages.ban(provider, interactor, userToBan);
 
 		//if player is also currently in the session, kick them.
 		const sessionsCollection = provider.get(SessionsCollection);
@@ -73,7 +75,7 @@ class BanCommand extends Command {
 		}
 	}
 
-	private async handleUnbanSubCommand(bans: BansRepository, interaction: ChatInputCommandInteraction, interactor: GuildMember) {
+	private async handleUnbanSubCommand(provider: Provider, bans: BansRepository, interaction: ChatInputCommandInteraction, interactor: GuildMember) {
 		const userToUnban = interaction.options.getUser("user", true);
 		if (!userToUnban) {
 			interaction.reply({ ephemeral: true, content: "User not found." })
@@ -83,6 +85,7 @@ class BanCommand extends Command {
 		await interaction.deferReply({ ephemeral: true });
 		await bans.unban(interactor.id, userToUnban.id);
 		interaction.editReply(`${userToUnban} can join your sessions again.`);
+		ModLogMessages.unban(provider, interactor, userToUnban);
 	}
 
 	private async handleListSubCommand(bans: BansRepository, interaction: ChatInputCommandInteraction, interactor: GuildMember) {
