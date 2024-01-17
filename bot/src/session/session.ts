@@ -29,7 +29,7 @@ export default class Session {
 		this.display = new SessionDisplay(provider, this);
 		this.isSetup = false;
 	}
-	
+
 	public get rawSession(): Readonly<RawSession> {
 		return this._rawSession;
 	}
@@ -148,7 +148,7 @@ export default class Session {
 			return;
 		}
 
-		const playersAndPlayTimeInMilliseconds = new Map<string,number>();
+		const playersAndPlayTimeInMilliseconds = new Map<string, number>();
 		for (const player of this.rawSession.players) {
 			if (player.type === "kicked" || player.type === "banned") {
 				continue;
@@ -164,7 +164,7 @@ export default class Session {
 			if (amountOfMinutesPlayed < this.config.rawConfig.recommendation.playingSession.firstGiveOutAfterMinutes) {
 				return;
 			}
-			
+
 			const gottenRecommendation = this.config.rawConfig.recommendation.playingSession.scorePerMinute * amountOfMinutesPlayed + this.config.rawConfig.recommendation.playingSession.bonusForJoining;
 			await this.recommendationHelper.addRecommendationScore(playerId, gottenRecommendation);
 		});
@@ -174,7 +174,7 @@ export default class Session {
 		if (this.rawSession.state !== "ended" && this.rawSession.state !== "stopping") {
 			return;
 		}
-		type Period = {from: number, to: number};
+		type Period = { from: number, to: number };
 
 		const periodsWithPlayers: Period[] = [];
 		for (const player of this.rawSession.players) {
@@ -190,7 +190,7 @@ export default class Session {
 				periodEnd = Math.max(periodEnd, period.to);
 			}
 
-			periodsWithPlayers.push({from: periodStart, to: periodEnd});
+			periodsWithPlayers.push({ from: periodStart, to: periodEnd });
 		}
 
 		const totalMillisecondsWithPlayers = periodsWithPlayers.reduce((sum, period) => sum + (period.to - period.from), 0);
@@ -203,11 +203,11 @@ export default class Session {
 		await this.recommendationHelper.addRecommendationScore(this.hostId, gottenRecommendation);
 	}
 
-	public isChannelForSession(channel: string|Discord.Channel) {
+	public isChannelForSession(channel: string | Discord.Channel) {
 		return this.display.isChannelForSession(channel);
 	}
 
-	public async getHost(): Promise<Discord.GuildMember|null> {
+	public async getHost(): Promise<Discord.GuildMember | null> {
 		return this.discordClient.getMember(this.rawSession.hostId);
 	}
 
@@ -252,13 +252,15 @@ export default class Session {
 			return;
 		}
 
-		await this.display.removePlayer(leftMember);
-		switch(leaveType) {
+		switch (leaveType) {
 			case "kicked":
-				return await this.recommendationHelper.addRecommendationScore(userId, -this.config.rawConfig.recommendation.scoreLostOnBeingKicked);
+				await this.recommendationHelper.addRecommendationScore(userId, -this.config.rawConfig.recommendation.scoreLostOnBeingKicked);
+				break;
 			case "banned":
-				return await this.recommendationHelper.addRecommendationScore(userId, -this.config.rawConfig.recommendation.scoreLostOnBeingBanned);
+				await this.recommendationHelper.addRecommendationScore(userId, -this.config.rawConfig.recommendation.scoreLostOnBeingBanned);
+				break;
 		}
+		await this.display.removePlayer(leftMember);
 	}
 
 	public async tryStopSession(endingUser: Discord.GuildMember): Promise<boolean> {

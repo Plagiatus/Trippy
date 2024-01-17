@@ -112,7 +112,7 @@ export default class RecommendationHelper {
 
 		await discordUser.roles.remove(rolesToRemove.map(role => role.roleId));
 		if (roleToGive) {
-			discordUser.roles.add(roleToGive.roleId);
+			await discordUser.roles.add(roleToGive.roleId);
 		}
 	}
 
