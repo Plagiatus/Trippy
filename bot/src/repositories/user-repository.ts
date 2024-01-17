@@ -92,7 +92,7 @@ export default class UserRepository extends Repository<UserData,"id"> {
 			id: id,
 			discordAuthToken: undefined,
 			loginId: 0,
-			lastRecommendationScoreUpdate: new Date(),
+			lastRecommendationScoreUpdate: this.timeHelper.currentDate,
 			recommendationScore: 0,
 			totalRecommendationScore: 0,
 			givenRecommendations: [],
