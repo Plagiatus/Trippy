@@ -203,7 +203,7 @@ export default class AuthenticationService {
 		const payload = {
 			type: "jwt",
 			userId,
-			name: member.user.username,
+			name: member.user.displayName,
 			avatar: member.displayAvatarURL({size: 256}),
 			recommendationScore: this.recommendationHelper.getRecommendationScore(userInformation),
 			javaAccount: userInformation.javaAccount,

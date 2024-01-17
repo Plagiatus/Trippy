@@ -139,7 +139,7 @@ class ImpersonateCommand extends Command {
 				new EmbedBuilder()
 					.setColor(constants.mainColor)
 					.setThumbnail(viewUser.avatarURL({size: 32}))
-					.setTitle(`${viewUser.username}'${/[sz]$/g.test(viewUser.username) ? "" : "s"} recommendation`)
+					.setTitle(`${viewUser.displayName}'${/[sz]$/g.test(viewUser.displayName) ? "" : "s"} recommendation`)
 					.addFields(utils.fieldsInColumns([
 						{name: "Recommendation", value: Math.round(score).toString()},
 						{name: "Total recommendation", value: Math.round(totalScore).toString()},
@@ -155,7 +155,7 @@ class ImpersonateCommand extends Command {
 				new EmbedBuilder()
 					.setColor(constants.mainColor)
 					.setThumbnail(user.avatarURL({size: 32}))
-					.setTitle(`Modified ${user.username}`)
+					.setTitle(`Modified ${user.displayName}`)
 					.addFields(utils.fieldsInColumns([
 						{name: "Old recommendation", value: Math.round(oldScore).toString()},
 						{name: "Old total recommendation", value: Math.round(oldTotalScore).toString()},

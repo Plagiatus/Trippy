@@ -33,7 +33,7 @@ class StatsCommand extends Command {
 				new EmbedBuilder()
 					.setColor(constants.mainColor)
 					.setThumbnail(interactor.user.avatarURL({size: 32}))
-					.setTitle(`${interactor.user.username}'${/[sz]$/g.test(interactor.user.username) ? "" : "s"} stats`)
+					.setTitle(`${interactor.user.displayName}'${/[sz]$/g.test(interactor.user.displayName) ? "" : "s"} stats`)
 					.setFields(
 						utils.fieldsInColumns([
 							{name: "Recommendation", value: Math.round(recommendationHelper.getRecommendationScore(userData)).toString()},
