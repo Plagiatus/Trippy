@@ -314,7 +314,8 @@ export default class SessionDisplay {
 					.setColor(constants.mainColor)
 					.setThumbnail(player.user.avatarURL({size: 32}))
 					.setDescription(description)
-			]
+			],
+			content: `${(await this.session.getHost())?.toString()}, a new tester joined the session`,
 		})
 	}
 
