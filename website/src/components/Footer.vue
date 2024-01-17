@@ -1,6 +1,6 @@
 <template>
 	<footer>
-		Made with <span class="heart">♥</span> by <a href="https://plagiatus.net" target="_blank"
+		Made with <span class="heart">♥</span> by Vilder50 and <a href="https://plagiatus.net" target="_blank"
 			rel="noopener noreferrer">Plagiatus</a>
 	</footer>
 </template>
