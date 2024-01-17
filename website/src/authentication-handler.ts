@@ -167,8 +167,7 @@ export default class AuthenticationHandler {
 
 			const refreshResponse = await this.authenticationApiClient.refreshJwt(refreshInformation.refreshToken);
 			if (!refreshResponse.data) {
-				this.setJwt(null);
-				this.router.push({name: "Home"});
+				this.logout();
 				return null;
 			}
 
@@ -192,6 +191,7 @@ export default class AuthenticationHandler {
 
 	public logout() {
 		this.setJwt(null);
+		this.router.push({name: "Home"});
 	}
 
 	protected setJwt(newJwt: string|null) {
@@ -204,7 +204,7 @@ export default class AuthenticationHandler {
 		} else {
 			const jwtBody = utils.getJwtBody(newJwt); // jwt is coming from the backend so we trust it's of the correct type.
 			if (!jwtBody) {
-				this.setJwt(null);
+				this.logout();
 				return;
 			}
 
