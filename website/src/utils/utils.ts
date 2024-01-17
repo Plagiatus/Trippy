@@ -7,7 +7,7 @@ class Utils {
 			}
 
 			const jwtBody = jwtParts[1];
-			const jwtBodyJson = atob(jwtBody);
+			const jwtBodyJson = atob(jwtBody.replace(/\-/g,"+").replace(/\_/g,"/"));
 			const parsedJwtBody = JSON.parse(jwtBodyJson);
 			return parsedJwtBody;
 		} catch {
