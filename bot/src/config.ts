@@ -6,8 +6,10 @@ import jsonSchemas from "./utils/json-schemas";
 import { RawConfig } from "./types/config";
 
 export default class Config {
-	public constructor(public readonly rawConfig: RawConfig) {
+	public readonly sortedRecommendationCheckpoints: ReadonlyArray<number>;
 
+	public constructor(public readonly rawConfig: RawConfig) {
+		this.sortedRecommendationCheckpoints = [...rawConfig.recommendation.recommendationCheckpoints].sort((a,b) => b - a);
 	}
 
 	public get databaseUrl() {

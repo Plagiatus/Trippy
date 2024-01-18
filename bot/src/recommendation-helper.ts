@@ -18,7 +18,7 @@ export default class RecommendationHelper {
 		this.discordClient = provider.get(DiscordClient);
 	}
 
-	public async addRecommendationScore(user: UserData|string, addAmount: number) {
+	public async addRecommendationScore(user: UserData|string, addAmount: number, force?: boolean) {
 		let userToUpdate: UserData;
 		if (typeof user === "string") {
 			userToUpdate = await this.databaseClient.userRepository.get(user);
@@ -26,9 +26,10 @@ export default class RecommendationHelper {
 			userToUpdate = user;
 		}
 
+		const checkpoint = force ? 0 : this.getRecommendationCheckpoint(userToUpdate.recommendationScore);
 		const score = this.getRecommendationScore(userToUpdate);
 		userToUpdate.totalRecommendationScore += Math.max(0, addAmount);
-		userToUpdate.recommendationScore = Math.max(0, score + addAmount);
+		userToUpdate.recommendationScore = Math.max(checkpoint, score + addAmount);
 		userToUpdate.lastRecommendationScoreUpdate = new Date();
 		await this.databaseClient.userRepository.updateRecommendationScore(userToUpdate);
 		await this.updateRecommendationRole(userToUpdate);
@@ -47,7 +48,8 @@ export default class RecommendationHelper {
 
 		const actualScore = user.recommendationScore * Math.pow(1 - (baseAmountOfScoreToLosePerHour / user.totalRecommendationScore), hoursSincelastUpdate);
 		if (Number.isFinite(actualScore)) {
-			return actualScore;
+			const checkpoint = this.getRecommendationCheckpoint(user.recommendationScore);
+			return Math.max(checkpoint, actualScore);
 		}
 		return 0;
 	}
@@ -114,6 +116,17 @@ export default class RecommendationHelper {
 		if (roleToGive) {
 			await discordUser.roles.add(roleToGive.roleId);
 		}
+	}
+
+	private getRecommendationCheckpoint(recommendation: number) {
+		const checkpoints = this.config.sortedRecommendationCheckpoints;
+		for (const checkpoint of checkpoints) {
+			if (recommendation > checkpoint) {
+				return checkpoint;
+			}
+		}
+
+		return 0;
 	}
 
 	private getRoleForRecommendation(recommendation: number) {

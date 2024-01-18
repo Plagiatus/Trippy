@@ -128,11 +128,15 @@ const configSchema: Schema = {
 		},
 		recommendation: {
 			type: "object",
-			required: ["baseAmountOfScoreToLosePerHour","scoreLostOnBeingKicked","scoreLostOnBeingBanned","give","playingSession","hostingSession","imageUnlockAt","pingUnlock"],
+			required: ["baseAmountOfScoreToLosePerHour","scoreLostOnBeingKicked","scoreLostOnBeingBanned","recommendationCheckpoints","give","playingSession","hostingSession","imageUnlockAt","pingUnlock"],
 			properties: {
 				baseAmountOfScoreToLosePerHour: {type: "number", minimum: 0},
 				scoreLostOnBeingKicked: {type: "number", minimum: 0},
 				scoreLostOnBeingBanned: {type: "number", minimum: 0},
+				recommendationCheckpoints: {
+					type: "array",
+					items: {type: "number", minimum: 0}
+				},
 				give: {
 					type: "object",
 					required: ["cooldownHours","amount"],

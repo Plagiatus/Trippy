@@ -34,6 +34,7 @@ export type RawConfig = Readonly<{
 		baseAmountOfScoreToLosePerHour: number,
 		scoreLostOnBeingKicked: number,
 		scoreLostOnBeingBanned: number,
+		recommendationCheckpoints: ReadonlyArray<number>,
 		give: Readonly<{
 			cooldownHours: number,
 			amount: number,

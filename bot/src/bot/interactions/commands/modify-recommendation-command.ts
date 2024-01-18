@@ -5,6 +5,7 @@ import RecommendationHelper from "../../../recommendation-helper";
 import Provider from "../../../provider";
 import utils from "../../../utils/utils";
 import constants from "../../../utils/constants";
+import TimeHelper from "../../../time-helper";
 
 class ImpersonateCommand extends Command {
 	public constructor() {
@@ -25,8 +26,10 @@ class ImpersonateCommand extends Command {
 					.addNumberOption(option => 
 						option.setName("recommendation")
 						.setRequired(true)
-						.setDescription("The amount of recommendation to give. Can be negative to remove recommendation.")
-					))
+						.setDescription("The amount of recommendation to give. Can be negative to remove recommendation."))
+					.addBooleanOption(option => 
+						option.setName("force")
+						.setDescription("Set to true if removing recommendation should ignore recommendation checkpoints.")))
 				.addSubcommand(subCommand =>
 					subCommand.setName("set")
 					.setDescription("Set a user's recommendation.")
@@ -81,11 +84,12 @@ class ImpersonateCommand extends Command {
 	private async handleGiveCommand(provider: Provider, interaction: ChatInputCommandInteraction, modifyUser: User, recommendation: number) {
 		const databaseClient = provider.get(DatabaseClient);
 		const recommendationHelper = provider.get(RecommendationHelper);
+		const forceChange = interaction.options.getBoolean("force");
 
 		const userData = await databaseClient.userRepository.get(modifyUser.id);
 		const oldScore = recommendationHelper.getRecommendationScore(userData);
 		const oldTotalScore = userData.totalRecommendationScore;
-		await recommendationHelper.addRecommendationScore(userData, recommendation);
+		await recommendationHelper.addRecommendationScore(userData, recommendation, forceChange ?? undefined);
 		const newScore = recommendationHelper.getRecommendationScore(userData);
 		const newTotalScore = userData.totalRecommendationScore;
 
@@ -95,12 +99,14 @@ class ImpersonateCommand extends Command {
 	private async handleSetCommand(provider: Provider, interaction: ChatInputCommandInteraction, modifyUser: User, recommendation: number) {
 		const databaseClient = provider.get(DatabaseClient);
 		const recommendationHelper = provider.get(RecommendationHelper);
+		const timeHelper = provider.get(TimeHelper);
 
 		const userData = await databaseClient.userRepository.get(modifyUser.id);
 		const oldScore = recommendationHelper.getRecommendationScore(userData);
 		const oldTotalScore = userData.totalRecommendationScore;
 		userData.totalRecommendationScore = Math.max(recommendation, oldTotalScore);
 		userData.recommendationScore = recommendation;
+		userData.lastRecommendationScoreUpdate = timeHelper.currentDate;
 		await databaseClient.userRepository.updateRecommendationScore(userData);
 		await recommendationHelper.updateRecommendationRole(userData);
 		const newScore = recommendationHelper.getRecommendationScore(userData);
@@ -112,12 +118,14 @@ class ImpersonateCommand extends Command {
 	private async handleSetTotalCommand(provider: Provider, interaction: ChatInputCommandInteraction, modifyUser: User, recommendation: number) {
 		const databaseClient = provider.get(DatabaseClient);
 		const recommendationHelper = provider.get(RecommendationHelper);
+		const timeHelper = provider.get(TimeHelper);
 
 		const userData = await databaseClient.userRepository.get(modifyUser.id);
 		const oldScore = recommendationHelper.getRecommendationScore(userData);
 		const oldTotalScore = userData.totalRecommendationScore;
 		userData.totalRecommendationScore = recommendation;
 		userData.recommendationScore = Math.min(oldScore, recommendation);
+		userData.lastRecommendationScoreUpdate = timeHelper.currentDate;
 		await databaseClient.userRepository.updateRecommendationScore(userData);
 		await recommendationHelper.updateRecommendationRole(userData);
 		const newScore = recommendationHelper.getRecommendationScore(userData);

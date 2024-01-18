@@ -35,6 +35,7 @@
 		"baseAmountOfScoreToLosePerHour": 0.041667,
 		"scoreLostOnBeingKicked": 5,
 		"scoreLostOnBeingBanned": 10,
+		"recommendationCheckpoints": [100],
 		"give": {
 			"cooldownHours": 8,
 			"amount": 10
