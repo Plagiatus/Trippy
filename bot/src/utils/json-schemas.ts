@@ -55,6 +55,7 @@ const sessionBlueprintSchema: Schema = {
 		rpLink: { type: "string", pattern: "^(.+:\\/\\/)?([^.]+\\.)+[^.]+(\\/.)?" },
 		voiceChannels: {
 			type: "array",
+			maxItems: 8,
 			items: {
 				type: "object",
 				additionalProperties: false,

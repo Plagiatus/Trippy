@@ -19,7 +19,9 @@
 					pattern="^[a-z0-9_\- A-Z]+$"
 				/>
 			</validateable-form-provider>
-			<normal-button color="background" :disabled="!data.newVoiceChannelName" @click="addVoiceChannel">Add</normal-button>
+			<normal-button color="background" :disabled="!data.newVoiceChannelName || props.sessionBlueprint.voiceChannels.length >= maxVoiceChannels" @click="addVoiceChannel">
+				{{(data.newVoiceChannelName && props.sessionBlueprint.voiceChannels.length >= maxVoiceChannels) ? `Max ${maxVoiceChannels}` : "Add"}}
+			</normal-button>
 		</div>
 		<div class="voice-channels-holder">
 			<div v-for="voiceChannel,index of sessionBlueprint.voiceChannels" class="voice-channel" @click="removeVoiceChannel(index)">
@@ -55,6 +57,7 @@ const voiceChannelForm = new ValidateableForm();
 const timeHelper = useProvidedItem(TimeHelper);
 const sessionApiClient = useProvidedItem(SessionApiClient);
 
+const maxVoiceChannels = 8;
 const data = shallowReactive({
 	newVoiceChannelName: "",
 	canPingInMilliseconds: null as null|number,
