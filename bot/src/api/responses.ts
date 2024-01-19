@@ -11,7 +11,7 @@ export default class WebResponses {
 	}
 	
 	sendCustomError(error: string, res: express.Response, status: number = 400) {
-		res.statusMessage = error;
-		res.sendStatus(status);
+		res.status(status);
+		res.send(error);
 	}
 }

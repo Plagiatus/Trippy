@@ -69,7 +69,7 @@ export default abstract class BaseApiClient {
 		try {
 			const response = await wrapper();
 			if (!response.ok) {
-				const statusError = { status: response.status, statusText: response.statusText };
+				const statusError = { status: response.status, statusText: await response.text() };
 				return { error: statusError, statusError: statusError}
 			}
 
