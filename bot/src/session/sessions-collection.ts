@@ -57,6 +57,7 @@ export default class SessionsCollection {
 			hostId: options.hostUserId,
 			experinceId: options.experienceId,
 			id: Session.generateSessionId(),
+			playTypes: [],
 			players: [],
 		}
 

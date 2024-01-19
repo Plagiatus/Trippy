@@ -56,6 +56,12 @@
 			"partialUnlockAt": 100,
 			"fullUnlockAt": 1000,
 			"hoursOfDelayAtPartialUnlock": 48
+		},
+		"playTypeMultiplier": {
+			"test": 1,
+			"record": 1,
+			"fun": 0,
+			"stream": 1
 		}
 	}
 }

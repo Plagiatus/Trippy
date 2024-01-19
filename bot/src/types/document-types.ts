@@ -8,6 +8,11 @@ export type SessionPlayer = {
 	type?: "normal"|"kicked"|"banned";
 }
 
+export type SessionPlayType = {
+	type: SessionBlueprint["type"];
+	from: Date;
+}
+
 export type SessionChannels = {
 	categoryId : string;
 	mainTextId : string;
@@ -33,6 +38,7 @@ export type BaseSession = {
 	blueprint: SessionBlueprint;
 	hostId: string;
 	players: SessionPlayer[];
+	playTypes: Array<SessionPlayType>;
 }
 
 export type NewSession = BaseSession&{

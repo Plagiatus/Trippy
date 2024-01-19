@@ -130,7 +130,7 @@ const configSchema: Schema = {
 		},
 		recommendation: {
 			type: "object",
-			required: ["baseAmountOfScoreToLosePerHour","scoreLostOnBeingKicked","scoreLostOnBeingBanned","recommendationCheckpoints","give","playingSession","hostingSession","imageUnlockAt","pingUnlock"],
+			required: ["baseAmountOfScoreToLosePerHour","scoreLostOnBeingKicked","scoreLostOnBeingBanned","recommendationCheckpoints","give","playingSession","hostingSession","imageUnlockAt","pingUnlock","playTypeMultiplier"],
 			properties: {
 				baseAmountOfScoreToLosePerHour: {type: "number", minimum: 0},
 				scoreLostOnBeingKicked: {type: "number", minimum: 0},
@@ -173,6 +173,15 @@ const configSchema: Schema = {
 						partialUnlockAt: {type: "number", minimum: 0},
 						fullUnlockAt: {type: "number", minimum: 0},
 						hoursOfDelayAtPartialUnlock: {type: "number", minimum: 0},
+					}
+				},
+				playTypeMultiplier: {
+					type: "object",
+					properties: {
+						test: {type: "number", minimum: 0},
+						record: {type: "number", minimum: 0},
+						fun: {type: "number", minimum: 0},
+						stream: {type: "number", minimum: 0},
 					}
 				}
 			}

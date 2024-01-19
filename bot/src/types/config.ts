@@ -1,3 +1,5 @@
+import { SessionBlueprint } from "./session-blueprint-types";
+
 export type RawConfig = Readonly<{
 	botToken: string,
 	appId: string,
@@ -55,6 +57,7 @@ export type RawConfig = Readonly<{
 			partialUnlockAt: number,
 			fullUnlockAt: number,
 			hoursOfDelayAtPartialUnlock: number,
-		}>
+		}>,
+		playTypeMultiplier: Readonly<Partial<Record<SessionBlueprint["type"], number>>>
 	}>
 }>;

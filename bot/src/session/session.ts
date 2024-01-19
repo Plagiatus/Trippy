@@ -107,6 +107,11 @@ export default class Session {
 			messages: this.display.getMessagesSaveData(),
 		}
 
+		this.rawSession.playTypes.push({
+			type: this.blueprint.type,
+			from: this.timeHelper.currentDate,
+		})
+
 		await this.databaseClient.sessionRepository.add(this.rawSession);
 		if (this.rawSession.blueprint.ping) {
 			this.databaseClient.userRepository.updateLastPingTime(this.rawSession.hostId);
@@ -120,6 +125,7 @@ export default class Session {
 			uniqueId: this.rawSession.uniqueId,
 			id: this.rawSession.id,
 			state: "ended",
+			playTypes: this.rawSession.playTypes,
 			blueprint: this.rawSession.blueprint,
 			hostId: this.rawSession.hostId,
 			players: this.rawSession.players.map<SessionPlayer>(player => ({
@@ -150,28 +156,39 @@ export default class Session {
 	}
 
 	private async giveOutRecommendationToPlayers() {
-		if (this.rawSession.state !== "ended" && this.rawSession.state !== "stopping") {
+		const rawSession = this.rawSession;
+		if (rawSession.state !== "ended" && rawSession.state !== "stopping") {
 			return;
 		}
 
-		const playersAndPlayTimeInMilliseconds = new Map<string, number>();
-		for (const player of this.rawSession.players) {
+		const groupedPlayerPlaytimes = new Map<string, SessionPlayer[]>();
+		for (const player of rawSession.players) {
 			if (player.type === "kicked" || player.type === "banned") {
 				continue;
 			}
-
-			let playTime = playersAndPlayTimeInMilliseconds.get(player.id) ?? 0;
-			playTime += (player.leaveTime ?? this.rawSession.endTime) - player.joinTime;
-			playersAndPlayTimeInMilliseconds.set(player.id, playTime);
+			const ranges = groupedPlayerPlaytimes.get(player.id) ?? [];
+			ranges.push(player);
+			groupedPlayerPlaytimes.set(player.id, ranges);
 		}
 
-		await utils.asyncForeach([...playersAndPlayTimeInMilliseconds.entries()], async ([playerId, playTime]) => {
-			const amountOfMinutesPlayed = Math.floor(playTime / (1000 * 60 /*1 minute*/));
+		await utils.asyncForeach([...groupedPlayerPlaytimes.entries()], async ([playerId, ranges]) => {
+			let totalMillisecondsPlayed = 0;
+			for (const range of ranges) {
+				totalMillisecondsPlayed += (range.leaveTime ?? rawSession.endTime) - range.joinTime;
+			}
+
+			const amountOfMinutesPlayed = Math.floor(totalMillisecondsPlayed / (1000 * 60 /*1 minute*/));
 			if (amountOfMinutesPlayed < this.config.rawConfig.recommendation.playingSession.firstGiveOutAfterMinutes) {
 				return;
 			}
 
-			const gottenRecommendation = this.config.rawConfig.recommendation.playingSession.scorePerMinute * amountOfMinutesPlayed + this.config.rawConfig.recommendation.playingSession.bonusForJoining;
+			const multipliedAmountOfMillisecondsPlayed = this.multiplyPlayTimeRangesByTestTypes(ranges.map(range => ({
+				from: range.joinTime,
+				to: range.leaveTime ?? rawSession.endTime,
+			})));
+			const multipliedAmountOfMinutesPlayed = Math.floor(multipliedAmountOfMillisecondsPlayed / (1000 * 60 /*1 minute*/));
+
+			const gottenRecommendation = this.config.rawConfig.recommendation.playingSession.scorePerMinute * multipliedAmountOfMinutesPlayed + this.config.rawConfig.recommendation.playingSession.bonusForJoining;
 			await this.recommendationHelper.addRecommendationScore(playerId, gottenRecommendation);
 		});
 	}
@@ -199,14 +216,37 @@ export default class Session {
 			periodsWithPlayers.push({ from: periodStart, to: periodEnd });
 		}
 
-		const totalMillisecondsWithPlayers = periodsWithPlayers.reduce((sum, period) => sum + (period.to - period.from), 0);
-		const minutesWithPlayers = Math.floor(totalMillisecondsWithPlayers / (1000 * 60 /*1 minute*/));
+		const totalMultipliedMillisecondsWithPlayers = this.multiplyPlayTimeRangesByTestTypes(periodsWithPlayers);
+		const minutesWithPlayers = Math.floor(totalMultipliedMillisecondsWithPlayers / (1000 * 60 /*1 minute*/));
 		if (minutesWithPlayers < this.config.rawConfig.recommendation.hostingSession.firstGiveOutAfterMinutes) {
 			return;
 		}
 
 		const gottenRecommendation = this.config.rawConfig.recommendation.hostingSession.scorePerMinuteWithUsers * minutesWithPlayers + this.config.rawConfig.recommendation.hostingSession.bonusForJoining;
 		await this.recommendationHelper.addRecommendationScore(this.hostId, gottenRecommendation);
+	}
+
+	private multiplyPlayTimeRangesByTestTypes(ranges: {from: number, to: number}[]) {
+		const endTime = "endTime" in this.rawSession ? this.rawSession.endTime : this.timeHelper.currentDate.getTime();
+
+		let totalMilliseconds = 0;
+		for (let i = 0; i < this.rawSession.playTypes.length; i++) {
+			const testType = this.rawSession.playTypes[i];
+			const testTypeEnd = this.rawSession.playTypes[i + 1]?.from.getTime() ?? endTime;
+
+			let millisecondsForType = 0;
+			for (const range of ranges) {
+				const intersectionStart = Math.max(testType.from.getTime(), range.from);
+				const intersectionEnd = Math.min(testTypeEnd, range.to);
+				if (intersectionStart < intersectionEnd) {
+					millisecondsForType += intersectionEnd - intersectionStart;
+				}
+			}
+
+			const multiplier = this.config.rawConfig.recommendation.playTypeMultiplier[testType.type] ?? 1;
+			totalMilliseconds += millisecondsForType * multiplier;
+		}
+		return totalMilliseconds;
 	}
 
 	public isChannelForSession(channel: string | Discord.Channel) {
@@ -290,6 +330,13 @@ export default class Session {
 	}
 
 	public async changeBlueprint(blueprint: Readonly<SessionBlueprint>) {
+		if (this.blueprint.type !== blueprint.type) {
+			this.rawSession.playTypes.push({
+				from: this.timeHelper.currentDate,
+				type: blueprint.type,
+			});
+		}
+		
 		this.rawSession = {
 			...this.rawSession,
 			blueprint: blueprint,
@@ -301,6 +348,7 @@ export default class Session {
 				...this.rawSession,
 				channels: this.display.getChannelsSaveData(),
 			};
+
 			await this.databaseClient.sessionRepository.update(this.rawSession);
 		}
 	}
@@ -314,6 +362,7 @@ export default class Session {
 			uniqueId: this.rawSession.uniqueId,
 			id: this.rawSession.id,
 			state: "stopping",
+			playTypes: this.rawSession.playTypes,
 			blueprint: this.rawSession.blueprint,
 			hostId: this.rawSession.hostId,
 			players: this.rawSession.players,
