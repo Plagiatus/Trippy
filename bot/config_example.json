@@ -16,7 +16,8 @@
 		"modLog": "",
 		"systemLog": "",
 		"sessionList": "",
-		"sessionListNoPing": ""
+		"sessionListNoPing": "",
+		"placeSessionsRelativeToCategory": ""
 	},
 	"roles": {
 		"mods": "",

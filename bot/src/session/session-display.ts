@@ -74,10 +74,13 @@ export default class SessionDisplay {
 			this.discordClient.allowAccessToChannelPermissions,
 		]
 
+		const placeRelativeTo = await this.discordClient.getChannel("placeSessionsRelativeToCategory");
+		const placeAtPosition = placeRelativeTo?.type === ChannelType.GuildCategory ? placeRelativeTo.position : undefined;
 		this.categoryChannel = await this.discordClient.createChannel({
 			type: ChannelType.GuildCategory,
 			name: `Session ${this.session.id}`,
 			permissionOverwrites: permissions,
+			position: placeAtPosition,
 		});
 
 		this.mainChannel = await this.discordClient.createChannel({
