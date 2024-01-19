@@ -204,13 +204,6 @@ export default class SessionDisplay {
 		}
 
 		try {
-			const host = await this.session.getHost();
-			await host?.roles.remove(this.config.roleIds.hosts);
-		} catch (error) {
-			this.errorHandler.handleSessionError(this.session, error, "Failed to remove host role from host.");
-		}
-
-		try {
 			await this.sessionRole?.delete();
 		} catch (error) {
 			this.errorHandler.handleSessionError(this.session, error, "Failed to remove session role.");

@@ -134,6 +134,12 @@ export default class Session {
 		if (wasNoneEndedSession) {
 			await this.giveOutRecommendation();
 		}
+		await this.removeHostRole();
+	}
+
+	private async removeHostRole() {
+		const host = await this.getHost();
+		await host?.roles.remove(this.config.roleIds.hosts);
 	}
 
 	private async giveOutRecommendation() {
