@@ -36,17 +36,10 @@ export default class RecommendationHelper {
 	}
 
 	public getRecommendationScore(user: UserData): number {
-		// Users will lose [recommendationScore] * ([baseAmountOfScoreToLosePerHour] / [totalRecommendationScore]) score each hour.
-		// This means the first hour the user will lose [baseAmountOfScoreToLosePerHour] score
-		// and afterwards the user will lose less and less score each hour
-		// as the difference between [recommendationScore] and [totalRecommendationScore] grows bigger.
-		// This means that active users will lose less score if/when going inactive compared to less active users.
-		
-		const baseAmountOfScoreToLosePerHour = 1/24;
 		const timeSinceLastUpdate = this.timeHelper.currentDate.getTime() - user.lastRecommendationScoreUpdate.getTime();
 		const hoursSincelastUpdate = timeSinceLastUpdate / (1000 * 60 * 60 /*1 hour*/);
 
-		const actualScore = user.recommendationScore * Math.pow(1 - (baseAmountOfScoreToLosePerHour / user.totalRecommendationScore), hoursSincelastUpdate);
+		const actualScore = user.recommendationScore - hoursSincelastUpdate * this.config.rawConfig.recommendation.baseAmountOfScoreToLosePerHour;
 		if (Number.isFinite(actualScore)) {
 			const checkpoint = this.getRecommendationCheckpoint(user.recommendationScore);
 			return Math.max(checkpoint, actualScore);
