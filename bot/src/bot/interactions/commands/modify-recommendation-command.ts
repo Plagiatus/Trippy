@@ -63,11 +63,16 @@ class ImpersonateCommand extends Command {
 						.setDescription("The user whose recommendation to show.")));
 	}
 
-	public async handleExecution({provider, interaction}: CommandExecutionContext) {
-		const subCommand = interaction.options.getSubcommand(true);
-		const modifyUser = interaction.options.getUser("user", true);
-		const recommendation = interaction.options.getNumber("recommendation") ?? 0;
+	public async handleExecution({provider, interaction, getMemberOption}: CommandExecutionContext) {
 		await interaction.deferReply({ephemeral: true});
+		const subCommand = interaction.options.getSubcommand(true);
+		const modifyUser = (await getMemberOption("user"))?.user;
+		const recommendation = interaction.options.getNumber("recommendation") ?? 0;
+
+		if (!modifyUser) {
+			interaction.editReply({content: "Can't find user."});
+			return;
+		}
 
 		switch(subCommand) {
 			case "give":

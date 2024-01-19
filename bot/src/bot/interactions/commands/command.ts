@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, GuildMember, SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandInteraction, GuildMember, SlashCommandBuilder, User } from "discord.js";
 import Provider from "../../../provider";
 
 export default abstract class Command {
@@ -28,4 +28,5 @@ export type CommandExecutionContext = {
 	interaction: ChatInputCommandInteraction;
 	provider: Provider;
 	interactor: GuildMember;
+	getMemberOption: (name: string) => Promise<GuildMember|null>;
 }

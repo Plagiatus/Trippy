@@ -3,14 +3,17 @@ import utils from "../utils/utils";
 import Provider from "../provider";
 import Command from "./interactions/commands/command";
 import ActionButton from "./interactions/buttons/action-button";
+import DiscordClient from "./discord-client";
 
 export default class InteractionCollection {
 	public readonly commands: ReadonlyArray<Command>;
 	public readonly buttons: ReadonlyArray<ActionButton>;
+	private readonly discordClient: DiscordClient;
 
 	public constructor(private readonly provider: Provider, interactions?: {commands?: ReadonlyArray<Command>, buttons?: ReadonlyArray<ActionButton>}) {
 		this.commands = interactions?.commands ?? InteractionCollection.importCommands();
 		this.buttons = interactions?.buttons ?? InteractionCollection.importButtons();
+		this.discordClient = provider.get(DiscordClient);
 	}
 
 	public async executeCommandInteraction(id: string, interaction: ChatInputCommandInteraction, interactor: GuildMember) {
@@ -24,6 +27,15 @@ export default class InteractionCollection {
 			interaction: interaction,
 			interactor: interactor,
 			provider: this.provider,
+			getMemberOption: (async (name) => {
+				const user = interaction.options.getUser(name);
+				if (!user) {
+					return null;
+				}
+	
+				const member = await this.discordClient.getMember(user.id);
+				return member;
+			}),
 		});
 	}
 

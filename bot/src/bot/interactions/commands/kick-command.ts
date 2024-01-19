@@ -16,7 +16,7 @@ class KickCommand extends Command {
 				.setRequired(true));
 	}
 
-	public async handleExecution({interaction, provider, interactor}: CommandExecutionContext) {
+	public async handleExecution({interaction, provider, interactor, getMemberOption}: CommandExecutionContext) {
 		const sessionsCollection = provider.get(SessionsCollection);
 		const session = sessionsCollection.getSessionFromChannel(interaction.channelId) ?? sessionsCollection.getHostedSession(interactor);
 		if (!session) {
@@ -28,19 +28,19 @@ class KickCommand extends Command {
 			return;
 		}
 
-		const userToKick = interaction.options.getUser("user");
+		await interaction.deferReply({ephemeral: true});
+		const userToKick = await getMemberOption("user");
 		if (!userToKick) {
-			interaction.reply({ephemeral: true, content: "Cannot kick an invalid user."});
+			interaction.editReply({ content: "Cannot kick an invalid user."});
 			return;
 		}
 		
 		if (session.isUserInSession(userToKick.id)) {
-			await interaction.deferReply({ephemeral: true});
 			await session.leave(userToKick.id, "kicked");
 			interaction.editReply(`You have removed ${userToKick} from the session.`);
-			ModLogMessages.kick(provider, interactor, userToKick);
+			ModLogMessages.kick(provider, interactor, userToKick.user);
 		} else {
-			interaction.reply({ephemeral: true, content: `You cannot kick ${userToKick} from a session they're not in.`});
+			interaction.editReply({content: `You cannot kick ${userToKick} from a session they're not in.`});
 		}
 	}
 }

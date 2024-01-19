@@ -23,27 +23,32 @@ class RecommendCommand extends Command {
 				.setDescription("Set to true if you don't want to announce the recommendation."));
 	}
 
-	public async handleExecution({provider, interaction, interactor}: CommandExecutionContext) {
+	public async handleExecution({provider, interaction, interactor, getMemberOption}: CommandExecutionContext) {
 		const databaseClient = provider.get(DatabaseClient);
 		const recommendationHelper = provider.get(RecommendationHelper);
 		const config = provider.get(Config);
 		const timeHelper = provider.get(TimeHelper);
 		
 		const dontAnnounce = interaction.options.getBoolean("privately") ?? false;
-		const recommendUser = interaction.options.getUser("user", true);
-		if (interactor.user.id === recommendUser.id) {
-			interaction.reply({ephemeral: true, content: "You can't recommend yourself."});
+		await interaction.deferReply({ephemeral: dontAnnounce});
+
+		const recommendUser = await getMemberOption("user");
+		if (!recommendUser) {
+			interaction.editReply({content: "Can't find the user to recommend."});
 			return;
 		}
 
-		await interaction.deferReply({ephemeral: dontAnnounce});
+		if (interactor.user.id === recommendUser.id) {
+			interaction.editReply({content: "You can't recommend yourself."});
+			return;
+		}
 
 		const userData = await databaseClient.userRepository.get(interactor.user.id);
 		const millisecondsLeftBeforeBeingAbleToRecommend = await recommendationHelper.getMillisecondsLeftBeforeBeingAbleToRecommend(userData, recommendUser.id);
 		const hasNoDelay = interactor.permissions.has(PermissionFlagsBits.ManageGuild);
 		if (millisecondsLeftBeforeBeingAbleToRecommend > 0 && !hasNoDelay) {
 			const secondsLeftBeforeBeingAbleToRecommend = Math.ceil((millisecondsLeftBeforeBeingAbleToRecommend + timeHelper.currentDate.getTime()) / 1000);
-			interaction.editReply(`${interactor}, you can first recommend ${recommendUser} again in <t:${secondsLeftBeforeBeingAbleToRecommend}:R>.`)
+			interaction.editReply(`${interactor}, you can first recommend ${recommendUser} again <t:${secondsLeftBeforeBeingAbleToRecommend}:R>.`)
 			return;
 		}
 
