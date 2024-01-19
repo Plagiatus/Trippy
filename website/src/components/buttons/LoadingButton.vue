@@ -6,7 +6,7 @@
 		:type="type"
 		:color="color"
 	>
-		<span class="text">{{text}}</span>
+		<span class="text"><slot>{{text}}</slot></span>
 		<span class="success-text">{{successText}}</span>
 		<loading-spinner v-if="loading" class="loading-spinner" :size="1" :color="loadingSpinnerColor"/>
 	</normal-button>
@@ -18,12 +18,12 @@ import NormalButton from './NormalButton.vue';
 import LoadingSpinner from '../LoadingSpinner.vue';
 
 const props = defineProps<{
-	text: string;
+	text?: string;
 	loading: boolean;
 	successText?: string;
 	disabled?: boolean;
 	type?: "button"|"submit"|"reset";
-	color?: "background"|"background2"|"highlight";
+	color?: "background"|"background2"|"highlight"|"danger";
 }>();
 
 const data = shallowReactive({

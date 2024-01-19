@@ -9,7 +9,7 @@ import { RouteLocationRaw } from 'vue-router';
 import RouterOrButton from './RouterOrButton.vue';
 
 defineProps<{
-	color?: "background"|"background2"|"highlight";
+	color?: "background"|"background2"|"danger"|"highlight";
 	type?: "button"|"submit"|"reset";
 	routeTo?: RouteLocationRaw;
 }>();
@@ -50,6 +50,10 @@ defineProps<{
 
 .background2 {
 	background-color: var(--background2);
+}
+
+.danger {
+	background-color: var(--background-error);
 }
 
 .highlight {

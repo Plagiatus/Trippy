@@ -30,6 +30,25 @@ export default abstract class BaseApiClient {
 		});
 	}
 
+	protected async delete<TResult>(path: string, params?: Record<string,string>, options?: {useAuth?: boolean}) {
+		return this.wrapRequest<TResult>(async () => {
+			const url = new URL(this.getFullPath(path));
+			if (params) {
+				for (const [key,value] of Object.entries(params)) {
+					url.searchParams.set(key, value);
+				}
+			}
+
+			return await fetch(url, {
+				method: "delete",
+				headers: {
+					"Content-Type": "application/json",
+					...await this.getAuthHeader(options?.useAuth),
+				}
+			});
+		});
+	}
+
 	protected async post<TResult>(path: string, data?: unknown, options?: {useAuth?: boolean}) {
 		const headers: HeadersInit = {...await this.getAuthHeader(options?.useAuth)};
 

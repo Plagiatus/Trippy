@@ -85,5 +85,20 @@ export default (({server, responses, provider, isAuthenticatedGuard}) => {
                 experienceId: experienceId
             });
         })
+        .delete(isAuthenticatedGuard, async (req, res) => {
+            if (!req.params.id) {
+                return;
+			}
+
+            const experience = await databaseClient.experienceRepository.get(req.params.id);
+            if (!experience || !experience.owners.some(owner => owner.userId === req.userId)) {
+                return responses.sendCustomError(`Failed to delete experience with the id "${req.params.id}".`, res);
+            }
+
+            await databaseClient.experienceRepository.remove(experience);
+            res.send({
+                deleted: true,
+            });
+        })
         .all(responses.wrongMethod);
 }) satisfies RouteMaker

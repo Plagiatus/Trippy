@@ -37,4 +37,8 @@ export default class ExperienceApiClient extends BaseApiClient {
 		
 		return this.post<{experienceId: string}>(`experience/${options.experienceId}`, formData);
 	}
+
+	public async deleteExperience(experienceId: string) {
+		return this.delete<{deleted: true}>(`experience/${experienceId}`);
+	}
 }
