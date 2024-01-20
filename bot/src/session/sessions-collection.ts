@@ -1,3 +1,4 @@
+import DiscordClient from "../bot/discord-client";
 import ErrorHandler from "../bot/error-handler";
 import DatabaseClient from "../database-client";
 import Provider from "../provider";
@@ -10,14 +11,18 @@ import * as Discord from "discord.js";
 export default class SessionsCollection {
 	private readonly databaseClient: DatabaseClient;
 	private readonly errorHandler: ErrorHandler;
+	private readonly discordClient: DiscordClient;
 
 	private readonly sessions: Session[];
+	private runningSessionsCount: number|null;
 	
 	public constructor(private readonly provider: Provider) {
 		this.databaseClient = provider.get(DatabaseClient);
 		this.errorHandler = provider.get(ErrorHandler);
+		this.discordClient = provider.get(DiscordClient);
 
 		this.sessions = [];
+		this.runningSessionsCount = null;
 	}
 
 	public get activeSessionsCount() {
@@ -44,8 +49,15 @@ export default class SessionsCollection {
 
 		for (const session of sessions) {
 			if (session) {
+				session.onStateChange.addListener(this.handleSesionStateChange.bind(this));
 				this.sessions.push(session);
 			}
+		}
+
+		try {
+			await this.updateRunningSessionsCount();
+		} catch(error) {
+			await this.errorHandler.handleGenericError(error, "Failed to update session count.");
 		}
 	}
 
@@ -62,8 +74,14 @@ export default class SessionsCollection {
 		}
 
 		const session = new Session(this.provider, newRawSession);
-		await session.setup();
+		session.onStateChange.addListener(this.handleSesionStateChange.bind(this));
 		this.sessions.push(session);
+		try {
+			await session.setup();
+		} catch (error) {
+			this.removeSession(session);
+			throw error;
+		}
 		return session;
 	}
 
@@ -88,5 +106,39 @@ export default class SessionsCollection {
 	public getHostedSession(user: string|Discord.User|Discord.GuildMember) {
 		const userId = typeof user === "string" ? user : user.id;
 		return this.sessions.find(session => session.isRunningOrStopping && session.hostId === userId);
+	}
+
+	private async updateRunningSessionsCount() {
+		const runningSessions = this.sessions.filter(session => session.state === "running").length;
+		if (runningSessions === this.runningSessionsCount) {
+			return;
+		}
+
+		this.runningSessionsCount = runningSessions;
+		const sessionsCountChannel = await this.discordClient.getChannel("sessionsCount");
+		if (!sessionsCountChannel || !("setName" in sessionsCountChannel)) {
+			return;
+		}
+
+		if (runningSessions === 0) {
+			await sessionsCountChannel.setName(`🔴 no trippy sessions`);
+		} else {
+			await sessionsCountChannel.setName(`🔵 ${runningSessions} trippy session${runningSessions === 1 ? "" : "s"}`);
+		}
+	}
+
+	private async handleSesionStateChange(session: Session) {
+		if (session.state === "ended") {
+			this.removeSession(session);
+		}
+
+		await this.updateRunningSessionsCount();
+	}
+
+	private removeSession(session: Session) {
+		const sessionIndex = this.sessions.indexOf(session);
+		if (sessionIndex >= 0) {
+			this.sessions.splice(sessionIndex, 1);
+		}
 	}
 }

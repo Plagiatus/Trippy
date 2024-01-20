@@ -9,6 +9,8 @@ import Config from "../config";
 import TimeHelper from "../time-helper";
 import utils from "../utils/utils";
 import RecommendationHelper from "../recommendation-helper";
+import EventEmitter from "../event-emitter";
+import ErrorHandler from "../bot/error-handler";
 
 export default class Session {
 	private readonly databaseClient: DatabaseClient;
@@ -20,12 +22,19 @@ export default class Session {
 	private readonly display: SessionDisplay;
 	private isSetup: boolean;
 
+	public readonly onStateChange: EventEmitter<[session: Session, state: RawSession["state"]]>;
+
 	public constructor(provider: Provider, private _rawSession: RawSession) {
 		this.databaseClient = provider.get(DatabaseClient);
 		this.discordClient = provider.get(DiscordClient);
 		this.timeHelper = provider.get(TimeHelper);
 		this.config = provider.get(Config);
 		this.recommendationHelper = provider.get(RecommendationHelper);
+		const errorHandler = provider.get(ErrorHandler);
+
+		this.onStateChange = new EventEmitter((error) => {
+			errorHandler.handleSessionError(this, error, "Error while announcing state change.");
+		});
 		this.display = new SessionDisplay(provider, this);
 		this.isSetup = false;
 	}
@@ -116,6 +125,7 @@ export default class Session {
 		if (this.rawSession.blueprint.ping) {
 			this.databaseClient.userRepository.updateLastPingTime(this.rawSession.hostId);
 		}
+		this.onStateChange.emit(this, this.state);
 	}
 
 	public async destroy() {
@@ -136,6 +146,7 @@ export default class Session {
 			endTime: "endTime" in this.rawSession ? this.rawSession.endTime : this.timeHelper.currentDate.getTime(),
 		}
 		await this.databaseClient.sessionRepository.update(this.rawSession);
+		this.onStateChange.emit(this, this.state);
 
 		if (wasNoneEndedSession) {
 			await this.giveOutRecommendation();
@@ -380,6 +391,8 @@ export default class Session {
 
 		await this.display.removeAnnouncementMessage();
 		await this.databaseClient.sessionRepository.update(this.rawSession);
+
+		this.onStateChange.emit(this, this.state);
 
 		setTimeout(() => {
 			this.destroy();

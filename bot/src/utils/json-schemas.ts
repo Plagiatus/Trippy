@@ -91,13 +91,14 @@ const configSchema: Schema = {
 		},
 		channels: {
 			type: "object",
-			required: ["modLog","systemLog","sessionList","sessionListNoPing","placeSessionsRelativeToCategory"],
+			required: ["modLog","systemLog","sessionList","sessionListNoPing","placeSessionsRelativeToCategory","sessionsCount"],
 			properties: {
 				modLog: {type: "string", minLength: 18},
 				systemLog: {type: "string", minLength: 18},
 				sessionlist: {type: "string", minLength: 18},
 				sessionListNoPing: {type: "string", minLength: 18},
 				placeSessionsRelativeToCategory: {type: "string", minLength: 18},
+				sessionsCount: {type: "string", minLength: 18},
 			}
 		},
 		roles: {

@@ -106,7 +106,8 @@ export default class Provider {
 				return getInstance()[key];
 			},
 			set(_, key, value) {
-				return getInstance()[key] = value;
+				getInstance()[key] = value;
+				return true;
 			}
 		}
 

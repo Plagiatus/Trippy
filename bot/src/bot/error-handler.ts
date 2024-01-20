@@ -14,13 +14,15 @@ export default class ErrorHandler {
 	
 	handleTheBigOnes(){
 		if(this.isHandlingTheBigOnes) return;
-		process.addListener("unhandledRejection", this.handleGenericError.bind(this));
-		process.addListener("uncaughtException", this.handleGenericError.bind(this));
+		process.addListener("unhandledRejection", (error) => this.handleGenericError(error));
+		process.addListener("uncaughtException", (error) => this.handleGenericError(error));
 	}
 
-	async handleGenericError(error: unknown) {
+	async handleGenericError(error: unknown, message?: string) {
 		const errorMessage = this.getErrorString(error);
-		const didSendMessage = !!await this.discordClient.sendMessage("systemLog", { content: errorMessage });
+		const didSendMessage = !!await this.discordClient.sendMessage("systemLog", {
+			content: `${message === undefined ? "" : message + " "}${errorMessage}`
+		});
 
 		if (!didSendMessage) {
 			console.error("Failed to send error message for error:", error);
