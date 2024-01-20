@@ -40,7 +40,12 @@
 		"recommendationCheckpoints": [100],
 		"give": {
 			"cooldownHours": 8,
-			"amount": 10
+			"amount": 10,
+
+			"partialUnlockAt": 0,
+			"fullUnlockAt": 1000,
+			"maxGivesPerDayAtPartialUnlock": 3,
+			"maxGivesPerDayAtFullUnlock": 7
 		},
 		"playingSession": {
 			"firstGiveOutAfterMinutes": 10,

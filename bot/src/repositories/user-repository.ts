@@ -76,6 +76,38 @@ export default class UserRepository extends Repository<UserData,"id"> {
 		return newestRecommendation as RecommendationData|null;
 	}
 
+	public async getLatestRecommendations(recommender: UserData|string, fromDate: Date) {
+		const recommenderId = this.getId(recommender);
+		const newestRecommendation = await this.collection.aggregate([
+			{
+				"$match": {
+					"id": recommenderId, 
+				}
+			},
+			{
+				"$unwind": "$givenRecommendations"
+			},
+			{
+				"$replaceRoot": {
+					"newRoot": "$givenRecommendations"
+				}
+			},
+			{
+				"$match": {
+					"recommendedAt": {
+						"$gt": fromDate,
+					}
+				}
+			},
+			{
+				"$sort": {
+					"recommendedAt": 1,
+				}
+			}
+		]).toArray();
+		return newestRecommendation as Array<RecommendationData>;
+	}
+
 	public async addGivenRecommendation(recommenderId: string, recommendedId: string) {
 		await this.collection.updateOne(this.getQueryForDocument(recommenderId), {
 			"$push": {

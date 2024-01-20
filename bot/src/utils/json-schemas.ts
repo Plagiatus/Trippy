@@ -146,6 +146,10 @@ const configSchema: Schema = {
 					properties: {
 						cooldownHours: {type: "number", minimum: 0},
 						amount: {type: "number", minimum: 0},
+						partialUnlockAt: {type: "number", minimum: 0},
+						fullUnlockAt: {type: "number", minimum: 0},
+						maxGivesPerDayAtPartialUnlock: {type: "number", minimum: 0},
+						maxGivesPerDayAtFullUnlock: {type: "number", minimum: 0},
 					}
 				},
 				playingSession: {

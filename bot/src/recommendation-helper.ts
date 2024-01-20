@@ -79,7 +79,25 @@ export default class RecommendationHelper {
 		return user.totalRecommendationScore >= this.config.rawConfig.recommendation.imageUnlockAt;
 	}
 
-	public async getMillisecondsLeftBeforeBeingAbleToRecommend(recommender: UserData|string, recommend: string) {
+	public async getMillisecondsLeftBeforeBeingAbleToRecommendAnyUser(recommender: UserData|string) {
+		const oneDayAgo = this.timeHelper.currentDate;
+		oneDayAgo.setUTCDate(oneDayAgo.getUTCDate() - 1);
+		const maxGivesPerDay = await this.getMaxRecommendationGivesPerDay(recommender);
+		const latestRecommendations = await this.databaseClient.userRepository.getLatestRecommendations(recommender, oneDayAgo);
+
+		if (maxGivesPerDay === 0) {
+			return null;
+		}
+
+		if (latestRecommendations.length >= maxGivesPerDay) {
+			const firstRecommendation = latestRecommendations[0];
+			return firstRecommendation.recommendedAt.getTime() - oneDayAgo.getTime();
+		}
+
+		return 0;
+	}
+
+	public async getMillisecondsLeftBeforeBeingAbleToRecommendToUser(recommender: UserData|string, recommend: string) {
 		const lastRecommendationForUser = await this.databaseClient.userRepository.getLastRecommendationForUser(recommender, recommend);
 		if (!lastRecommendationForUser) {
 			return 0;
@@ -88,6 +106,22 @@ export default class RecommendationHelper {
 		const millisecondsSinceLastRecommendation = this.timeHelper.currentDate.getTime() - lastRecommendationForUser.recommendedAt.getTime();
 		const recommendTimeoutMilliseconds = this.config.rawConfig.recommendation.give.cooldownHours * (1000 * 60 * 60 /*1 hour*/);
 		return Math.max(0, recommendTimeoutMilliseconds - millisecondsSinceLastRecommendation);
+	}
+
+	private async getMaxRecommendationGivesPerDay(recommender: UserData|string) {
+		const partialUnlockAt = this.config.rawConfig.recommendation.give.partialUnlockAt
+		const fullUnlockAt = this.config.rawConfig.recommendation.give.fullUnlockAt;
+		const maxAtPartialUnlock = this.config.rawConfig.recommendation.give.maxGivesPerDayAtPartialUnlock;
+		const maxAtFullUnlock = this.config.rawConfig.recommendation.give.maxGivesPerDayAtFullUnlock;
+
+		const recommenderData = typeof recommender === "string" ? await this.databaseClient.userRepository.get(recommender) : recommender;
+		if (recommenderData.totalRecommendationScore < this.config.rawConfig.recommendation.give.partialUnlockAt) {
+			return 0;
+		}
+		if (recommenderData.totalRecommendationScore >= this.config.rawConfig.recommendation.give.fullUnlockAt) {
+			return this.config.rawConfig.recommendation.give.maxGivesPerDayAtFullUnlock;
+		}
+		return Math.floor((recommenderData.totalRecommendationScore - partialUnlockAt) / (fullUnlockAt - partialUnlockAt) * (maxAtFullUnlock - maxAtPartialUnlock) + maxAtPartialUnlock);
 	}
 
 	public async updateRecommendationRole(user: string|UserData) {

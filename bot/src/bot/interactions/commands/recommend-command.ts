@@ -44,11 +44,25 @@ class RecommendCommand extends Command {
 		}
 
 		const userData = await databaseClient.userRepository.get(interactor.user.id);
-		const millisecondsLeftBeforeBeingAbleToRecommend = await recommendationHelper.getMillisecondsLeftBeforeBeingAbleToRecommend(userData, recommendUser.id);
+		const millisecondsBeforeBeingAbleToRecommendUser = await recommendationHelper.getMillisecondsLeftBeforeBeingAbleToRecommendToUser(userData, recommendUser.id);
+		const millisecondsBeforeBeingAbleToRecommendAny = await recommendationHelper.getMillisecondsLeftBeforeBeingAbleToRecommendAnyUser(userData);
+		const maxMillisecondsBeforeBeingAbleToRecommend = millisecondsBeforeBeingAbleToRecommendAny !== null
+			? Math.max(millisecondsBeforeBeingAbleToRecommendUser, millisecondsBeforeBeingAbleToRecommendAny)
+			: millisecondsBeforeBeingAbleToRecommendUser;
+
 		const hasNoDelay = interactor.permissions.has(PermissionFlagsBits.ManageGuild);
-		if (millisecondsLeftBeforeBeingAbleToRecommend > 0 && !hasNoDelay) {
-			const secondsLeftBeforeBeingAbleToRecommend = Math.ceil((millisecondsLeftBeforeBeingAbleToRecommend + timeHelper.currentDate.getTime()) / 1000);
-			interaction.editReply(`${interactor}, you can first recommend ${recommendUser} again <t:${secondsLeftBeforeBeingAbleToRecommend}:R>.`)
+		if (maxMillisecondsBeforeBeingAbleToRecommend > 0 && !hasNoDelay) {
+			const secondsLeftBeforeBeingAbleToRecommend = Math.ceil((maxMillisecondsBeforeBeingAbleToRecommend + timeHelper.currentDate.getTime()) / 1000);
+			if (millisecondsBeforeBeingAbleToRecommendAny) {
+				interaction.editReply(`${interactor}, you can first recommend ${recommendUser} or anyone else again <t:${secondsLeftBeforeBeingAbleToRecommend}:R>.`);
+			} else {
+				interaction.editReply(`${interactor}, you can first recommend ${recommendUser} again <t:${secondsLeftBeforeBeingAbleToRecommend}:R>.`);
+			}
+			return;
+		}
+
+		if (millisecondsBeforeBeingAbleToRecommendAny === null && !hasNoDelay) {
+			interaction.editReply(`${interactor}, you are not yet allowed to recommend ${recommendUser} or anyone else.`);
 			return;
 		}
 

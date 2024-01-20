@@ -42,6 +42,10 @@ export type RawConfig = Readonly<{
 		give: Readonly<{
 			cooldownHours: number,
 			amount: number,
+			partialUnlockAt: number,
+			fullUnlockAt: number,
+			maxGivesPerDayAtPartialUnlock: number,
+			maxGivesPerDayAtFullUnlock: number,
 		}>,
 		playingSession: Readonly<{
 			firstGiveOutAfterMinutes: number,
