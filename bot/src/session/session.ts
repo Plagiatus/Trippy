@@ -216,13 +216,15 @@ export default class Session {
 			periodsWithPlayers.push({ from: periodStart, to: periodEnd });
 		}
 
+		const totalMillisecondsWithPlayers = periodsWithPlayers.reduce((sum, period) => sum + (period.to - period.from), 0);
+		const minutesWithPlayers = Math.floor(totalMillisecondsWithPlayers / (1000 * 60 /*1 minute*/));
 		const totalMultipliedMillisecondsWithPlayers = this.multiplyPlayTimeRangesByTestTypes(periodsWithPlayers);
-		const minutesWithPlayers = Math.floor(totalMultipliedMillisecondsWithPlayers / (1000 * 60 /*1 minute*/));
+		const multipliedMinutesWithPlayers = Math.floor(totalMultipliedMillisecondsWithPlayers / (1000 * 60 /*1 minute*/));
 		if (minutesWithPlayers < this.config.rawConfig.recommendation.hostingSession.firstGiveOutAfterMinutes) {
 			return;
 		}
 
-		const gottenRecommendation = this.config.rawConfig.recommendation.hostingSession.scorePerMinuteWithUsers * minutesWithPlayers + this.config.rawConfig.recommendation.hostingSession.bonusForJoining;
+		const gottenRecommendation = this.config.rawConfig.recommendation.hostingSession.scorePerMinuteWithUsers * multipliedMinutesWithPlayers + this.config.rawConfig.recommendation.hostingSession.bonusForJoining;
 		await this.recommendationHelper.addRecommendationScore(this.hostId, gottenRecommendation);
 	}
 
