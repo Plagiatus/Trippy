@@ -87,6 +87,7 @@ export default class SessionAnnouncementMessage {
 			sessionEmbedUtils.createEditionField(session),
 			sessionEmbedUtils.createVersionField(session),
 			sessionEmbedUtils.createCategoryField(session),
+			sessionEmbedUtils.createPlayTypeField(session),
 			sessionEmbedUtils.createCommuncationField(session),
 			sessionEmbedUtils.createExperienceField(session),
 			sessionEmbedUtils.createEstimateField(session),

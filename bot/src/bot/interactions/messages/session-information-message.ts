@@ -42,6 +42,7 @@ export default class SessionInformationMessage {
 				new ActionRowBuilder<ButtonBuilder>().addComponents(leaveSessionButton.create({sessionId: session.id}))
 			]
 		});
+		await message.pin();
 
 		return new SessionInformationMessage(provider, message);
 	}
@@ -69,6 +70,8 @@ export default class SessionInformationMessage {
 			sessionEmbedUtils.createVersionField(session),
 			await sessionEmbedUtils.createServerOrRealmsField(provider, session),
 			sessionEmbedUtils.createResourcepackField(session),
+			sessionEmbedUtils.createCategoryField(session),
+			sessionEmbedUtils.createPlayTypeField(session),
 		].filter(utils.getHasValuePredicate());
 
 		const fieldsInColumns = utils.fieldsInColumns(fields, 2);

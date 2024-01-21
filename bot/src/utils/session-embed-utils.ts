@@ -202,6 +202,30 @@ class SessionEmbedUtils {
 
 		return {name: "Version:", value: ":newspaper: " + session.blueprint.version}
 	}
+
+	public createPlayTypeField(session: Session) {
+		let text = "";
+
+		switch(session.blueprint.type) {
+			case "fun": 
+				text = ":tada: Playing for fun";
+				break;
+			case "record": 
+				text = ":camera: Recording for trailer/screenshots";
+				break;
+			case "stream": 
+				text = ":mega: Streaming maptesting/-making";
+				break;
+			case "test":
+				text = ":test_tube: Testing for bugs/feedback";
+				break;
+		}
+
+		if (!text) {
+			return undefined;
+		}
+		return {name: "Type:", value: text};
+	}
 }
 
 export default new SessionEmbedUtils();
