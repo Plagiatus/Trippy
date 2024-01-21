@@ -4,6 +4,7 @@ import * as Discord from "discord.js";
 import ErrorHandler from "./error-handler";
 import InteractionCollection from "./interaction-collection";
 import Impersonation from "../impersonation";
+import utils from "../utils/utils";
 
 export type ChannelParameterType = (keyof Config["channelIds"]) | (string & {}) | Discord.Channel;
 export default class DiscordClient {
@@ -128,6 +129,15 @@ export default class DiscordClient {
 			this.validateChannelsExists(guild, this.config.channelIds),
 			this.validateRolesExists(guild, roleIds),
 		]);
+	}
+
+	public async addChannelToOnboarding(channelId: string) {
+		const guild = await this.getGuild();
+
+		const onboarding = await guild.fetchOnboarding();
+		await guild.editOnboarding({
+			defaultChannels: [...onboarding.defaultChannels.map(channel => channel?.id).filter(utils.getHasValuePredicate()), channelId]
+		});
 	}
 
 	private async validateGuildExists(guildId: string) {

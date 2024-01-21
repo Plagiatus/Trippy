@@ -82,6 +82,7 @@ export default class SessionDisplay {
 			permissionOverwrites: permissions,
 			position: placeAtPosition,
 		});
+		await this.discordClient.addChannelToOnboarding(this.categoryChannel.id);
 
 		this.mainChannel = await this.discordClient.createChannel({
 			type: ChannelType.GuildText,
