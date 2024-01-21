@@ -69,6 +69,8 @@ export default class SessionInformationMessage {
 			sessionEmbedUtils.createVersionField(session),
 			await sessionEmbedUtils.createServerOrRealmsField(provider, session),
 			sessionEmbedUtils.createResourcepackField(session),
+			sessionEmbedUtils.createCategoryField(session),
+			sessionEmbedUtils.createPlayTypeField(session),
 		].filter(utils.getHasValuePredicate());
 
 		const fieldsInColumns = utils.fieldsInColumns(fields, 2);
