@@ -42,6 +42,7 @@ export default class SessionInformationMessage {
 				new ActionRowBuilder<ButtonBuilder>().addComponents(leaveSessionButton.create({sessionId: session.id}))
 			]
 		});
+		await message.pin();
 
 		return new SessionInformationMessage(provider, message);
 	}
