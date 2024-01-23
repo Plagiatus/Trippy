@@ -69,8 +69,11 @@ export default class RecommendationHelper {
 		if (totalPingDelay === null) {
 			return null;
 		}
+		if (!user.lastPingAt) {
+			return 0;
+		}
 
-		const timeSinceLastPing = user.lastPingAt ? this.timeHelper.currentDate.getTime() - user.lastPingAt.getTime() : 0;
+		const timeSinceLastPing = this.timeHelper.currentDate.getTime() - user.lastPingAt.getTime();
 
 		return Math.max(0, totalPingDelay - timeSinceLastPing);
 	}

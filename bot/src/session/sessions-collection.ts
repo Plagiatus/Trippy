@@ -121,9 +121,9 @@ export default class SessionsCollection {
 		}
 
 		if (runningSessions === 0) {
-			await sessionsCountChannel.setName(`🔴 no trippy sessions`);
+			sessionsCountChannel.setName(`🔴 no trippy sessions`);
 		} else {
-			await sessionsCountChannel.setName(`🔵 ${runningSessions} trippy session${runningSessions === 1 ? "" : "s"}`);
+			sessionsCountChannel.setName(`🔵 ${runningSessions} trippy session${runningSessions === 1 ? "" : "s"}`);
 		}
 	}
 
