@@ -59,6 +59,10 @@ export default class SessionDisplay {
 				id: this.sessionRole.id,
 				allow: ["ViewChannel"]
 			},
+			{
+				id: this.config.roleIds.mods,
+				allow: ["ViewChannel"]
+			},
 			this.discordClient.allowAccessToChannelPermissions,
 		]
 
@@ -69,6 +73,10 @@ export default class SessionDisplay {
 			},
 			{
 				id: this.hostRole.id,
+				allow: ["ViewChannel"]
+			},
+			{
+				id: this.config.roleIds.mods,
 				allow: ["ViewChannel"]
 			},
 			this.discordClient.allowAccessToChannelPermissions,

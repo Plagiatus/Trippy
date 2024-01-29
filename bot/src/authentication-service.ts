@@ -209,6 +209,7 @@ export default class AuthenticationService {
 			javaAccount: userInformation.javaAccount,
 			bedrockAccount: userInformation.bedrockAccount,
 			canUseImages: this.recommendationHelper.canUseImages(userInformation),
+			isModerator: member.roles.cache.has(this.config.roleIds.mods),
 		};
 
 		const options: SignOptions = {

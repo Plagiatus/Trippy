@@ -50,7 +50,7 @@ class RecommendCommand extends Command {
 			? Math.max(millisecondsBeforeBeingAbleToRecommendUser, millisecondsBeforeBeingAbleToRecommendAny)
 			: millisecondsBeforeBeingAbleToRecommendUser;
 
-		const hasNoDelay = interactor.permissions.has(PermissionFlagsBits.ManageGuild);
+		const hasNoDelay = interactor.roles.cache.has(config.roleIds.mods);
 		if (maxMillisecondsBeforeBeingAbleToRecommend > 0 && !hasNoDelay) {
 			const secondsLeftBeforeBeingAbleToRecommend = Math.ceil((maxMillisecondsBeforeBeingAbleToRecommend + timeHelper.currentDate.getTime()) / 1000);
 			if (millisecondsBeforeBeingAbleToRecommendAny) {

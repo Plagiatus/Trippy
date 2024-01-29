@@ -1,3 +1,4 @@
+import Config from "../../../config";
 import SessionsCollection from "../../../session/sessions-collection";
 import ModLogMessages from "../messages/mod-log-messages";
 import Command, { CommandExecutionContext } from "./command";
@@ -18,12 +19,16 @@ class KickCommand extends Command {
 
 	public async handleExecution({interaction, provider, interactor, getMemberOption}: CommandExecutionContext) {
 		const sessionsCollection = provider.get(SessionsCollection);
+		const config = provider.get(Config);
+
 		const session = sessionsCollection.getSessionFromChannel(interaction.channelId) ?? sessionsCollection.getHostedSession(interactor);
 		if (!session) {
 			interaction.reply({ephemeral: true, content: "You are not hosting any session."});
 			return;
 		}
-		if (session.hostId !== interactor.id) {
+
+		const isModerator = interactor.roles.cache.has(config.roleIds.mods);
+		if (session.hostId !== interactor.id && !isModerator) {
 			interaction.reply({ephemeral: true, content: "You can cannot kick players from this session."});
 			return;
 		}
