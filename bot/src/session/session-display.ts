@@ -316,7 +316,7 @@ export default class SessionDisplay {
 			embeds: [
 				new EmbedBuilder()
 					.setColor(constants.mainColor)
-					.setThumbnail(player.user.avatarURL({size: 32}))
+					.setThumbnail(player.user.displayAvatarURL({size: 32}))
 					.setDescription(description)
 			],
 			content: `${(await this.session.getHost())?.toString()}, a new tester joined the session`,

@@ -8,12 +8,11 @@ import sessionEmbedUtils from "../../../utils/session-embed-utils";
 import { SimpleMessageData } from "../../../types/document-types";
 import { Message, ActionRowBuilder, ButtonBuilder, EmbedBuilder, AttachmentBuilder } from "discord.js";
 import DatabaseClient from "../../../database-client";
+import TimeHelper from "../../../time-helper";
 
 export default class SessionAnnouncementMessage {
-	private readonly databaseClient: DatabaseClient;
-
-	private constructor(provider: Provider, private readonly message: Message, private lastImageId: string|undefined|null) {
-		this.databaseClient = provider.get(DatabaseClient);
+	private constructor(private readonly provider: Provider, private readonly message: Message, private lastImageId: string|undefined|null) {
+		
 	}
 
 	public get data(): SimpleMessageData {
@@ -34,7 +33,7 @@ export default class SessionAnnouncementMessage {
 
 	public static async createNew(provider: Provider, session: Session, channel: ChannelParameterType, maySendPing: boolean) {
 		const discordClient = provider.get(DiscordClient);
-		const embedAndFiles = await SessionAnnouncementMessage.createEmbed(session, provider.get(DatabaseClient));
+		const embedAndFiles = await SessionAnnouncementMessage.createEmbed(provider, session);
 
 		const shouldSendPing = maySendPing && (session.blueprint.ping ?? false);
 		const message = await discordClient.sendMessage(channel, {
@@ -52,7 +51,7 @@ export default class SessionAnnouncementMessage {
 	}
 
 	public async update(session: Session) {
-		const embedAndFiles = await SessionAnnouncementMessage.createEmbed(session, this.databaseClient, this.lastImageId);
+		const embedAndFiles = await SessionAnnouncementMessage.createEmbed(this.provider, session, this.lastImageId);
 		this.lastImageId = session.blueprint.imageId;
 
 		const isFull = session.playerCount >= session.maxPlayers;
@@ -71,17 +70,22 @@ export default class SessionAnnouncementMessage {
 		await this.message.delete();
 	}
 
-	private static async createEmbed(session: Session, databaseClient: DatabaseClient, lastImageId?: string|null) {
+	private static async createEmbed(provider: Provider, session: Session, lastImageId?: string|null) {
+		const databaseClient = provider.get(DatabaseClient);
+		const timeHelper = provider.get(TimeHelper);
+		
 		const host = await session.getHost();
 
 		const embedBuilder = new EmbedBuilder()
 			.setTitle(session.blueprint.name)
 			.setAuthor({
 				name: host?.displayName ?? "",
-				iconURL: host?.user.avatarURL() ?? undefined,
+				iconURL: host?.user.displayAvatarURL() ?? undefined,
 			})
 			.setColor(constants.mainColor)
 			.setDescription(session.blueprint.description)
+			.addFields({name: " ", value: " ", inline: false})
+			.addFields({name: " ", value: " ", inline: false})
 
 		const fields = [
 			sessionEmbedUtils.createEditionField(session),
@@ -99,6 +103,12 @@ export default class SessionAnnouncementMessage {
 		embedBuilder.addFields({name: " ", value: " ", inline: false});
 		embedBuilder.addFields({name: " ", value: " ", inline: false});
 		embedBuilder.addFields(sessionEmbedUtils.createPlayerCountField(session));
+
+		const startedAt = session.rawSession.state === "new" ? timeHelper.currentDate : new Date(session.rawSession.startTime);
+		embedBuilder.addFields({
+			name: " ",
+			value: `Session started ${timeHelper.discordFormatRelativeTime(startedAt)}.`
+		});
 
 		let attachment: AttachmentBuilder|null = null;
 		if (session.blueprint.imageId) {

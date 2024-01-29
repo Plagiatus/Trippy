@@ -52,11 +52,10 @@ class RecommendCommand extends Command {
 
 		const hasNoDelay = interactor.roles.cache.has(config.roleIds.mods);
 		if (maxMillisecondsBeforeBeingAbleToRecommend > 0 && !hasNoDelay) {
-			const secondsLeftBeforeBeingAbleToRecommend = Math.ceil((maxMillisecondsBeforeBeingAbleToRecommend + timeHelper.currentDate.getTime()) / 1000);
 			if (millisecondsBeforeBeingAbleToRecommendAny) {
-				interaction.editReply(`${interactor}, you can first recommend ${recommendUser} or anyone else again <t:${secondsLeftBeforeBeingAbleToRecommend}:R>.`);
+				interaction.editReply(`${interactor}, you can first recommend ${recommendUser} or anyone else again ${timeHelper.formatCountdown(maxMillisecondsBeforeBeingAbleToRecommend)}.`);
 			} else {
-				interaction.editReply(`${interactor}, you can first recommend ${recommendUser} again <t:${secondsLeftBeforeBeingAbleToRecommend}:R>.`);
+				interaction.editReply(`${interactor}, you can first recommend ${recommendUser} again ${timeHelper.formatCountdown(maxMillisecondsBeforeBeingAbleToRecommend)}.`);
 			}
 			return;
 		}
@@ -74,9 +73,9 @@ class RecommendCommand extends Command {
 				new EmbedBuilder()
 					.setAuthor({
 						name: interactor.displayName,
-						iconURL: interactor.user.avatarURL() ?? undefined,
+						iconURL: interactor.user.displayAvatarURL(),
 					})
-					.setThumbnail(recommendUser.avatarURL({size: 64}))
+					.setThumbnail(recommendUser.displayAvatarURL({size: 64}))
 					.setDescription(`Recommended ${recommendUser}.`)
 					.setColor(constants.mainColor)
 					.toJSON(),

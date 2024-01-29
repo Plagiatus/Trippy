@@ -60,10 +60,17 @@ export default class SessionInformationMessage {
 	}
 
 	private static async createEmbed(provider: Provider, session: Session) {
+		const host = await session.getHost();
 		const embedBuilder = new EmbedBuilder()
 			.setTitle(session.blueprint.name)
+			.setAuthor({
+				name: host?.displayName ?? "",
+				iconURL: host?.user.displayAvatarURL() ?? undefined,
+			})
 			.setColor(constants.mainColor)
-			.setDescription(session.blueprint.description);
+			.setDescription(session.blueprint.description)
+			.addFields({name: " ", value: " ", inline: false})
+			.addFields({name: " ", value: " ", inline: false});
 
 		const fields = [
 			sessionEmbedUtils.createEditionField(session),

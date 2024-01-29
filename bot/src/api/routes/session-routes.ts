@@ -40,7 +40,7 @@ export default (({server, responses, provider, isAuthenticatedGuard}) => {
                     users: usersInSession.filter(utils.getHasValuePredicate()).map(user => ({
                         id: user.id,
                         name: user.displayName,
-                        avatar: user.avatarURL({size: 256}) ?? user.user.avatarURL({size: 256}),
+                        avatar: user.user.displayAvatarURL({size: 256}),
                     }))
                 })
             }

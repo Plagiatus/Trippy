@@ -32,7 +32,7 @@ class StatsCommand extends Command {
 			embeds: [
 				new EmbedBuilder()
 					.setColor(constants.mainColor)
-					.setThumbnail(interactor.user.avatarURL({size: 32}))
+					.setThumbnail(interactor.user.displayAvatarURL({size: 32}))
 					.setTitle(`${interactor.user.displayName}'${/[sz]$/g.test(interactor.user.displayName) ? "" : "s"} stats`)
 					.setFields(
 						utils.fieldsInColumns([
