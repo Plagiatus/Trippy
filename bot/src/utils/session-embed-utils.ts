@@ -89,6 +89,12 @@ class SessionEmbedUtils {
 			case "tabletop":
 				text = ":chess_pawn: Tabletop Game";
 				break;
+			case "minigame":
+				text = ":ping_pong: Minigame";
+				break;
+			case "social-deduction":
+				text = ":face_with_monocle: Social Deduction";
+				break;
 			default:
 				text = ":question: Unknown";
 				break;

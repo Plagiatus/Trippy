@@ -58,6 +58,8 @@ const categoryOptions: InputSelectValueType<SessionBlueprint["category"]>[] = [
 	{value: "creation", name: "Creation"},
 	{value: "tabletop", name: "Tabletop Game"},
 	{value: "race", name: "Race"},
+	{value: "minigame", name: "Minigame"},
+	{value: "social-deduction", name: "Social Deduction"},
 ];
 categoryOptions.sort((a,b) => a.name.localeCompare(b.name));
 
