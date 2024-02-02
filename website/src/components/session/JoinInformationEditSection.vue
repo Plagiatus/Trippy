@@ -23,7 +23,7 @@
 			<input-field v-else-if="selectedServerType === 'realms'" v-model="selectedRealmValue" type="text" name="Realms owner IGN" placeholder="Defaults to you" class="input-row"/>
 		</transition-size>
 
-		<input-field v-model="sessionBlueprint.rpLink" type="text" name="Resource Pack" placeholder="www.example.com/download" class="input-row" pattern="^(.+:\/\/)?([^.]+\.)+[^.]+(\/.)?"/>
+		<input-field v-model="rpLinkValue" type="text" name="Resource Pack" placeholder="www.example.com/download" class="input-row" pattern="^(.+:\/\/)?([^.]+\.)+[^.]+(\/.)?"/>
 	</content-box>
 </template>
 
@@ -31,7 +31,7 @@
 import InputField from '@/components/inputs/InputField.vue';
 import InputSelect from '@/components/inputs/InputSelect.vue';
 import { PartialSessionBlueprint, SessionBlueprint } from '@/types/session-blueprint-types';
-import { computed, onMounted, shallowReactive } from 'vue';
+import { computed, onMounted, shallowReactive, watchEffect } from 'vue';
 import useProvidedItem from '@/composables/use-provided-item';
 import MojangApiClient from '@/api-clients/mojang-api-client';
 import ContentBox from '../ContentBox.vue';
@@ -106,6 +106,19 @@ const selectedServerValue = computed({
 		}
 	}
 });
+
+const rpLinkValue = computed({
+	get() {
+		return props.sessionBlueprint.rpLink;
+	},
+	set(value) {
+		if (value) {
+			props.sessionBlueprint.rpLink = value;
+		} else {
+			props.sessionBlueprint.rpLink = undefined;
+		}
+	}
+})
 
 onMounted(async () => {
 	const versions = await mojangApiClient.getJavaVersions();
