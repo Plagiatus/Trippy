@@ -11,6 +11,7 @@ import Impersonation from "./impersonation";
 import AuthenticationService from "./authentication-service";
 import TimeHelper from "./time-helper";
 import RecommendationHelper from "./recommendation-helper";
+import BlueprintHelper from "./blueprint-helper";
 
 async function start(){
 	console.log("Starting...");
@@ -27,7 +28,8 @@ async function start(){
 		.add(AuthenticationService)
 		.add(InteractionCollection)
 		.add(TimeHelper)
-		.add(RecommendationHelper);
+		.add(RecommendationHelper)
+		.add(BlueprintHelper);
 
 	await provider.get(DatabaseClient).connect();
 	console.log("Connected to database...");

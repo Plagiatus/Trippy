@@ -25,8 +25,8 @@ class StatsCommand extends Command {
 		const databaseClient = provider.get(DatabaseClient);
 		const recommendationHelper = provider.get(RecommendationHelper);
 		const userData = await databaseClient.userRepository.get(interactor.user.id);
-		const hostedSessions = await databaseClient.sessionRepository.getHostedSessions(interactor.user.id);
-		const joinedSessions = await databaseClient.sessionRepository.getJoinedSessions(interactor.user.id);
+		const hostedSessions = await databaseClient.sessionRepository.getAmountOfHostedSessions(interactor.user.id);
+		const joinedSessions = await databaseClient.sessionRepository.getAmountOfJoinedSessions(interactor.user.id);
 
 		interaction.editReply({
 			embeds: [
@@ -38,8 +38,8 @@ class StatsCommand extends Command {
 						utils.fieldsInColumns([
 							{name: "Recommendation", value: Math.round(recommendationHelper.getRecommendationScore(userData)).toString()},
 							{name: "Total recommendation", value: Math.round(userData.totalRecommendationScore).toString()},
-							{name: "Hosted sessions", value: hostedSessions.length.toString()},
-							{name: "Joined sessions", value: joinedSessions.length.toString()},
+							{name: "Hosted sessions", value: hostedSessions.toString()},
+							{name: "Joined sessions", value: joinedSessions.toString()},
 							{name: "Given recommendations", value: userData.givenRecommendations.length.toString()},
 						], 2)
 					)

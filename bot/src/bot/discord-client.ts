@@ -110,6 +110,18 @@ export default class DiscordClient {
 		}
 	}
 
+	public async getSimplifiedMember(id: string) {
+		const member = await this.getMember(id);
+		if (!member) {
+			return {id: id};
+		}
+		return {
+			id: member.id,
+			name: member.displayName,
+			avatar: member.displayAvatarURL({size: 256}),
+		}
+	}
+
 	public async validateGuildIsSetup() {
 		const guild = await this.validateGuildExists(this.config.guildId);
 		const roleIds: Record<string,string> = {};

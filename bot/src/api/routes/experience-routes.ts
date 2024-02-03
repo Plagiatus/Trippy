@@ -1,23 +1,33 @@
 import RouteMaker from "../route";
-import validationUtils from "../../utils/validation-utils";
 import DatabaseClient from "../../database-client";
 import utils from "../../utils/utils";
 import { ExperienceData } from "../../types/document-types";
 import RecommendationHelper from "../../recommendation-helper";
+import DiscordClient from "../../bot/discord-client";
+import BlueprintHelper from "../../blueprint-helper";
 
 export default (({server, responses, provider, isAuthenticatedGuard}) => { 
     const databaseClient = provider.get(DatabaseClient);
     const recommendationHelper = provider.get(RecommendationHelper);
+    const discordClient = provider.get(DiscordClient);
+    const blueprintHelper = provider.get(BlueprintHelper);
 
     server.route("/experience/:id?")
         .get(isAuthenticatedGuard, async (req, res) => {
             if (req.params.id) {
                 const experience = await databaseClient.experienceRepository.get(req.params.id);
-                if (!experience || !experience.owners.some(owner => owner.userId === req.userId)) {
+                if (!experience) {
                     return responses.sendCustomError(`Failed to get experience with the id "${req.params.id}".`, res);
                 }
+
+                const owners = await utils.asyncMap(experience.owners.map(owner => owner.userId), id => discordClient.getSimplifiedMember(id));
+                const ownsExperience = experience.owners.some(owner => owner.userId === req.userId);
+
 				return res.send({
-                    experience: experience
+                    ownsExperience: ownsExperience,
+                    id: experience.id,
+                    owners: owners,
+                    defaultBlueprint: blueprintHelper.conditionalSimplifyBlueprint(!ownsExperience, experience.defaultBlueprint),
                 });
 			}
             
@@ -32,7 +42,7 @@ export default (({server, responses, provider, isAuthenticatedGuard}) => {
         })
         .post(isAuthenticatedGuard, async (req, res) => {
             const blueprintData = typeof req.body === "object" && "defaultBlueprint" in req.body ? JSON.parse(req.body.defaultBlueprint) : null;
-            const { validationResult, validatedValue } = validationUtils.valdiateSessionBlueprint(blueprintData);
+            const { validationResult, validatedValue } = blueprintHelper.valdiateSessionBlueprint(blueprintData);
             const removeImage = typeof req.body === "object" && "removeImage" in req.body;
             const imageFile = Array.isArray(req.files) ? req.files.find(file => file.fieldname === "image") : undefined;
 
@@ -44,7 +54,7 @@ export default (({server, responses, provider, isAuthenticatedGuard}) => {
             if (recommendationHelper.canUseImages(userInformation)) {
                 if (imageFile) {
                     try {
-                        validationUtils.validateSessionImage(imageFile);
+                        blueprintHelper.validateSessionImage(imageFile);
                     } catch(error) {
                         if (error instanceof Error) {
                             return responses.sendCustomError(error.message, res);

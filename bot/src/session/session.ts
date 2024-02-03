@@ -144,6 +144,7 @@ export default class Session {
 			})),
 			startTime: "startTime" in this.rawSession ? this.rawSession.startTime : this.timeHelper.currentDate.getTime(),
 			endTime: "endTime" in this.rawSession ? this.rawSession.endTime : this.timeHelper.currentDate.getTime(),
+			experinceId: this.rawSession.experinceId,
 		}
 		await this.databaseClient.sessionRepository.update(this.rawSession);
 		this.onStateChange.emit(this, this.state);
@@ -387,6 +388,7 @@ export default class Session {
 				information: this.rawSession.messages.information,
 			},
 			roles: this.rawSession.roles,
+			experinceId: this.rawSession.experinceId,
 		}
 
 		await this.display.removeAnnouncementMessage();

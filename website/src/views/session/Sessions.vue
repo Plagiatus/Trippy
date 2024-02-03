@@ -3,20 +3,33 @@
 	<div v-if="sessionResponse.isLoading">
 		<loading-spinner/>
 	</div>
-	<div class="collection" v-else-if="sessionResponse.data">
-		<router-link
-			v-for="session of hostedSessions"
-			:key="session.id"
-			:to="{name: 'Session.Overview', params: {sessionId: session.uniqueId}}"
-		>
-			<section class="session">
-				<img v-if="session.imageId" :src="imageApiClient.getImageLink(session.imageId)" class="session-image"/>
-				<div v-else class="session-image"></div>
-				<div class="session-name-holder">
-					<p class="session-name">{{session.name}} ({{session.id.toUpperCase()}})</p>
-				</div>
-			</section>
-		</router-link>
+	<div v-else-if="sessionResponse.data">
+		<template v-if="sessionResponse.data.hostingSession">
+			<h1 class="section-header">Current session</h1>
+			<small-session-display :session="sessionResponse.data.hostingSession"/>
+		</template>
+		<template v-if="sessionResponse.data.inSession">
+			<h1 class="section-header">Current session</h1>
+			<small-session-display :session="sessionResponse.data.inSession"/>
+		</template>
+		<template v-if="sessionResponse.data.latestHostedSessions.length > 0">
+			<h1 class="section-header">Latest hosted session{{sessionResponse.data.latestHostedSessions.length === 1 ? "" : "s"}}</h1>
+			<div class="collection">
+				<small-session-display
+					v-for="session of sessionResponse.data.latestHostedSessions"
+					:session="session"
+				/>
+			</div>
+		</template>
+		<template v-if="sessionResponse.data.latestJoinedSessions.length > 0">
+			<h1 class="section-header">Latest joined session{{sessionResponse.data.latestJoinedSessions.length === 1 ? "" : "s"}}</h1>
+			<div class="collection">
+				<small-session-display
+					v-for="session of sessionResponse.data.latestJoinedSessions"
+					:session="session"
+				/>
+			</div>
+		</template>
 	</div>
 	<div v-else-if="sessionResponse.failedToLoad">
 		<error-display :hide-close-icon="true">
@@ -26,19 +39,16 @@
 </template>
 
 <script setup lang="ts">
-import ImageApiClient from '@/api-clients/image-api-client';
 import SessionApiClient from '@/api-clients/session-api-client';
 import ErrorDisplay from '@/components/ErrorDisplay.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import NormalButton from '@/components/buttons/NormalButton.vue';
 import useLoadData from '@/composables/use-load-data';
 import useProvidedItem from '@/composables/use-provided-item';
-import { computed } from 'vue';
+import SmallSessionDisplay from './SmallSessionDisplay.vue';
 
 const sessionsApiClient = useProvidedItem(SessionApiClient);
-const imageApiClient = useProvidedItem(ImageApiClient);
 const sessionResponse = useLoadData(() => sessionsApiClient.getUsersSessions());
-const hostedSessions = computed(() => sessionResponse.data?.sessions.filter(session => session.isHosting) ?? []);
 </script>
 
 <style scoped>
@@ -49,36 +59,7 @@ const hostedSessions = computed(() => sessionResponse.data?.sessions.filter(sess
 	gap: 16px;
 }
 
-.session {
-	display: flex;
-	flex-flow: column;
-	width: 200px;
-	border-radius: 8px;
-	background-color: var(--background2);
-	overflow: hidden;
-	padding: 2px;
-}
-
-.session:hover {
-	box-shadow: 2px 2px 5px 0 #00000030;
-}
-
-.session-image {
-	border-top-right-radius: 6px;
-	border-top-left-radius: 6px;
-	width: 100%;
-	height: 100px;
-	object-fit: cover;
-	background-color: var(--highlight);
-}
-
-.session-name-holder {
-	width: 100%;
-	flex-grow: 1;
-	padding: 16px;
-}
-
-.session-name {
-	text-align: center;
+.section-header {
+	margin-top: 32px;
 }
 </style>

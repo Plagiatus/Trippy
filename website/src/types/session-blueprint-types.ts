@@ -4,7 +4,7 @@ export type SessionBlueprint = {
 	type: SessionType;
 	category: SessionCategory;
 	edition: MinecraftEdition;
-	version: string;
+	version?: string;
 	server: ServerType;
 	preferences: SessionPreferences;
 	voiceChannels: VoiceChannelBlueprint[];
@@ -12,6 +12,17 @@ export type SessionBlueprint = {
 	rpLink?: string;
 	imageId?: string;
 	ping?: boolean;
+}
+
+export type SimplifiedSessionBlueprint = {
+	name: string;
+	description: string;
+	type: SessionType;
+	category: SessionCategory;
+	edition: MinecraftEdition;
+	version?: string;
+	preferences: SessionPreferences;
+	imageId?: string;
 }
 
 export type SessionPreferences = {

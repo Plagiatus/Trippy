@@ -9,27 +9,42 @@
 			<h1 class="map-name">{{sessionResponse.data.blueprint.name}}</h1>
 			<h2 class="session-id">({{sessionResponse.data.id}})</h2>
 			<div class="details">
+				<span class="detail-name">Host:</span><discord-user class="detail-value" :user="sessionResponse.data.host"/>
 				<span class="detail-name">Edition:</span><span class="detail-value edition-value">{{sessionResponse.data.blueprint.edition}}</span>
 				<template v-if="sessionResponse.data.blueprint.edition === 'java'">
 					<span class="detail-name">Version:</span>
 					<span class="detail-value">{{sessionResponse.data.blueprint.version}}</span>
 				</template>
 				<span class="detail-name">Players:</span><span class="detail-value">{{playerCountString}}</span>
+				<template v-if="sessionResponse.data.experience">
+					<span class="detail-name">Experience:</span>
+					<router-link
+						:to="{
+							name: 'Experience.Overview',
+							params: {
+								experienceId: sessionResponse.data.experience.id,
+							}
+						}"
+						class="detail-value experience-link"
+					>
+						{{sessionResponse.data.experience.name}}
+					</router-link>
+				</template>
+				<template v-if="sessionResponse.data.startedAt !== null">
+					<span class="detail-name">Started at:</span><span class="detail-value">{{timeHelper.formatDateTime(new Date(sessionResponse.data.startedAt))}}</span>
+				</template>
 			</div>
 		</content-box>
-		<content-box header="Users" class="users-section">
-			<div
+		<content-box v-if="sessionResponse.data.state === 'running'" header="Users" class="users-section">
+			<discord-user
 				v-for="user of sessionResponse.data.users"
 				:key="user.id"
-				class="user-row"
-			>
-				<img v-if="user.avatar" :src="user.avatar" class="user-image"/>
-				<div v-else class="user-image"></div>
-				{{user.name}}
-			</div>
+				:user="user"
+				class="joined-user"
+			/>
 		</content-box>
 		<div class="options">
-			<normal-button :route-to="{name: 'Session.Edit'}">Edit session</normal-button>
+			<normal-button v-if="sessionResponse.data.isHost && sessionResponse.data.state === 'running'" :route-to="{name: 'Session.Edit'}">Edit session</normal-button>
 		</div>
 	</div>
 	<div v-else-if="sessionResponse.failedToLoad">
@@ -43,16 +58,19 @@
 import ImageApiClient from '@/api-clients/image-api-client';
 import SessionApiClient from '@/api-clients/session-api-client';
 import ContentBox from '@/components/ContentBox.vue';
+import DiscordUser from '@/components/DiscordUser.vue';
 import ErrorDisplay from '@/components/ErrorDisplay.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import NormalButton from '@/components/buttons/NormalButton.vue';
 import useLoadData from '@/composables/use-load-data';
 import useProvidedItem from '@/composables/use-provided-item';
+import TimeHelper from '@/time-helper';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 const sessionApiClient = useProvidedItem(SessionApiClient);
 const imageApiClient = useProvidedItem(ImageApiClient);
+const timeHelper = useProvidedItem(TimeHelper);
 const route = useRoute();
 const sessionResponse = useLoadData(() => sessionApiClient.getSessionInformation(route.params.sessionId + ""), () => !!route.params.sessionId);
 
@@ -104,6 +122,7 @@ const playerCountString = computed(() => {
 	display: grid;
 	grid-template-columns: auto auto;
 	gap: 8px;
+	align-items: center;
 }
 
 .detail-name {
@@ -132,19 +151,15 @@ const playerCountString = computed(() => {
 	min-width: 300px;
 }
 
-.user-row {
-	display: flex;
-	align-items: center;
+.joined-user {
 	margin-bottom: 0.5rem;
 	background-color: var(--background);
 	padding: 0.5rem 1rem;
 	border-radius: 1rem;
 }
 
-.user-image {
-	width: 2rem;
-	height: 2rem;
-	border-radius: 100%;
-	margin-right: 0.5rem;
+.experience-link {
+	color: var(--highlight);
+	text-decoration: underline;
 }
 </style>

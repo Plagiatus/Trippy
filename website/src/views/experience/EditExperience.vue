@@ -1,5 +1,5 @@
 <template>
-	<div v-if="experience.isLoading">
+	<div v-if="experienceResponse.isLoading">
 		<loading-spinner/>
 	</div>
 	<div v-else-if="defaultBlueprint" class="experience-information">
@@ -18,9 +18,14 @@
 			</error-display>
 		</div>
 	</div>
-	<div v-else-if="experience.failedToLoad">
+	<div v-else-if="experienceResponse.failedToLoad">
 		<error-display :hide-close-icon="true">
 			Failed to load experience.
+		</error-display>
+	</div>
+	<div v-else>
+		<error-display :hide-close-icon="true">
+			<p>You are not able to edit this experience.</p>
 		</error-display>
 	</div>
 </template>
@@ -55,22 +60,24 @@ const data = shallowReactive({
 });
 const defaultBlueprint = ref<SessionBlueprint>();
 
-const experience = useLoadData(() => experienceApiClient.getExperience(route.params.experienceId + ""), () => !!route.params.experienceId);
+const experienceResponse = useLoadData(() => experienceApiClient.getExperience(route.params.experienceId + ""), () => !!route.params.experienceId);
 watchEffect(() => {
-	defaultBlueprint.value = experience.data?.experience.defaultBlueprint;
-	data.experienceName = experience.data?.experience.defaultBlueprint.name ?? "";
+	if (experienceResponse.data?.ownsExperience) {
+		defaultBlueprint.value = experienceResponse.data?.defaultBlueprint;
+		data.experienceName = experienceResponse.data?.defaultBlueprint.name ?? "";
+	}
 });
 
 async function updateExperience() {
 	data.experienceUpdateError = "";
 	const isValid = form.validateForm();
-	if (!isValid || !experience.data || !defaultBlueprint.value) {
+	if (!isValid || !experienceResponse.data || !defaultBlueprint.value) {
 		return;
 	}
 
 	data.isUpdatingExperience = true;
 	const result = await experienceApiClient.updateExperienceBlueprint({
-		experienceId: experience.data.experience.id,
+		experienceId: experienceResponse.data.id,
 		blueprint: defaultBlueprint.value,
 		image: data.newImage,
 	});

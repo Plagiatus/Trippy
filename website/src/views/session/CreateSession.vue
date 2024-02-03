@@ -76,9 +76,9 @@ watchEffect(async (cleanUp) => {
 		return;
 	}
 
-	if (experienceResponse.data) {
-		sessionBlueprint.value = experienceResponse.data.experience.defaultBlueprint;
-		data.experienceName = experienceResponse.data.experience.defaultBlueprint.name;
+	if (experienceResponse.data && experienceResponse.data.ownsExperience) {
+		sessionBlueprint.value = experienceResponse.data.defaultBlueprint;
+		data.experienceName = experienceResponse.data.defaultBlueprint.name;
 	}
 	data.hasLoadedBlueprint = true;
 });

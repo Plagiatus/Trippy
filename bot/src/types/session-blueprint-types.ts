@@ -14,6 +14,17 @@ export type SessionBlueprint = {
 	ping?: boolean;
 }
 
+export type SimplifiedSessionBlueprint = {
+	name: string;
+	description: string;
+	type: SessionType;
+	category: SessionCategory;
+	edition: MinecraftEdition;
+	version?: string;
+	preferences: SessionPreferences;
+	imageId?: string;
+}
+
 export type SessionPreferences = {
 	communication?: Communication;
 	newPlayers?: NewPlayers;

@@ -5,7 +5,7 @@
 			<p v-if="data.loadingError">{{data.loadingError}}</p>
 		</error-display>
 	</div>
-	<div class="session-information" v-else>
+	<div class="session-information" v-else-if="data.session.isHost">
 		<h1 class="header">Edit session {{data.session.id.toUpperCase()}}</h1>
 		<map-information-edit-section class="section" :session-blueprint="data.session.blueprint" v-model:image="data.newImage"/>
 		<join-information-edit-section class="section" :session-blueprint="data.session.blueprint"/>
@@ -25,6 +25,11 @@
 				<p v-if="data.updateSessionError">{{data.updateSessionError}}</p>
 			</error-display>
 		</div>
+	</div>
+	<div v-else>
+		<error-display hide-close-icon>
+			<p>You are not able to edit this session.</p>
+		</error-display>
 	</div>
 </template>
 
@@ -80,7 +85,7 @@ watchEffect(async (cleanUp) => {
 })
 
 async function updateSession() {
-	if (!data.session || !form.validateForm()) {
+	if (!data.session || !data.session.isHost || !form.validateForm()) {
 		return;
 	}
 	data.updateSessionError = "";

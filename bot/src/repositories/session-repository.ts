@@ -12,11 +12,25 @@ export default class SessionRepository extends Repository<RawSession,"uniqueId">
 		return this.removeMongoIdFields(await this.collection.find({ state: {$in: ["running","stopping"]} }).toArray());
 	}
 
-	public async getHostedSessions(byUserId: string) {
-		return this.removeMongoIdFields(await this.collection.find({hostId: byUserId}).toArray());
+	public async getAmountOfHostedSessions(byUserId: string) {
+		return await this.collection.countDocuments({hostId: byUserId});
 	}
 
-	public async getJoinedSessions(byUserId: string) {
-		return this.removeMongoIdFields(await this.collection.find({"players": {$elemMatch: {id: byUserId}}}).toArray());
+	public async getAmountOfJoinedSessions(userId: string) {
+		return await this.collection.countDocuments({"players": {$elemMatch: {id: userId}}});
+	}
+
+	public async getLatestHostedSessions(byUserId: string, max: number) {
+		return await this.collection.find({hostId: byUserId, state: "ended"})
+			.sort("endTime", -1)
+			.limit(max)
+			.toArray();
+	}
+
+	public async getLatestJoinedSessions(userId: string, max: number) {
+		return await this.collection.find({"players": {$elemMatch: {id: userId}}, state: "ended"})
+			.sort("endTime", -1)
+			.limit(max)
+			.toArray();
 	}
 }

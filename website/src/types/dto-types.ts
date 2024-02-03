@@ -1,36 +1,48 @@
-import { SessionBlueprint } from "./session-blueprint-types"
+import { SessionBlueprint, SimplifiedSessionBlueprint } from "./session-blueprint-types"
+
+export type DiscordUserInformationDto = {
+	id: string;
+	name: string|undefined;
+	avatar: string|undefined;
+};
 
 export type SessionInformationDto = {
-	blueprint: SessionBlueprint;
+	state: "running"|"stopping"|"ended",
 	id: string;
-	users: Array<{
+	uniqueId: string;
+	users: Array<DiscordUserInformationDto>;
+	host: DiscordUserInformationDto;
+	hasJoined: boolean;
+	startedAt: null|number;
+	experience: undefined|{
 		id: string;
 		name: string;
-		avatar: string|null;
-	}>;
-}
+	};
+}&({isHost: false, blueprint: SimplifiedSessionBlueprint}|{isHost: true, blueprint: SessionBlueprint});
 
+export type SimplifiedSessionInformationDto = {
+	uniqueId: string;
+	id: string;
+	name: string;
+	imageId: string|undefined;
+};
 export type UserSessionsListDto = {
-	sessions: Array<{
-		uniqueId: string;
-		id: string;
-		isHosting: boolean;
-		name: string;
-		imageId: string|undefined;
-	}>
+	hostingSession: SimplifiedSessionInformationDto|undefined,
+	inSession: SimplifiedSessionInformationDto|undefined,
+	latestHostedSessions: Array<SimplifiedSessionInformationDto>,
+	latestJoinedSessions: Array<SimplifiedSessionInformationDto>,
 }
 
+export type SimplfiedExperienceInformationDto = {
+	id: string;
+	name: string;
+	imageId: string|undefined;
+}
 export type UserExperiencesListDto = {
-	experiences: Array<{
-		id: string;
-		name: string;
-		imageId: string|undefined;
-	}>;
+	experiences: Array<SimplfiedExperienceInformationDto>;
 }
 
 export type ExperienceInformationDto = {
-	experience: {
-		id: string,
-		defaultBlueprint: SessionBlueprint,
-	}
-}
+	owners: Array<DiscordUserInformationDto>;
+	id: string;
+}&({ownsExperience: false, defaultBlueprint: SimplifiedSessionBlueprint}|{ownsExperience: true, defaultBlueprint: SessionBlueprint});

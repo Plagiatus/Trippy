@@ -1,31 +1,41 @@
 <template>
-	<div v-if="experience.isLoading">
+	<div v-if="experienceResponse.isLoading">
 		<loading-spinner/>
 	</div>
-	<div v-else-if="experience.data" class="overview-page">
+	<div v-else-if="experienceResponse.data" class="overview-page">
 		<yes-no-dialog ref="deleteExperienceRef" header="Delete experience">
-			Are you sure you want to delete <span class="delete-experience-name">{{experience.data.experience.defaultBlueprint.name}}</span>?
+			Are you sure you want to delete <span class="delete-experience-name">{{experienceResponse.data.defaultBlueprint.name}}</span>?
 		</yes-no-dialog>
 		<content-box class="experience-overview">
-			<img v-if="experience.data.experience.defaultBlueprint.imageId" :src="imageApiClient.getImageLink(experience.data.experience.defaultBlueprint.imageId)" class="experience-image"/>
+			<img v-if="experienceResponse.data.defaultBlueprint.imageId" :src="imageApiClient.getImageLink(experienceResponse.data.defaultBlueprint.imageId)" class="experience-image"/>
 			<div v-else class="experience-image"></div>
-			<h1 class="map-name">{{experience.data.experience.defaultBlueprint.name}}</h1>
+			<h1 class="map-name">{{experienceResponse.data.defaultBlueprint.name}}</h1>
 			<div class="details">
-				<span class="detail-name">Edition:</span><span class="detail-value edition-value">{{experience.data.experience.defaultBlueprint.edition}}</span>
-				<template v-if="experience.data.experience.defaultBlueprint.edition === 'java'">
+				<template v-if="experienceResponse.data.owners.length > 0">
+					<span class="detail-name">Owner{{experienceResponse.data.owners.length === 1 ? "" : "s"}}:</span>
+					<div class="detail-value">
+						<discord-user
+							v-for="owner of experienceResponse.data.owners"
+							:key="owner.id"
+							:user="owner"
+						/>
+					</div>
+				</template>
+				<span class="detail-name">Edition:</span><span class="detail-value edition-value">{{experienceResponse.data.defaultBlueprint.edition}}</span>
+				<template v-if="experienceResponse.data.defaultBlueprint.edition === 'java'">
 					<span class="detail-name">Version:</span>
-					<span class="detail-value">{{experience.data.experience.defaultBlueprint.version}}</span>
+					<span class="detail-value">{{experienceResponse.data.defaultBlueprint.version}}</span>
 				</template>
 				<span class="detail-name">Players:</span><span class="detail-value">{{playerCountString}}</span>
 			</div>
 		</content-box>
 		<div class="options">
-			<normal-button :route-to="{name: 'Experience.Edit'}">Edit experience</normal-button>
-			<normal-button :route-to="{name: 'Session.Create', params: {experienceId: experience.data.experience.id}}">Create session for experience</normal-button>
-			<loading-button :loading="data.isDeleting" color="danger" @click="startDeletingExperience">Delete experience</loading-button>
+			<normal-button v-if="experienceResponse.data.ownsExperience" :route-to="{name: 'Experience.Edit'}">Edit experience</normal-button>
+			<normal-button v-if="experienceResponse.data.ownsExperience" :route-to="{name: 'Session.Create', params: {experienceId: experienceResponse.data.id}}">Create session for experience</normal-button>
+			<loading-button v-if="experienceResponse.data.ownsExperience" :loading="data.isDeleting" color="danger" @click="startDeletingExperience">Delete experience</loading-button>
 		</div>
 	</div>
-	<div v-else-if="experience.failedToLoad">
+	<div v-else-if="experienceResponse.failedToLoad">
 		<error-display :hide-close-icon="true">
 			Failed to load experience.
 		</error-display>
@@ -36,6 +46,7 @@
 import ExperienceApiClient from '@/api-clients/experience-api-client';
 import ImageApiClient from '@/api-clients/image-api-client';
 import ContentBox from '@/components/ContentBox.vue';
+import DiscordUser from '@/components/DiscordUser.vue';
 import ErrorDisplay from '@/components/ErrorDisplay.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import LoadingButton from '@/components/buttons/LoadingButton.vue';
@@ -50,7 +61,7 @@ const experienceApiClient = useProvidedItem(ExperienceApiClient);
 const imageApiClient = useProvidedItem(ImageApiClient);
 const route = useRoute();
 const router = useRouter();
-const experience = useLoadData(() => experienceApiClient.getExperience(route.params.experienceId + ""), () => !!route.params.experienceId);
+const experienceResponse = useLoadData(() => experienceApiClient.getExperience(route.params.experienceId + ""), () => !!route.params.experienceId);
 
 const deleteExperienceRef = shallowRef<InstanceType<typeof YesNoDialog>>();
 
@@ -59,8 +70,8 @@ const data = shallowReactive({
 });
 
 const playerCountString = computed(() => {
-	const minPlayers = experience.data?.experience.defaultBlueprint.preferences.players.min;
-	const maxPlayers = experience.data?.experience.defaultBlueprint.preferences.players.max;
+	const minPlayers = experienceResponse.data?.defaultBlueprint.preferences.players.min;
+	const maxPlayers = experienceResponse.data?.defaultBlueprint.preferences.players.max;
 	
 	if (minPlayers === undefined && maxPlayers === undefined) {
 		return "Unlimited"
@@ -75,7 +86,7 @@ const playerCountString = computed(() => {
 });
 
 async function startDeletingExperience() {
-	if (!deleteExperienceRef.value || !experience.data) {
+	if (!deleteExperienceRef.value || !experienceResponse.data) {
 		return;
 	}
 
@@ -86,7 +97,7 @@ async function startDeletingExperience() {
 
 	data.isDeleting = true;
 	try {
-		await experienceApiClient.deleteExperience(experience.data.experience.id);
+		await experienceApiClient.deleteExperience(experienceResponse.data.id);
 		router.push({name: "Experience"});
 	} finally {
 		data.isDeleting = false;
@@ -117,6 +128,7 @@ async function startDeletingExperience() {
 	display: grid;
 	grid-template-columns: auto auto;
 	gap: 8px;
+	align-items: center;
 }
 
 .detail-name {
