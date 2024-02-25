@@ -27,6 +27,7 @@ import ErrorDisplay from '@/components/ErrorDisplay.vue';
 import LoadingButton from '@/components/buttons/LoadingButton.vue';
 import ExperienceApiClient from '@/api-clients/experience-api-client';
 import { useRouter } from 'vue-router';
+import useRandomTrippyMessage from '@/composables/use-random-trippy-message';
 
 const data = shallowReactive({
 	experienceCreationError: "",
@@ -68,6 +69,40 @@ async function createExperience() {
 		}
 	})
 }
+
+useRandomTrippyMessage((add) => {
+	add({message: "This sounds like a fun experience!", mood: "suprised"});
+	add({message: "Making this experience is taking you a long time.", mood: "tired", weight: 0.05});
+
+	if (sessionBlueprint.value.description) {
+		add({message: "Are you sure that description is good enough?\n\nDid you remember to write about how cool it is?", weight: 0.333});
+		add({message: "Are you sure that description is good enough?\n\nYou could write more words. Words are good.", weight: 0.333});
+		add({message: "Are you sure that description is good enough?\n\nDid you describe the lore?", weight: 0.333});
+	}
+
+	if (sessionBlueprint.value.name) {
+		add({message: `${sessionBlueprint.value.name} is a pretty good name.`, mood: "suprised"});
+	}
+
+	if (sessionBlueprint.value.edition === "java") {
+		add({message: "You got Java Edition? Me too!", mood: "suprised"});
+	}
+	if (sessionBlueprint.value.edition === "bedrock") {
+		add({message: "You got Bedrock Edition? Me too!", mood: "suprised"});
+	}
+
+	if (sessionBlueprint.value.voiceChannels.length > 2) {
+		add({message: "That is a lot of voice channels!", mood: "suprised"});
+	}
+
+	if (sessionBlueprint.value.rpLink) {
+		add({message: "That resource pack looks good!", mood: "suprised"});
+	}
+
+	if (sessionBlueprint.value.preferences.timeEstimate ?? 0 > 2) {
+		add({message: "Sounds like it takes a long time\nto get through this experience.", mood: "normal"});
+	}
+}, {minimumSecondsDelay: 30, maximumSecondsDelay: 240, keepOnSendingMessages: true, autoCloseInSeconds: 10});
 </script>
 
 <style scoped>

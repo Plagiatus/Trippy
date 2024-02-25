@@ -36,6 +36,7 @@ import { useRoute, useRouter } from 'vue-router';
 import ExperienceApiClient from '@/api-clients/experience-api-client';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import NormalButton from '@/components/buttons/NormalButton.vue';
+import useRandomTrippyMessage from '@/composables/use-random-trippy-message';
 
 const data = shallowReactive({
 	sessionCreationError: "",
@@ -103,6 +104,40 @@ async function createSession() {
 	}
 	router.push({name: "Session.Overview", params: {sessionId: result.data.uniqueSessionId}})
 }
+
+useRandomTrippyMessage((add) => {
+	add({message: "Sounds like this is going to be a fun session!", mood: "suprised"});
+	add({message: "Making this session is taking you a long time.", mood: "tired", weight: 0.05});
+
+	if (sessionBlueprint.value.description) {
+		add({message: "Are you sure that description is good enough?\n\nDid you remember to write about how cool it is?", weight: 0.333});
+		add({message: "Are you sure that description is good enough?\n\nYou could write more words. Words are good.", weight: 0.333});
+		add({message: "Are you sure that description is good enough?\n\nDid you write about the new features?", weight: 0.333});
+	}
+
+	if (sessionBlueprint.value.name) {
+		add({message: `${sessionBlueprint.value.name} is a pretty good name.`, mood: "suprised"});
+	}
+
+	if (sessionBlueprint.value.edition === "java") {
+		add({message: "You got Java Edition? Me too!", mood: "suprised"});
+	}
+	if (sessionBlueprint.value.edition === "bedrock") {
+		add({message: "You got Bedrock Edition? Me too!", mood: "suprised"});
+	}
+
+	if (sessionBlueprint.value.voiceChannels.length > 2) {
+		add({message: "That is a lot of voice channels!", mood: "suprised"});
+	}
+
+	if (sessionBlueprint.value.rpLink) {
+		add({message: "That resource pack looks good!", mood: "suprised"});
+	}
+
+	if (sessionBlueprint.value.preferences.timeEstimate ?? 0 > 2) {
+		add({message: "Sounds like this session will take a long time.", mood: "normal"});
+	}
+}, {minimumSecondsDelay: 30, maximumSecondsDelay: 240, keepOnSendingMessages: true, autoCloseInSeconds: 10});
 </script>
 
 <style scoped>

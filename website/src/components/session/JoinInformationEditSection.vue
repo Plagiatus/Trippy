@@ -36,6 +36,7 @@ import useProvidedItem from '@/composables/use-provided-item';
 import MojangApiClient from '@/api-clients/mojang-api-client';
 import ContentBox from '../ContentBox.vue';
 import TransitionSize from '../TransitionSize.vue';
+import { InputSelectedGroupedValuesType, InputSelectValueType } from '@/types/types';
 
 const props = defineProps<{
 	sessionBlueprint: PartialSessionBlueprint;

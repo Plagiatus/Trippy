@@ -16,6 +16,8 @@ import ImageApiClient from './api-clients/image-api-client'
 import TimeHelper from './time-helper'
 import Provider from './provider/provider'
 import RouterWrapper from './router'
+import TrippyController from './trippy-controller'
+import SettingsApiClient from './api-clients/settings-api-client'
 
 const provider = new Provider()
 	.addFactory(Config, () => {
@@ -31,9 +33,11 @@ const provider = new Provider()
 	.add(Storage)
 	.add(AuthenticationHandler)
 	.add(ExperienceApiClient)
+	.add(SettingsApiClient)
 	.add(FileAccess)
 	.add(ImageApiClient)
 	.add(TimeHelper)
+	.add(TrippyController)
 	.add(RouterWrapper);
 
 createApp(App)

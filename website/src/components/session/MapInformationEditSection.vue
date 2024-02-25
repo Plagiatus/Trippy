@@ -28,6 +28,7 @@ import TransitionSize from '../TransitionSize.vue';
 import { shallowReactive } from 'vue';
 import ImageApiClient from '@/api-clients/image-api-client';
 import AuthenticationHandler from '@/authentication-handler';
+import { InputSelectValueType } from '@/types/types';
 
 const props = defineProps<{
 	sessionBlueprint: PartialSessionBlueprint;

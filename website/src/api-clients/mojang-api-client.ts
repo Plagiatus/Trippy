@@ -1,3 +1,5 @@
+import { JavaVersion } from "@/types/types";
+
 export default class MojangApiClient {
 	private static readonly oldestVersion = 7;
 

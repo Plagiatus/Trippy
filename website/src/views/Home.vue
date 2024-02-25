@@ -23,9 +23,22 @@
 
 <script setup lang="ts">
 import useProvidedItem from '@/composables/use-provided-item';
+import useTrippyMessage from '@/composables/use-trippy-message';
 import Config from '@/config';
+import { watchEffect } from 'vue';
 
 const config = useProvidedItem(Config);
+const message = useTrippyMessage();
+
+watchEffect((cleanup) => {
+	const timeout = setTimeout(() => {
+		message.displayText({
+			message: "Are you looking for a place\nto test your or others Minecraft creations?\n\nYou should join the Discord!"
+		})
+	}, 7 * 1000 /*7 seconds*/);
+
+	cleanup(() => clearTimeout(timeout));
+})
 </script>
 
 <style>

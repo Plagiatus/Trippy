@@ -5,11 +5,11 @@
 	</div>
 	<div v-else-if="sessionResponse.data">
 		<template v-if="sessionResponse.data.hostingSession">
-			<h1 class="section-header">Current session</h1>
+			<h1 class="section-header">Currently hosting session</h1>
 			<small-session-display :session="sessionResponse.data.hostingSession"/>
 		</template>
 		<template v-if="sessionResponse.data.inSession">
-			<h1 class="section-header">Current session</h1>
+			<h1 class="section-header">Currently in session</h1>
 			<small-session-display :session="sessionResponse.data.inSession"/>
 		</template>
 		<template v-if="sessionResponse.data.latestHostedSessions.length > 0">
@@ -46,9 +46,12 @@ import NormalButton from '@/components/buttons/NormalButton.vue';
 import useLoadData from '@/composables/use-load-data';
 import useProvidedItem from '@/composables/use-provided-item';
 import SmallSessionDisplay from './SmallSessionDisplay.vue';
+import useTrippyInformationMessage from '@/composables/use-trippy-information-message';
 
 const sessionsApiClient = useProvidedItem(SessionApiClient);
 const sessionResponse = useLoadData(() => sessionsApiClient.getUsersSessions());
+
+useTrippyInformationMessage("You need an explanation of this page?\n\nHere you can start your next session.\n\nYou can also view your current session\nand older sessions you have been in.");
 </script>
 
 <style scoped>

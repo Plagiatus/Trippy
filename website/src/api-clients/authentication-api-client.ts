@@ -1,5 +1,6 @@
 import Provider from "@/provider/provider";
 import Config from "@/config";
+import { ApiResponse } from "@/types/types";
 
 export type JwtInformation = {
 	jwt: string;

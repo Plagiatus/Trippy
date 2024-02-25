@@ -4,6 +4,7 @@
 		<router-view></router-view>
 	</div>
 	<Footer />
+	<trippy/>
 </template>
 
 <script setup lang="ts">
@@ -11,6 +12,7 @@ import Navigation from './components/Navigation.vue';
 import Footer from './components/Footer.vue';
 import useProvidedItem from './composables/use-provided-item';
 import AuthenticationHandler from "./authentication-handler"
+import Trippy from './components/Trippy.vue';
 
 const authenticationHandler = useProvidedItem(AuthenticationHandler);
 authenticationHandler.getJwt(); //refresh jwt

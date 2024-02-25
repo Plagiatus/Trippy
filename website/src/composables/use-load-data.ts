@@ -1,3 +1,4 @@
+import { ApiResponse } from "@/types/types";
 import { computed, onUnmounted, shallowReactive, watchEffect } from "vue";
 
 export default function useLoadData<T>(getter: () => Promise<ApiResponse<T>>, shouldRunGetter?: () => boolean) {

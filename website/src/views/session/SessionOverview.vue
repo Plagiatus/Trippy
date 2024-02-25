@@ -64,6 +64,7 @@ import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import NormalButton from '@/components/buttons/NormalButton.vue';
 import useLoadData from '@/composables/use-load-data';
 import useProvidedItem from '@/composables/use-provided-item';
+import useRandomTrippyMessage from '@/composables/use-random-trippy-message';
 import TimeHelper from '@/time-helper';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
@@ -88,6 +89,33 @@ const playerCountString = computed(() => {
 		return "Max " + maxPlayers;
 	}
 	return minPlayers + "-" + maxPlayers;
+});
+
+useRandomTrippyMessage((add) => {
+	if (!sessionResponse.data) {
+		add({message: "Can't find the session?\n\nMaybe try contacting a moderator?"});
+		return;
+	}
+
+	if (sessionResponse.data.state === "ended") {
+		add({message: "I remember this session. It was pretty good."});
+		add({message: `I remember it as if it was yesterday...\n\nMe and ${sessionResponse.data.blueprint.name}\nwe were the perfect pair...\n\nBut ${sessionResponse.data.blueprint.name} left me...`, mood: "angry", weight: 0.05});
+	
+		if (sessionResponse.data.hasJoined) {
+			add({message: "You remember how good this session was?"});
+		}
+		if (sessionResponse.data.isHost) {
+			add({message: "You should do more sessions like this one."});
+		}
+	}
+
+	if (sessionResponse.data.state === "running") {
+		add({message: "This session is so much fun!", mood: "suprised"});
+	}
+
+	if (!sessionResponse.data.hasJoined && !sessionResponse.data.isHost) {
+		add({message: "Why are you looking at this session?\n\nIf you want to make your own session then\ngo to sessions and press \"Create new session\".", mood: "confused", weight: 5});
+	}
 });
 </script>
 

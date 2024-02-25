@@ -54,6 +54,8 @@ import NormalButton from '@/components/buttons/NormalButton.vue';
 import YesNoDialog from '@/components/dialogs/YesNoDialog.vue';
 import useLoadData from '@/composables/use-load-data';
 import useProvidedItem from '@/composables/use-provided-item';
+import useRandomTrippyMessage from '@/composables/use-random-trippy-message';
+import useTrippyMessage from '@/composables/use-trippy-message';
 import { computed, shallowReactive, shallowRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -62,6 +64,7 @@ const imageApiClient = useProvidedItem(ImageApiClient);
 const route = useRoute();
 const router = useRouter();
 const experienceResponse = useLoadData(() => experienceApiClient.getExperience(route.params.experienceId + ""), () => !!route.params.experienceId);
+const randoMessage = useTrippyMessage();
 
 const deleteExperienceRef = shallowRef<InstanceType<typeof YesNoDialog>>();
 
@@ -103,6 +106,26 @@ async function startDeletingExperience() {
 		data.isDeleting = false;
 	}
 }
+
+useRandomTrippyMessage((add) => {
+	if (!experienceResponse.data) {
+		add({message: "Can't find the experience?\n\nMaybe try contacting a moderator?"});
+		return;
+	}
+
+	add({message: "This experience sounds like fun.", mood: "suprised", weight: 2});
+	add({message: "You don't have something better\nto do other than looking at this page?", mood: "tired", weight: 0.2});
+	add({message: `${experienceResponse.data.defaultBlueprint.name} is a pretty good name for an experience.`, mood: "normal"});
+
+	if (experienceResponse.data.ownsExperience) {
+		add({mood: "normal", message: "Do you want to start a new\nsession for this experience?\n\nJust press the\n\"Create session for experience\" button."});
+		add({mood: "suprised", message: "Can't wait for the next time you host a session for this!"});
+		add({mood: "tired", message: "You gonna start a session soon?", weight: 0.2});
+	} else {
+		add({message: `You ever thought about why it's called ${experienceResponse.data.defaultBlueprint.name}?`, mood: "confused"});
+		add({message: `Have you tried this experience?\nWas it fun?`, mood: "normal"});
+	}
+});
 </script>
 
 <style scoped>

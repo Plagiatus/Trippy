@@ -51,7 +51,7 @@ export type VoiceChannelBlueprint = {
 
 export type ServerType = RealmsType|NormalServerType;
 type MinecraftEdition = "java" | "bedrock" | "other";
-type SessionType = "test"|"record"|"fun"|"stream";
+export type SessionType = "test"|"record"|"fun"|"stream";
 type SessionCategory = "parkour"|"pvp"|"pve"|"puzzle"|"stategy"|"hns"|"ctm"|"multiple"|"other"|"adventure"|"survival"|"horror"|"sandbox"|"creation"|"tabletop"|"race"|"minigame"|"social-deduction";
 type Communication = "none" | "vc_encouraged" | "voice_encouraged" | "vc_required" | "voice_required";
 type NewPlayers = "none" | "new" | "exp";
