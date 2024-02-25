@@ -122,11 +122,11 @@ const configSchema: Schema = {
 		},
 		session: {
 			type: "object",
-			required: ["endingTime"],
+			required: ["endingTime","checkActivityEveryHours","minutesToWaitOnActivity"],
 			properties: {
-				endingTime: {
-					type: "number",
-				}
+				endingTime: { type: "number"},
+				checkActivityEveryHours: { type: "number" },
+				minutesToWaitOnActivity: { type: "number" },
 			}
 		},
 		recommendation: {

@@ -21,6 +21,7 @@ export default class Session {
 
 	private readonly display: SessionDisplay;
 	private isSetup: boolean;
+	private afkCheckTimeout: NodeJS.Timeout|undefined;
 
 	public readonly onStateChange: EventEmitter<[session: Session, state: RawSession["state"]]>;
 
@@ -102,6 +103,7 @@ export default class Session {
 					this.destroy();
 				}, this.config.sessionEndingTime);
 			}
+			this.startAfkCheckTimeout();
 			return;
 		}
 
@@ -126,9 +128,11 @@ export default class Session {
 			this.databaseClient.userRepository.updateLastPingTime(this.rawSession.hostId);
 		}
 		this.onStateChange.emit(this, this.state);
+		this.startAfkCheckTimeout();
 	}
 
 	public async destroy() {
+		clearTimeout(this.afkCheckTimeout);
 		const wasNoneEndedSession = this.rawSession.state !== "ended";
 		await this.display.destroy();
 		this.rawSession = {
@@ -339,7 +343,6 @@ export default class Session {
 		}
 
 		this.display.sendForceEndedMessage(endingUser);
-
 		await this.stopSession();
 	}
 
@@ -365,12 +368,45 @@ export default class Session {
 
 			await this.databaseClient.sessionRepository.update(this.rawSession);
 		}
+		await this.markSessionAsBeingActive();
+	}
+
+	public async markSessionAsBeingActive() {
+		if (this._rawSession.state !== "running") {
+			return;
+		}
+
+		this._rawSession.lastAfkCheck = this.timeHelper.currentDate;
+		this.startAfkCheckTimeout();
+		await this.databaseClient.sessionRepository.update(this.rawSession);
+	}
+
+	private startAfkCheckTimeout() {
+		clearTimeout(this.afkCheckTimeout);
+
+		if (this._rawSession.state !== "running") {
+			return;
+		}
+
+		const lastAfkCheck = this._rawSession.lastAfkCheck?.getTime() ?? this._rawSession.startTime;
+		const timeTillNextAfkCheck = Math.max(0, this.config.sessionCheckActivityMillisecondsInterval - (this.timeHelper.currentDate.getTime() - lastAfkCheck));
+
+		this.afkCheckTimeout = setTimeout(() => {
+			this.display.sendActivityCheckMessage();
+
+			this.afkCheckTimeout = setTimeout(() => {
+				this.display.sendEndedInactiveMessage();
+				this.stopSession();
+			}, this.config.sessionMillisecondsToWaitOnActivity);
+		}, timeTillNextAfkCheck);
 	}
 
 	private async stopSession() {
 		if (this.rawSession.state !== "running") {
 			return;
 		}
+
+		clearTimeout(this.afkCheckTimeout);
 
 		this._rawSession = {
 			uniqueId: this.rawSession.uniqueId,

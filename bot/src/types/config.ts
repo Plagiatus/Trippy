@@ -33,6 +33,8 @@ export type RawConfig = Readonly<{
 	}>,
 	session: Readonly<{
 		endingTime: number,
+		checkActivityEveryHours: number,
+		minutesToWaitOnActivity: number,
 	}>,
 	recommendation: Readonly<{
 		baseAmountOfScoreToLosePerHour: number,

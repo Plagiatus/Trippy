@@ -64,6 +64,14 @@ export default class Config {
 		return this.rawConfig.session.endingTime;
 	}
 
+	public get sessionCheckActivityMillisecondsInterval() {
+		return this.rawConfig.session.checkActivityEveryHours * 60 * 60 * 1000;
+	}
+
+	public get sessionMillisecondsToWaitOnActivity() {
+		return this.rawConfig.session.minutesToWaitOnActivity * 60 * 1000;
+	}
+
 	public static loadConfigFile(filePath: string) {
 		if (!fs.existsSync(filePath)) throw new Error(`Config file not found, looking at "${filePath}".`);
 		const fileContent: string = fs.readFileSync(filePath, "utf-8");

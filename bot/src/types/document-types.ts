@@ -51,6 +51,7 @@ export type RunningSession = BaseSession&{
 	channels: SessionChannels;
 	messages: SessionMessages;
 	roles: SessionRoles;
+	lastAfkCheck?: Date;
 }
 
 export type StoppingSession = BaseSession&{

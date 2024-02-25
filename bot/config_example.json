@@ -31,7 +31,9 @@
 		]
 	},
 	"session": {
-		"endingTime": 30000
+		"endingTime": 30000,
+		"checkActivityEveryHours": 2.5,
+		"minutesToWaitOnActivity": 10
 	},
 	"recommendation": {
 		"baseAmountOfScoreToLosePerHour": 0.041667,

@@ -7,6 +7,7 @@ import utils from "../../../utils/utils";
 import DiscordClient, { ChannelParameterType } from "../../discord-client";
 import leaveSessionButton from "../buttons/leave-session-button";
 import { SimpleMessageData } from "../../../types/document-types";
+import stillActiveButton from "../buttons/still-active-button";
 
 export default class SessionInformationMessage {
 	private constructor(private readonly provider: Provider, private readonly message: Message) {
@@ -39,7 +40,10 @@ export default class SessionInformationMessage {
 				await SessionInformationMessage.createEmbed(provider, session),
 			],
 			components: [
-				new ActionRowBuilder<ButtonBuilder>().addComponents(leaveSessionButton.create({sessionId: session.id}))
+				new ActionRowBuilder<ButtonBuilder>().addComponents([
+					leaveSessionButton.create({sessionId: session.id}),
+					stillActiveButton.create({sessionId: session.id}),
+				])
 			]
 		});
 		await message.pin();

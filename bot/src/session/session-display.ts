@@ -1,4 +1,4 @@
-import { CategoryChannel, TextChannel, Role, OverwriteResolvable, ChannelType, Channel, GuildMember, EmbedBuilder, MessagePayload, BaseMessageOptions } from "discord.js";
+import { CategoryChannel, TextChannel, Role, OverwriteResolvable, ChannelType, Channel, GuildMember, EmbedBuilder, MessagePayload, BaseMessageOptions, ActionRowBuilder, ButtonBuilder } from "discord.js";
 import SessionVoiceChannels from "../bot/channels/session-voice-channels";
 import DiscordClient from "../bot/discord-client";
 import ErrorHandler from "../bot/error-handler";
@@ -12,12 +12,16 @@ import Session from "./session";
 import { SessionChannels, SessionMessages, SessionRoles } from "../types/document-types";
 import utils from "../utils/utils";
 import DatabaseClient from "../database-client";
+import stillActiveButton from "./../bot/interactions/buttons/still-active-button";
+import TimeHelper from "../time-helper";
+import leaveSessionButton from "../bot/interactions/buttons/leave-session-button";
 
 export default class SessionDisplay {
 	private readonly discordClient: DiscordClient;
 	private readonly databaseClient: DatabaseClient;
 	private readonly config: Config;
 	private readonly errorHandler: ErrorHandler;
+	private readonly timeHelper: TimeHelper;
 
 	private announcementMessages: SessionAnnouncementMessage[];
 	private voiceChannels?: SessionVoiceChannels;
@@ -34,6 +38,7 @@ export default class SessionDisplay {
 		this.config = provider.get(Config);
 		this.errorHandler = provider.get(ErrorHandler);
 		this.databaseClient = provider.get(DatabaseClient);
+		this.timeHelper = provider.get(TimeHelper);
 		this.announcementMessages = [];
 	}
 
@@ -302,6 +307,18 @@ export default class SessionDisplay {
 		})
 	}
 
+	public sendEndedInactiveMessage() {
+		this.sendMessageToPlayers({
+			content: this.sessionRole?.toString() ?? "",
+			embeds: [
+				new EmbedBuilder()
+					.setColor(constants.warningColor)
+					.setTitle("Session is ending")
+					.setDescription(`This session has been ended because it was inactive and will close in ${this.config.sessionEndingTime / 1000} seconds.`)
+			]
+		})
+	}
+
 	private async sendPlayerJoinedMessage(player: GuildMember) {
 		const userData = await this.databaseClient.userRepository.get(player.id);
 		const account = this.session.blueprint.edition === "bedrock" ? userData?.bedrockAccount : (this.session.blueprint.edition === "java" ? userData?.javaAccount : undefined);
@@ -365,6 +382,18 @@ export default class SessionDisplay {
 		if (this.sessionRole) {
 			await player.roles.remove(this.sessionRole);
 		}
+	}
+
+	public sendActivityCheckMessage() {
+		this.sendMessageToPlayers({
+			content: `${this.sessionRole}\nIs this session still active? Please press the button below to keep the session running.\nThis session will end ${this.timeHelper.formatCountdown(this.config.sessionMillisecondsToWaitOnActivity)} if the button isn't pressed.\n\nIf you are no longer active here then please leave the session.`,
+			components: [
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
+					stillActiveButton.create({sessionId: this.session.id, deleteMessageOnClick: true}),
+					leaveSessionButton.create({sessionId: this.session.id}),
+				),
+			]
+		})
 	}
 
 	public async removeAnnouncementMessage() {
