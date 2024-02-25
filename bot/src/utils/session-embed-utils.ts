@@ -158,7 +158,7 @@ class SessionEmbedUtils {
 		const hours = Math.floor(session.blueprint.preferences.timeEstimate);
 		if (hours > 0) {
 			const hoursRoundedToQuarters = Math.round(hours * 4) / 4;
-			text = `:clock2: ${hoursRoundedToQuarters} hours`;
+			text = `:clock2: ${hoursRoundedToQuarters} hour${hoursRoundedToQuarters === 1 ? "" : "s"}`;
 		} else {
 			const minutes = Math.round((session.blueprint.preferences.timeEstimate % 1) * 60);
 			let minutesRoundedToNearestFive = Math.round(minutes / 5) * 5;
