@@ -17,7 +17,7 @@ export default class Config {
 			return `mongodb://${this.rawConfig.db.url}`
 		}
 
-		return `mongodb://${this.rawConfig.db.user}:${this.rawConfig.db.password}@${this.rawConfig.db.url}`;
+		return `mongodb+srv://${this.rawConfig.db.user}:${this.rawConfig.db.password}@${this.rawConfig.db.url}`;
 	}
 
 	public get webServerPort() {
