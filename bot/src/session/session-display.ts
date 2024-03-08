@@ -111,12 +111,12 @@ export default class SessionDisplay {
 		});
 
 		this.voiceChannels = await SessionVoiceChannels.createNew(this.provider, this.session, this.categoryChannel.id, this.sessionRole.id);
+		this.hostMessage = await SessionHostMessage.createNew(this.provider, this.session, this.hostChannel.id);
+		this.informationMessage = await SessionInformationMessage.createNew(this.provider, this.session, this.mainChannel.id);
 		this.announcementMessages = [
 			await SessionAnnouncementMessage.createNew(this.provider, this.session, "sessionList", true),
 			await SessionAnnouncementMessage.createNew(this.provider, this.session, "sessionListNoPing", false)
 		];
-		this.informationMessage = await SessionInformationMessage.createNew(this.provider, this.session, this.mainChannel.id,);
-		this.hostMessage = await SessionHostMessage.createNew(this.provider, this.session, this.hostChannel.id);
 
 		const hostMember = await this.session.getHost();
 		if (hostMember) {
