@@ -1,4 +1,4 @@
-import Provider from "../provider";
+import Provider from "../shared/provider/provider";
 import type { Express, RequestHandler} from "express";
 import WebResponses from "./responses";
 

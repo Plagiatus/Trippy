@@ -1,6 +1,6 @@
 import { BanData } from "../types/document-types";
 import Repository from "./repository";
-import Provider from "../provider";
+import Provider from "../shared/provider/provider";
 import * as Mongo from "mongodb";
 
 export default class BansRepository extends Repository<BanData, "userId"> {

@@ -1,7 +1,7 @@
 import { VoiceChannel, ChannelType } from "discord.js";
 import Config from "../../config";
-import Provider from "../../provider";
-import { VoiceChannelBlueprint } from "../../types/session-blueprint-types";
+import Provider from "../../shared/provider/provider";
+import { VoiceChannelBlueprint } from "../../shared/types/session-blueprint-types";
 import utils from "../../utils/utils";
 import DiscordClient from "../discord-client";
 import Session from "../../session/session";

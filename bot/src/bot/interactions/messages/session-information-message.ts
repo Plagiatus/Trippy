@@ -1,5 +1,5 @@
 import { Message, ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "discord.js";
-import Provider from "../../../provider";
+import Provider from "../../../shared/provider/provider";
 import Session from "../../../session/session";
 import constants from "../../../utils/constants";
 import sessionEmbedUtils from "../../../utils/session-embed-utils";

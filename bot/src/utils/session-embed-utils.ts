@@ -1,7 +1,7 @@
 import * as Discord from "discord.js";
 import Session from "./../session/session";
 import constants from "./constants";
-import Provider from "../provider";
+import Provider from "../shared/provider/provider";
 import DatabaseClient from "../database-client";
 import utils from "./utils";
 

@@ -1,5 +1,5 @@
 import { Binary } from "mongodb";
-import { SessionBlueprint } from "./session-blueprint-types";
+import { SessionBlueprint } from "../shared/types/session-blueprint-types";
 
 export type SessionPlayer = {
 	id: string;

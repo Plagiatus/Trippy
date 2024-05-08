@@ -1,5 +1,5 @@
 import { ButtonBuilder, ButtonInteraction, GuildMember } from "discord.js";
-import Provider from "../../../provider";
+import Provider from "../../../shared/provider/provider";
 
 export default abstract class ActionButton<TId extends string = string> {
 	public constructor(private readonly buttonId: TId) {

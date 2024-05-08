@@ -3,7 +3,7 @@ import DatabaseClient from "../../../database-client";
 import Command, { CommandExecutionContext } from "./command";
 import BansRepository from "../../../repositories/bans-repository";
 import { ChatInputCommandInteraction, GuildMember } from "discord.js";
-import Provider from "../../../provider";
+import Provider from "../../../shared/provider/provider";
 import ModLogMessages from "../messages/mod-log-messages";
 
 class BanCommand extends Command {

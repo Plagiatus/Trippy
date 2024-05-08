@@ -1,4 +1,4 @@
-import { SessionBlueprint } from "./session-blueprint-types";
+import { SessionBlueprint } from "../shared/types/session-blueprint-types";
 
 export type RawConfig = Readonly<{
 	botToken: string,

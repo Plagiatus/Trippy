@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, GuildMember, SlashCommandBuilder, User } from "discord.js";
-import Provider from "../../../provider";
+import Provider from "../../../shared/provider/provider";
 
 export default abstract class Command {
 	public constructor(public readonly name: string) {

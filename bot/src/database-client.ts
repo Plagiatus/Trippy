@@ -1,5 +1,5 @@
 import Config from "./config";
-import Provider from "./provider";
+import Provider from "./shared/provider/provider";
 import * as Mongo from "mongodb";
 import SessionRepository from "./repositories/session-repository";
 import UserRepository from "./repositories/user-repository";

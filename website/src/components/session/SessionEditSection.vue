@@ -35,7 +35,7 @@
 <script setup lang="ts">
 import InputField from '@/components/inputs/InputField.vue';
 import InputCheckbox from '@/components/inputs/InputCheckbox.vue';
-import { PartialSessionBlueprint } from '@/types/session-blueprint-types';
+import { PartialSessionBlueprint } from '$/types/session-blueprint-types';
 import { computed, shallowReactive, watchEffect } from 'vue';
 import ContentBox from '../ContentBox.vue';
 import NormalButton from '../buttons/NormalButton.vue';

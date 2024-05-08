@@ -26,6 +26,7 @@ export type SimplifiedSessionInformationDto = {
 	name: string;
 	imageId: string|undefined;
 };
+
 export type UserSessionsListDto = {
 	hostingSession: SimplifiedSessionInformationDto|undefined,
 	inSession: SimplifiedSessionInformationDto|undefined,
@@ -38,6 +39,7 @@ export type SimplfiedExperienceInformationDto = {
 	name: string;
 	imageId: string|undefined;
 }
+
 export type UserExperiencesListDto = {
 	experiences: Array<SimplfiedExperienceInformationDto>;
 }
@@ -46,3 +48,9 @@ export type ExperienceInformationDto = {
 	owners: Array<DiscordUserInformationDto>;
 	id: string;
 }&({ownsExperience: false, defaultBlueprint: SimplifiedSessionBlueprint}|{ownsExperience: true, defaultBlueprint: SessionBlueprint});
+
+export type TokenAndRefreshInformationDto = {
+	jwt: string;
+	refreshToken: string;
+	expiresIn: number;
+}

@@ -1,5 +1,5 @@
 import DiscordClient, { ChannelParameterType } from "../../discord-client";
-import Provider from "../../../provider";
+import Provider from "../../../shared/provider/provider";
 import joinSessionButton from "../buttons/join-session-button";
 import Session from "../../../session/session";
 import constants from "../../../utils/constants";

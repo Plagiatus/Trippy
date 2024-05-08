@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { DiscordUserInformationDto } from '@/types/dto-types';
+import { DiscordUserInformationDto } from '$/types/dto-types';
 
 defineProps<{
 	user: DiscordUserInformationDto|undefined|null,

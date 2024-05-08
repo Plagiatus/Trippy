@@ -2,7 +2,7 @@ import WebResponses from "./api/responses";
 import { WebServer } from "./api/web-server";
 import Config from "./config";
 import DatabaseClient from "./database-client";
-import Provider from "./provider";
+import Provider from "./shared/provider/provider";
 import DiscordClient from "./bot/discord-client";
 import ErrorHandler from "./bot/error-handler";
 import InteractionCollection from "./bot/interaction-collection";

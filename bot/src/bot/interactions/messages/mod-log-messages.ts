@@ -1,5 +1,5 @@
 import { GuildMember, User } from "discord.js";
-import Provider from "../../../provider";
+import Provider from "../../../shared/provider/provider";
 import DiscordClient from "../../discord-client";
 
 export default class ModLogMessages {

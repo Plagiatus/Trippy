@@ -1,4 +1,4 @@
-import Provider from "../provider";
+import Provider from "../shared/provider/provider";
 import { ImageData } from "../types/document-types";
 import utils from "../utils/utils";
 import Repository from "./repository";

@@ -1,5 +1,5 @@
 import { CommandInteraction, EmbedBuilder, Message, MessageType, Interaction } from "discord.js";
-import Provider from "../provider";
+import Provider from "../shared/provider/provider";
 import DiscordClient from "./discord-client";
 import Session from "../session/session";
 import constants from "../utils/constants";

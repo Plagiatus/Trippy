@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, User } 
 import Command, { CommandExecutionContext } from "./command";
 import DatabaseClient from "../../../database-client";
 import RecommendationHelper from "../../../recommendation-helper";
-import Provider from "../../../provider";
+import Provider from "../../../shared/provider/provider";
 import utils from "../../../utils/utils";
 import constants from "../../../utils/constants";
 import TimeHelper from "../../../time-helper";

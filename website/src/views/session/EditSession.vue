@@ -45,7 +45,7 @@ import MapInformationEditSection from '@/components/session/MapInformationEditSe
 import SessionEditSection from '@/components/session/SessionEditSection.vue';
 import useProvidedItem from '@/composables/use-provided-item';
 import { useValidateableForm } from '@/composables/use-validateable-form';
-import { SessionInformationDto } from '@/types/dto-types';
+import { SessionInformationDto } from '$/types/dto-types';
 import { reactive, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 

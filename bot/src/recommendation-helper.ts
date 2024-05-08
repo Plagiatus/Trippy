@@ -1,7 +1,7 @@
 import DiscordClient from "./bot/discord-client";
 import Config from "./config";
 import DatabaseClient from "./database-client";
-import Provider from "./provider";
+import Provider from "./shared/provider/provider";
 import TimeHelper from "./time-helper";
 import { UserData } from "./types/document-types";
 

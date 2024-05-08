@@ -1,6 +1,6 @@
 import { ButtonInteraction, ChatInputCommandInteraction, GuildMember } from "discord.js";
 import utils from "../utils/utils";
-import Provider from "../provider";
+import Provider from "../shared/provider/provider";
 import Command from "./interactions/commands/command";
 import ActionButton from "./interactions/buttons/action-button";
 import DiscordClient from "./discord-client";

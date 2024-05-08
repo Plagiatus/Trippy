@@ -1,4 +1,4 @@
-import { SessionBlueprint, SimplifiedSessionBlueprint } from "./types/session-blueprint-types";
+import { SessionBlueprint, SimplifiedSessionBlueprint } from "./shared/types/session-blueprint-types";
 import jsonSchemas from "./utils/json-schemas";
 import ValidationUtils from "./utils/validation-utils";
 import sizeOfImage from "image-size";

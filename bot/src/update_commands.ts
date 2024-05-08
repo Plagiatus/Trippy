@@ -1,7 +1,7 @@
 import { Routes } from "discord-api-types/v10";
 import Config from "./config";
 import InteractionCollection from "./bot/interaction-collection";
-import Provider from "./provider";
+import Provider from "./shared/provider/provider";
 import utils from "./utils/utils";
 import DiscordClient from "./bot/discord-client";
 

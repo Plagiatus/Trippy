@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import Provider from "../../provider";
+import Provider from "../../shared/provider/provider";
 import AuthenticationService from "../../authentication-service";
 
 export default function isAuthenticatedGuardFactory(provider: Provider) {

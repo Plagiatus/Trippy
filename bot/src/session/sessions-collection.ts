@@ -1,9 +1,9 @@
 import DiscordClient from "../bot/discord-client";
 import ErrorHandler from "../bot/error-handler";
 import DatabaseClient from "../database-client";
-import Provider from "../provider";
+import Provider from "../shared/provider/provider";
 import { RawSession } from "../types/document-types";
-import { SessionBlueprint } from "../types/session-blueprint-types";
+import { SessionBlueprint } from "../shared/types/session-blueprint-types";
 import utils from "../utils/utils";
 import Session from "./session";
 import * as Discord from "discord.js";

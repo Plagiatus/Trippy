@@ -1,18 +1,13 @@
 import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v10";
-import Provider from "./provider";
+import Provider from "./shared/provider/provider";
 import Config from "./config";
 import { AccessTokenResponse, UserObject } from "./types/discord-types";
 import DatabaseClient from "./database-client";
 import DiscordClient from "./bot/discord-client";
 import jsonWebToken, { SignOptions } from "jsonwebtoken";
 import RecommendationHelper from "./recommendation-helper";
-
-type TokenAndRefreshInformation = {
-	jwt: string;
-	refreshToken: string;
-	expiresIn: number;
-}
+import { TokenAndRefreshInformationDto } from "./shared/types/dto-types";
 
 export default class AuthenticationService {
 	private static readonly loginTokenExpireTime = 24 * 60 * 60 * 1000; // 24 hours
@@ -31,7 +26,7 @@ export default class AuthenticationService {
 		this.recommendationHelper = provider.get(RecommendationHelper);
 	}
 
-	public async authenticateFromAuthorizationCode(code: string): Promise<TokenAndRefreshInformation> {
+	public async authenticateFromAuthorizationCode(code: string): Promise<TokenAndRefreshInformationDto> {
 		const tokenInformation = await this.getDiscordTokenFromCode(code);
 		const discordUserData = await this.getUserDataFromDiscordToken(tokenInformation.access_token);
 
@@ -49,7 +44,7 @@ export default class AuthenticationService {
 		}
 	}
 
-	public async authenticateFromLoginToken(token: string): Promise<TokenAndRefreshInformation> {
+	public async authenticateFromLoginToken(token: string): Promise<TokenAndRefreshInformationDto> {
 		const userId = await this.getUserIdFromLoginToken(token);
 
 		const userData = await this.dbClient.userRepository.get(userId);
@@ -66,7 +61,7 @@ export default class AuthenticationService {
 		}
 	}
 
-	public async refresh(refreshToken: string): Promise<TokenAndRefreshInformation> {
+	public async refresh(refreshToken: string): Promise<TokenAndRefreshInformationDto> {
 		const payload = jsonWebToken.verify(refreshToken, this.config.jwtSecret);
 		if (typeof payload === "string") {
 			throw new Error("Invalid refresh token payload.");

@@ -13,7 +13,7 @@
 <script setup lang="ts">
 import ImageApiClient from '@/api-clients/image-api-client';
 import useProvidedItem from '@/composables/use-provided-item';
-import { SimplifiedSessionInformationDto } from '@/types/dto-types';
+import { SimplifiedSessionInformationDto } from '$/types/dto-types';
 
 defineProps<{
 	session: SimplifiedSessionInformationDto

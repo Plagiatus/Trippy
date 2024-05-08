@@ -1,12 +1,7 @@
-import Provider from "@/provider/provider";
+import Provider from "$/provider/provider";
+import { TokenAndRefreshInformationDto } from "$/types/dto-types";
 import Config from "@/config";
 import { ApiResponse } from "@/types/types";
-
-export type JwtInformation = {
-	jwt: string;
-	refreshToken: string;
-	expiresIn: number;
-}
 
 // Can't extend BaseApiClient because it creates a dependency loop.
 export default class AuthenticationApiClient {
@@ -17,15 +12,15 @@ export default class AuthenticationApiClient {
 	}
 
 	public async authenticateUsingAuthorizationCode(code: string) {
-		return this.post<JwtInformation>(`authentication/code`, { code });
+		return this.post<TokenAndRefreshInformationDto>(`authentication/code`, { code });
 	}
 
 	public async refreshJwt(refreshToken: string) {
-		return this.post<JwtInformation>(`authentication/refresh`, { refreshToken });
+		return this.post<TokenAndRefreshInformationDto>(`authentication/refresh`, { refreshToken });
 	}
 
 	public async authenticateUsingLoginToken(token: string) {
-		return this.post<JwtInformation>(`authentication/login-token`, { token });
+		return this.post<TokenAndRefreshInformationDto>(`authentication/login-token`, { token });
 	}
 
 	public async getInformationFromLoginToken(token: string) {

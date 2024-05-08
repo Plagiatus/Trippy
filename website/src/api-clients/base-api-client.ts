@@ -1,6 +1,6 @@
 import AuthenticationHandler from "@/authentication-handler";
 import Config from "@/config";
-import Provider from "@/provider/provider";
+import Provider from "$/provider/provider";
 import { ApiResponse } from "@/types/types";
 
 export default abstract class BaseApiClient {

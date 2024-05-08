@@ -1,5 +1,5 @@
 import { Message, ActionRowBuilder, ButtonBuilder } from "discord.js";
-import Provider from "../../../provider";
+import Provider from "../../../shared/provider/provider";
 import Session from "../../../session/session";
 import DiscordClient, { ChannelParameterType } from "../../discord-client";
 import endSessionButton from "../buttons/end-session-button";

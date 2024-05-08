@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { PartialSessionBlueprint, SessionBlueprint } from '@/types/session-blueprint-types';
+import { PartialSessionBlueprint, SessionBlueprint } from '$/types/session-blueprint-types';
 import { computed, ref, shallowReactive, watchEffect } from 'vue';
 import MapInformationEditSection from '@/components/session/MapInformationEditSection.vue';
 import JoinInformationEditSection from '@/components/session/JoinInformationEditSection.vue';

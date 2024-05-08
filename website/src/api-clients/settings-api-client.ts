@@ -1,4 +1,4 @@
-import { SessionType } from "@/types/session-blueprint-types";
+import { SessionType } from "$/types/session-blueprint-types";
 import BaseApiClient from "./base-api-client";
 
 export default class SettingsApiClient extends BaseApiClient {

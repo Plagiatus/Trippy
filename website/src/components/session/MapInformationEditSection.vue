@@ -19,7 +19,7 @@
 import InputField from '@/components/inputs/InputField.vue';
 import InputTextarea from '@/components/inputs/InputTextarea.vue';
 import InputSelect from '@/components/inputs/InputSelect.vue';
-import { PartialSessionBlueprint, SessionBlueprint } from '@/types/session-blueprint-types';
+import { PartialSessionBlueprint, SessionBlueprint } from '$/types/session-blueprint-types';
 import ContentBox from '../ContentBox.vue';
 import NormalButton from '../buttons/NormalButton.vue';
 import useProvidedItem from '@/composables/use-provided-item';

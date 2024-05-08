@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory, Router } from 'vue-router';
 import Home from "@/views/Home.vue";
-import Provider from './provider/provider';
+import Provider from '$/provider/provider';
 import AuthenticationHandler from './authentication-handler';
 
 export default class RouterWrapper {

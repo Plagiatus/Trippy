@@ -43,7 +43,7 @@ import SessionEditSection from '@/components/session/SessionEditSection.vue';
 import useLoadData from '@/composables/use-load-data';
 import useProvidedItem from '@/composables/use-provided-item';
 import { useValidateableForm } from '@/composables/use-validateable-form';
-import { SessionBlueprint } from '@/types/session-blueprint-types';
+import { SessionBlueprint } from '$/types/session-blueprint-types';
 import { ref, shallowReactive, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 

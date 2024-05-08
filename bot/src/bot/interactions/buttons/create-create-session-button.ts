@@ -1,5 +1,5 @@
 import { ButtonBuilder, ButtonStyle } from "discord.js";
-import Provider from "../../../provider";
+import Provider from "../../../shared/provider/provider";
 import Config from "../../../config";
 import AuthenticationService from "../../../authentication-service";
 

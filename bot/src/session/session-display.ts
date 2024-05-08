@@ -6,7 +6,7 @@ import SessionAnnouncementMessage from "../bot/interactions/messages/session-ann
 import SessionHostMessage from "../bot/interactions/messages/session-host-message";
 import SessionInformationMessage from "../bot/interactions/messages/session-information-message";
 import Config from "../config";
-import Provider from "../provider";
+import Provider from "../shared/provider/provider";
 import constants from "../utils/constants";
 import Session from "./session";
 import { SessionChannels, SessionMessages, SessionRoles } from "../types/document-types";

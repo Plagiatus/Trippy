@@ -1,4 +1,4 @@
-import Provider from "../provider";
+import Provider from "../shared/provider/provider";
 import { RawSession } from "../types/document-types";
 import Repository from "./repository";
 import * as Mongo from "mongodb";

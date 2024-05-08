@@ -1,5 +1,5 @@
 import Config from "../config";
-import Provider from "../provider";
+import Provider from "../shared/provider/provider";
 import express, {Express, RequestHandler} from "express";
 import utils from "../utils/utils";
 import cors from "cors";

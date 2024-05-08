@@ -30,7 +30,7 @@
 <script setup lang="ts">
 import InputField from '@/components/inputs/InputField.vue';
 import InputSelect from '@/components/inputs/InputSelect.vue';
-import { PartialSessionBlueprint, SessionBlueprint } from '@/types/session-blueprint-types';
+import { PartialSessionBlueprint, SessionBlueprint } from '$/types/session-blueprint-types';
 import { computed, onMounted, shallowReactive, watchEffect } from 'vue';
 import useProvidedItem from '@/composables/use-provided-item';
 import MojangApiClient from '@/api-clients/mojang-api-client';

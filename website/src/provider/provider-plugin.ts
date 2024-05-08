@@ -1,5 +1,5 @@
 import { Plugin } from "vue";
-import Provider from "./provider";
+import Provider from "$/provider/provider";
 import providerInjectionSymbol from "./provider-injection-symbol";
 
 export default function providerPlugin(options?: {provider?: Provider, providerSetup?: (provider: Provider) => void}) {

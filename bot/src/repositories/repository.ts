@@ -1,5 +1,5 @@
 import * as Mongo from "mongodb";
-import Provider from "../provider";
+import Provider from "../shared/provider/provider";
 
 export default class Repository<TDocument extends Mongo.Document, TId extends keyof TDocument> {
 	public constructor(protected readonly provider: Provider, protected readonly collection: Mongo.Collection<TDocument>, protected readonly idField: TId) {

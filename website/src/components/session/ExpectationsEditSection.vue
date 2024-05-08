@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import InputField from '@/components/inputs/InputField.vue';
 import InputSelect from '@/components/inputs/InputSelect.vue';
-import { PartialSessionBlueprint, SessionBlueprint, SessionType } from '@/types/session-blueprint-types';
+import { PartialSessionBlueprint, SessionBlueprint, SessionType } from '$/types/session-blueprint-types';
 import ContentBox from '../ContentBox.vue';
 import { InputSelectValueType } from '@/types/types';
 import useLoadData from '@/composables/use-load-data';

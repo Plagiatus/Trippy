@@ -1,9 +1,9 @@
 import DiscordClient from "../bot/discord-client";
 import DatabaseClient from "../database-client";
-import Provider from "../provider";
+import Provider from "../shared/provider/provider";
 import * as Discord from "discord.js";
 import { RawSession, SessionPlayer } from "../types/document-types";
-import { SessionBlueprint } from "../types/session-blueprint-types";
+import { SessionBlueprint } from "../shared/types/session-blueprint-types";
 import SessionDisplay from "./session-display";
 import Config from "../config";
 import TimeHelper from "../time-helper";

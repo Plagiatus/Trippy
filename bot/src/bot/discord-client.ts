@@ -1,5 +1,5 @@
 import Config from "../config";
-import Provider from "../provider";
+import Provider from "../shared/provider/provider";
 import * as Discord from "discord.js";
 import ErrorHandler from "./error-handler";
 import InteractionCollection from "./interaction-collection";

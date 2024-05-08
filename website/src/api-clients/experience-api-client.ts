@@ -1,7 +1,7 @@
-import Provider from "@/provider/provider";
+import Provider from "$/provider/provider";
 import BaseApiClient from "./base-api-client";
-import { ExperienceInformationDto, UserExperiencesListDto } from "@/types/dto-types";
-import { SessionBlueprint } from "@/types/session-blueprint-types";
+import { ExperienceInformationDto, UserExperiencesListDto } from "$/types/dto-types";
+import { SessionBlueprint } from "$/types/session-blueprint-types";
 
 export default class ExperienceApiClient extends BaseApiClient {
 	public constructor(provider: Provider) {

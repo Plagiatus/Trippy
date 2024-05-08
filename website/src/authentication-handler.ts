@@ -1,10 +1,11 @@
 import { Ref, shallowRef } from "vue";
-import Provider from "./provider/provider";
+import Provider from "$/provider/provider";
 import RouterWrapper from "./router";
 import Storage from "./storage";
-import AuthenticationApiClient, { JwtInformation } from "./api-clients/authentication-api-client";
+import AuthenticationApiClient from "./api-clients/authentication-api-client";
 import utils from "./utils/utils";
 import { Router } from "vue-router";
+import { TokenAndRefreshInformationDto } from "$/types/dto-types";
 
 type RefreshInformation = {
 	jwtExpiresAt: number;
@@ -227,7 +228,7 @@ export default class AuthenticationHandler {
 		return origin + authenticatedPath;
 	}
 
-	private handleJwtInformation(jwtInformation: JwtInformation) {
+	private handleJwtInformation(jwtInformation: TokenAndRefreshInformationDto) {
 		const newRefreshInformation: RefreshInformation = {
 			jwtExpiresAt: jwtInformation.expiresIn + Date.now(),
 			refreshToken: jwtInformation.refreshToken,

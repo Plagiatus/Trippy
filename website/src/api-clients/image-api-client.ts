@@ -1,4 +1,4 @@
-import Provider from "@/provider/provider";
+import Provider from "$/provider/provider";
 import BaseApiClient from "./base-api-client";
 
 export default class ImageApiClient extends BaseApiClient {
