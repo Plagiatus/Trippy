@@ -23,7 +23,7 @@
 			Failed to load experience.
 		</error-display>
 	</div>
-	<div v-else>
+	<div v-else-if="!(experienceResponse.data?.ownsExperience ?? true)">
 		<error-display :hide-close-icon="true">
 			<p>You are not able to edit this experience.</p>
 		</error-display>

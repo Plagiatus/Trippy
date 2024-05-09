@@ -18,7 +18,7 @@
 				placeholder="xxx.xxx.xxx.xxx:XXXXX | server.domain.com"
 				class="input-row"
 				required
-				pattern="((^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,8})|(((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}))(:((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4})))?$"
+				pattern="((^([a-zA-Z0-9]([a-zA-Z0-9_\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,8})|(((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}))(:((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4})))?$"
 			/>
 			<input-field v-else-if="selectedServerType === 'realms'" v-model="selectedRealmValue" type="text" name="Realms owner IGN" placeholder="Defaults to you" class="input-row"/>
 		</transition-size>
