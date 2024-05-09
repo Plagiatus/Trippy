@@ -1,25 +1,22 @@
 import Config from "../config";
-import Provider from "../shared/provider/provider";
-import express, {Express, RequestHandler} from "express";
+import DependencyProvider from "../shared/dependency-provider/dependency-provider";
+import express, {Express } from "express";
 import utils from "../utils/utils";
 import cors from "cors";
 import RouteMaker from "./route";
 import WebResponses from "./responses";
 import bodyParser from "body-parser";
-import isAuthenticatedGuardFactory from "./guards/is-authenticated-guard-factory";
 import upload, { memoryStorage } from "multer";
+import injectDependency from "../shared/dependency-provider/inject-dependency";
 
 export class WebServer {
 	private readonly server: Express;
-	private readonly config: Config;
-	private readonly responses: WebResponses;
-	private readonly isAuthenticatedGuard: RequestHandler;
+	private readonly config = injectDependency(Config);
+	private readonly responses = injectDependency(WebResponses);
+	private readonly dependencyProvider = DependencyProvider.activeProvider;
 
-	public constructor(private readonly provider: Provider) {
+	public constructor() {
 		this.server = express();
-		this.config = provider.get(Config);
-		this.responses = provider.get(WebResponses);
-		this.isAuthenticatedGuard = isAuthenticatedGuardFactory(provider);
 
 		this.server.use(bodyParser.json());
 		this.server.use(cors({
@@ -40,11 +37,11 @@ export class WebServer {
 	}
 
 	private addRoute(route: RouteMaker) {
-		route({
-			server: this.server, 
-			provider: this.provider,
-			responses: this.responses,
-			isAuthenticatedGuard: this.isAuthenticatedGuard,
+		this.dependencyProvider.activate(() => {
+			route({
+				server: this.server, 
+				responses: this.responses,
+			});
 		});
 	}
 

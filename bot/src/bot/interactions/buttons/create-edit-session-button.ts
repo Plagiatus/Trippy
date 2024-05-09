@@ -1,9 +1,9 @@
 import { ButtonBuilder, ButtonStyle } from "discord.js";
-import Provider from "../../../shared/provider/provider";
+import DependencyProvider from "../../../shared/dependency-provider/dependency-provider";
 import Config from "../../../config";
 import AuthenticationService from "../../../authentication-service";
 
-export default async function createEditSessionButton(options: {provider: Provider, forUserId: string, sessionId: string, disabled?: boolean}) {
+export default async function createEditSessionButton(options: {provider: DependencyProvider, forUserId: string, sessionId: string, disabled?: boolean}) {
 	const config = options.provider.get(Config);
 	const authenticationService = options.provider.get(AuthenticationService);
 

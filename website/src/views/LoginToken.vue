@@ -18,23 +18,23 @@
 
 <script setup lang="ts">
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
-import useProvidedItem from '@/composables/use-provided-item';
+import useDependency from '@/composables/use-dependency';
 import AuthenticationHandler from '@/authentication-handler';
 import { computed, onMounted, shallowReactive } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import utils from '@/utils/utils';
-import AuthenticationApiClient from '@/api-clients/authentication-api-client';
 import LoadingButton from '@/components/buttons/LoadingButton.vue';
 import NormalButton from '@/components/buttons/NormalButton.vue';
 import ContentBox from '@/components/ContentBox.vue';
+import { authenticationApiClientKey } from '@/dependency-provider/keys';
 
 const data = shallowReactive({
 	loggingInAs: null as {name: string, avatar: string|null}|null,
 	isLoggingIn: false,
 });
 
-const authenticationHandler = useProvidedItem(AuthenticationHandler);
-const authenticationApiClient = useProvidedItem(AuthenticationApiClient);
+const authenticationHandler = useDependency(AuthenticationHandler);
+const authenticationApiClient = useDependency(authenticationApiClientKey);
 const router = useRouter();
 const route = useRoute();
 

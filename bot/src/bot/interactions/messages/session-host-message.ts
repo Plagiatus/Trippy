@@ -1,14 +1,13 @@
 import { Message, ActionRowBuilder, ButtonBuilder } from "discord.js";
-import Provider from "../../../shared/provider/provider";
+import DependencyProvider from "../../../shared/dependency-provider/dependency-provider";
 import Session from "../../../session/session";
 import DiscordClient, { ChannelParameterType } from "../../discord-client";
 import endSessionButton from "../buttons/end-session-button";
-import createEditSessionButton from "../buttons/create-edit-session-button";
 import { SimpleMessageData } from "../../../types/document-types";
 import editSessionLinkMakerButton from "../buttons/edit-session-link-maker-button";
 
 export default class SessionHostMessage {
-	private constructor(private readonly provider: Provider, private readonly message: Message) {
+	private constructor(private readonly provider: DependencyProvider, private readonly message: Message) {
 		
 	}
 
@@ -19,7 +18,7 @@ export default class SessionHostMessage {
 		}
 	}
 
-	public static async recreate(provider: Provider, session: Session, data: SimpleMessageData) {
+	public static async recreate(provider: DependencyProvider, session: Session, data: SimpleMessageData) {
 		const discordClient = provider.get(DiscordClient);
 		const message = await discordClient.getMessage(data.channelId, data.messageId);
 		if (!message) {
@@ -31,7 +30,7 @@ export default class SessionHostMessage {
 		return hostMessage;
 	}
 
-	public static async createNew(provider: Provider, session: Session, channelId: ChannelParameterType) {
+	public static async createNew(provider: DependencyProvider, session: Session, channelId: ChannelParameterType) {
 		const discordClient = provider.get(DiscordClient);
 
 		const message = await discordClient.sendMessage(channelId, {

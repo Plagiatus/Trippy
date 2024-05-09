@@ -12,14 +12,14 @@
 
 <script setup lang="ts">
 import ImageApiClient from '@/api-clients/image-api-client';
-import useProvidedItem from '@/composables/use-provided-item';
+import useDependency from '@/composables/use-dependency';
 import { SimplifiedSessionInformationDto } from '$/types/dto-types';
 
 defineProps<{
 	session: SimplifiedSessionInformationDto
 }>();
 
-const imageApiClient = useProvidedItem(ImageApiClient);
+const imageApiClient = useDependency(ImageApiClient);
 </script>
 
 <style scoped>

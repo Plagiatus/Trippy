@@ -9,14 +9,12 @@ export default function useIsSlotEmpty(slot: string = "default") {
 		const childrenRender = slots[slot];
 		if (!childrenRender) {
 			isRenderingComponent.value = false;
-			console.log("a");
 			return;
 		}
 
 		const children = childrenRender();
 		if (children.length === 0) {
 			isRenderingComponent.value = false;
-			console.log("b");
 			return;
 		}
 

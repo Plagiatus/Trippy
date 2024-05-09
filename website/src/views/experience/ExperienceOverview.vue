@@ -53,18 +53,16 @@ import LoadingButton from '@/components/buttons/LoadingButton.vue';
 import NormalButton from '@/components/buttons/NormalButton.vue';
 import YesNoDialog from '@/components/dialogs/YesNoDialog.vue';
 import useLoadData from '@/composables/use-load-data';
-import useProvidedItem from '@/composables/use-provided-item';
+import useDependency from '@/composables/use-dependency';
 import useRandomTrippyMessage from '@/composables/use-random-trippy-message';
-import useTrippyMessage from '@/composables/use-trippy-message';
 import { computed, shallowReactive, shallowRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-const experienceApiClient = useProvidedItem(ExperienceApiClient);
-const imageApiClient = useProvidedItem(ImageApiClient);
+const experienceApiClient = useDependency(ExperienceApiClient);
+const imageApiClient = useDependency(ImageApiClient);
 const route = useRoute();
 const router = useRouter();
 const experienceResponse = useLoadData(() => experienceApiClient.getExperience(route.params.experienceId + ""), () => !!route.params.experienceId);
-const randoMessage = useTrippyMessage();
 
 const deleteExperienceRef = shallowRef<InstanceType<typeof YesNoDialog>>();
 

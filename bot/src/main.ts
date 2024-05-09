@@ -2,7 +2,7 @@ import WebResponses from "./api/responses";
 import { WebServer } from "./api/web-server";
 import Config from "./config";
 import DatabaseClient from "./database-client";
-import Provider from "./shared/provider/provider";
+import DependencyProvider from "./shared/dependency-provider/dependency-provider";
 import DiscordClient from "./bot/discord-client";
 import ErrorHandler from "./bot/error-handler";
 import InteractionCollection from "./bot/interaction-collection";
@@ -12,24 +12,26 @@ import AuthenticationService from "./authentication-service";
 import TimeHelper from "./time-helper";
 import RecommendationHelper from "./recommendation-helper";
 import BlueprintHelper from "./blueprint-helper";
+import { isAuthenticatedGuardFactory, isAuthenticatedGuardKey } from "./api/guards/is-authenticated-guard";
 
 async function start(){
 	console.log("Starting...");
 
-	const provider = new Provider()
+	const provider = new DependencyProvider()
 		.addFactory(Config, () => Config.loadConfigFile(Config.getEnvironmentConfigPath()))
-		.add(DatabaseClient)
-		.add(WebServer)
-		.add(WebResponses)
-		.add(DiscordClient)
-		.add(ErrorHandler)
-		.add(SessionsCollection)
-		.add(Impersonation)
-		.add(AuthenticationService)
-		.add(InteractionCollection)
-		.add(TimeHelper)
-		.add(RecommendationHelper)
-		.add(BlueprintHelper);
+		.addConstructor(DatabaseClient)
+		.addConstructor(WebServer)
+		.addConstructor(WebResponses)
+		.addConstructor(DiscordClient)
+		.addConstructor(ErrorHandler)
+		.addConstructor(SessionsCollection)
+		.addConstructor(Impersonation)
+		.addConstructor(AuthenticationService)
+		.addFactory(InteractionCollection, () => new InteractionCollection())
+		.addConstructor(TimeHelper)
+		.addConstructor(RecommendationHelper)
+		.addConstructor(BlueprintHelper)
+		.addFactory(isAuthenticatedGuardKey, isAuthenticatedGuardFactory);
 
 	await provider.get(DatabaseClient).connect();
 	console.log("Connected to database...");

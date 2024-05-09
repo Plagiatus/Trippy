@@ -1,5 +1,5 @@
 import DiscordClient, { ChannelParameterType } from "../../discord-client";
-import Provider from "../../../shared/provider/provider";
+import DependencyProvider from "../../../shared/dependency-provider/dependency-provider";
 import joinSessionButton from "../buttons/join-session-button";
 import Session from "../../../session/session";
 import constants from "../../../utils/constants";
@@ -11,7 +11,7 @@ import DatabaseClient from "../../../database-client";
 import TimeHelper from "../../../time-helper";
 
 export default class SessionAnnouncementMessage {
-	private constructor(private readonly provider: Provider, private readonly message: Message, private lastImageId: string|undefined|null) {
+	private constructor(private readonly provider: DependencyProvider, private readonly message: Message, private lastImageId: string|undefined|null) {
 		
 	}
 
@@ -19,7 +19,7 @@ export default class SessionAnnouncementMessage {
 		return {messageId: this.message.id, channelId: this.message.channelId}
 	}
 
-	public static async recreate(provider: Provider, session: Session, data: SimpleMessageData) {
+	public static async recreate(provider: DependencyProvider, session: Session, data: SimpleMessageData) {
 		const discordClient = provider.get(DiscordClient);
 		const message = await discordClient.getMessage(data.channelId, data.messageId);
 		if (!message) {
@@ -31,7 +31,7 @@ export default class SessionAnnouncementMessage {
 		return announcementMessage;
 	}
 
-	public static async createNew(provider: Provider, session: Session, channel: ChannelParameterType, maySendPing: boolean) {
+	public static async createNew(provider: DependencyProvider, session: Session, channel: ChannelParameterType, maySendPing: boolean) {
 		const discordClient = provider.get(DiscordClient);
 		const embedAndFiles = await SessionAnnouncementMessage.createEmbed(provider, session);
 
@@ -70,7 +70,7 @@ export default class SessionAnnouncementMessage {
 		await this.message.delete();
 	}
 
-	private static async createEmbed(provider: Provider, session: Session, lastImageId?: string|null) {
+	private static async createEmbed(provider: DependencyProvider, session: Session, lastImageId?: string|null) {
 		const databaseClient = provider.get(DatabaseClient);
 		const timeHelper = provider.get(TimeHelper);
 		

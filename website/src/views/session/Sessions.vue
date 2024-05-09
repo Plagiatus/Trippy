@@ -44,11 +44,11 @@ import ErrorDisplay from '@/components/ErrorDisplay.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import NormalButton from '@/components/buttons/NormalButton.vue';
 import useLoadData from '@/composables/use-load-data';
-import useProvidedItem from '@/composables/use-provided-item';
+import useDependency from '@/composables/use-dependency';
 import SmallSessionDisplay from './SmallSessionDisplay.vue';
 import useTrippyInformationMessage from '@/composables/use-trippy-information-message';
 
-const sessionsApiClient = useProvidedItem(SessionApiClient);
+const sessionsApiClient = useDependency(SessionApiClient);
 const sessionResponse = useLoadData(() => sessionsApiClient.getUsersSessions());
 
 useTrippyInformationMessage("You need an explanation of this page?\n\nHere you can start your next session.\n\nYou can also view your current session\nand older sessions you have been in.");

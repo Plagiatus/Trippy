@@ -1,6 +1,5 @@
 import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v10";
-import Provider from "./shared/provider/provider";
 import Config from "./config";
 import { AccessTokenResponse, UserObject } from "./types/discord-types";
 import DatabaseClient from "./database-client";
@@ -8,22 +7,20 @@ import DiscordClient from "./bot/discord-client";
 import jsonWebToken, { SignOptions } from "jsonwebtoken";
 import RecommendationHelper from "./recommendation-helper";
 import { TokenAndRefreshInformationDto } from "./shared/types/dto-types";
+import injectDependency from "./shared/dependency-provider/inject-dependency";
 
 export default class AuthenticationService {
 	private static readonly loginTokenExpireTime = 24 * 60 * 60 * 1000; // 24 hours
 	private static readonly jwtExpireTime = 15 * 60 * 1000; // 15 minutes
 	private static readonly refreshTokenExpireTime = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-	private readonly config: Config;
-	private readonly dbClient: DatabaseClient;
-	private readonly discordClient: DiscordClient;
-	private readonly recommendationHelper: RecommendationHelper; 
+	private readonly config = injectDependency(Config);
+	private readonly dbClient = injectDependency(DatabaseClient);
+	private readonly discordClient = injectDependency(DiscordClient);
+	private readonly recommendationHelper = injectDependency(RecommendationHelper); 
 
-	public constructor(provider: Provider) {
-		this.config = provider.get(Config);
-		this.dbClient = provider.get(DatabaseClient);
-		this.discordClient = provider.get(DiscordClient);
-		this.recommendationHelper = provider.get(RecommendationHelper);
+	public constructor() {
+		
 	}
 
 	public async authenticateFromAuthorizationCode(code: string): Promise<TokenAndRefreshInformationDto> {

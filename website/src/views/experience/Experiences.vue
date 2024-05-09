@@ -23,11 +23,11 @@ import ErrorDisplay from '@/components/ErrorDisplay.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import NormalButton from '@/components/buttons/NormalButton.vue';
 import useLoadData from '@/composables/use-load-data';
-import useProvidedItem from '@/composables/use-provided-item';
+import useDependency from '@/composables/use-dependency';
 import SmallExperienceDisplay from './SmallExperienceDisplay.vue';
 import useTrippyInformationMessage from '@/composables/use-trippy-information-message';
 
-const experienceApiClient = useProvidedItem(ExperienceApiClient);
+const experienceApiClient = useDependency(ExperienceApiClient);
 const experiencesResponse = useLoadData(() => experienceApiClient.getUsersExperiences());
 
 useTrippyInformationMessage("You need an explanation of this page?\n\nHere you can view and edit your experiences.\n\nExperiences can be used as templates for your session\nand connects your sessions together.");

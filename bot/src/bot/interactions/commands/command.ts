@@ -1,12 +1,12 @@
-import { ChatInputCommandInteraction, GuildMember, SlashCommandBuilder, User } from "discord.js";
-import Provider from "../../../shared/provider/provider";
+import { ChatInputCommandInteraction, GuildMember, SlashCommandBuilder} from "discord.js";
+import DependencyProvider from "../../../shared/dependency-provider/dependency-provider";
 
 export default abstract class Command {
 	public constructor(public readonly name: string) {
 
 	}
 
-	public abstract create(context: CommandCreationContext): Omit<SlashCommandBuilder,`add${string}`> | Promise<Omit<SlashCommandBuilder,`add${string}`>>;
+	public abstract create(context: CommandCreationContext): Omit<SlashCommandBuilder,`${"add"|"set"}${string}`> | Promise<Omit<SlashCommandBuilder,`${"add"|"set"}${string}`>>;
 
 	public isCommandName(commandName: string): boolean {
 		return this.name === commandName;
@@ -21,12 +21,12 @@ export default abstract class Command {
 }
 
 export type CommandCreationContext = {
-	provider: Provider;
+	provider: DependencyProvider;
 }
 
 export type CommandExecutionContext = {
 	interaction: ChatInputCommandInteraction;
-	provider: Provider;
+	provider: DependencyProvider;
 	interactor: GuildMember;
 	getMemberOption: (name: string) => Promise<GuildMember|null>;
 }

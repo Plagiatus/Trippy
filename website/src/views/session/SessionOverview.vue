@@ -63,15 +63,15 @@ import ErrorDisplay from '@/components/ErrorDisplay.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import NormalButton from '@/components/buttons/NormalButton.vue';
 import useLoadData from '@/composables/use-load-data';
-import useProvidedItem from '@/composables/use-provided-item';
+import useDependency from '@/composables/use-dependency';
 import useRandomTrippyMessage from '@/composables/use-random-trippy-message';
 import TimeHelper from '@/time-helper';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
-const sessionApiClient = useProvidedItem(SessionApiClient);
-const imageApiClient = useProvidedItem(ImageApiClient);
-const timeHelper = useProvidedItem(TimeHelper);
+const sessionApiClient = useDependency(SessionApiClient);
+const imageApiClient = useDependency(ImageApiClient);
+const timeHelper = useDependency(TimeHelper);
 const route = useRoute();
 const sessionResponse = useLoadData(() => sessionApiClient.getSessionInformation(route.params.sessionId + ""), () => !!route.params.sessionId);
 

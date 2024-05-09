@@ -15,11 +15,11 @@
 </template>
 
 <script setup lang="ts">
-import useProvidedItem from '@/composables/use-provided-item';
+import useDependency from '@/composables/use-dependency';
 import TrippyController from '@/trippy-controller';
 import { computed, shallowReactive, watch } from 'vue';
 
-const controller = useProvidedItem(TrippyController);
+const controller = useDependency(TrippyController);
 
 const data = shallowReactive({
 	displayingMessage: controller.currentMessage,

@@ -1,8 +1,9 @@
 import AuthenticationService from "../../authentication-service";
+import injectDependency from "../../shared/dependency-provider/inject-dependency";
 import RouteMaker from "../route";
 
-export default (({server, responses, provider}) => { 
-	const userAuthenticator = provider.get(AuthenticationService);
+export default (({server, responses}) => { 
+	const userAuthenticator = injectDependency(AuthenticationService);
 
     server.route("/authentication/code")
         .post(async (req, res) => {

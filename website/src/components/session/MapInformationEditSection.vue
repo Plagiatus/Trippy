@@ -22,7 +22,7 @@ import InputSelect from '@/components/inputs/InputSelect.vue';
 import { PartialSessionBlueprint, SessionBlueprint } from '$/types/session-blueprint-types';
 import ContentBox from '../ContentBox.vue';
 import NormalButton from '../buttons/NormalButton.vue';
-import useProvidedItem from '@/composables/use-provided-item';
+import useDependency from '@/composables/use-dependency';
 import FileAccess from '@/file-access';
 import TransitionSize from '../TransitionSize.vue';
 import { shallowReactive } from 'vue';
@@ -38,9 +38,9 @@ const data = shallowReactive({
 })
 const image = defineModel<Blob|null>("image");
 
-const imageApiClient = useProvidedItem(ImageApiClient);
-const fileAccess = useProvidedItem(FileAccess);
-const authenticationHandler = useProvidedItem(AuthenticationHandler);
+const imageApiClient = useDependency(ImageApiClient);
+const fileAccess = useDependency(FileAccess);
+const authenticationHandler = useDependency(AuthenticationHandler);
 
 const categoryOptions: InputSelectValueType<SessionBlueprint["category"]>[] = [
 	{value: "ctm", name: "CTM"},

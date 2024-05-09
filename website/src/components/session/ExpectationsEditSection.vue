@@ -21,7 +21,7 @@ import { PartialSessionBlueprint, SessionBlueprint, SessionType } from '$/types/
 import ContentBox from '../ContentBox.vue';
 import { InputSelectValueType } from '@/types/types';
 import useLoadData from '@/composables/use-load-data';
-import useProvidedItem from '@/composables/use-provided-item';
+import useDependency from '@/composables/use-dependency';
 import SettingsApiClient from '@/api-clients/settings-api-client';
 import { computed } from 'vue';
 import useTrippyMessage from '@/composables/use-trippy-message';
@@ -30,7 +30,7 @@ const props = defineProps<{
 	sessionBlueprint: PartialSessionBlueprint;
 }>();
 
-const settingsApiClient = useProvidedItem(SettingsApiClient);
+const settingsApiClient = useDependency(SettingsApiClient);
 const multipliersResponse = useLoadData(() => settingsApiClient.getPlayTypeMultipliers());
 const multiplierWarningMessage = useTrippyMessage();
 

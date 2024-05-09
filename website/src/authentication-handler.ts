@@ -1,11 +1,9 @@
 import { Ref, shallowRef } from "vue";
-import Provider from "$/provider/provider";
-import RouterWrapper from "./router";
 import Storage from "./storage";
-import AuthenticationApiClient from "./api-clients/authentication-api-client";
 import utils from "./utils/utils";
-import { Router } from "vue-router";
 import { TokenAndRefreshInformationDto } from "$/types/dto-types";
+import { getAuthenticationApiClient, getRouter } from "./dependency-provider/keys";
+import injectDependency from "$/dependency-provider/inject-dependency";
 
 type RefreshInformation = {
 	jwtExpiresAt: number;
@@ -42,19 +40,15 @@ export default class AuthenticationHandler {
 	private static readonly refreshInformationStorageKey = "jwtRefreshInformation";
 	private static readonly useInformationStorageKey = "userInformation";
 
-	private readonly storage: Storage;
-	private readonly authenticationApiClient: AuthenticationApiClient;
-	private readonly router: Router;
+	private readonly storage = injectDependency(Storage);
+	private readonly authenticationApiClient = getAuthenticationApiClient();
+	private readonly router = getRouter({reference: true});
 
 	private readonly changeableUserInformationRef: Ref<UserInformation|null>;
 	private ongoingJwtGetPromise: Promise<string|null>|null;
 	private jwt: string|null;
 
-	public constructor(provider: Provider) {
-		this.storage = provider.get(Storage);
-		this.authenticationApiClient = provider.get(AuthenticationApiClient);
-		this.router = provider.get(RouterWrapper).router;
-
+	public constructor() {
 		const userInformation = this.storage.get<UserInformation>(AuthenticationHandler.useInformationStorageKey);
 		this.changeableUserInformationRef = shallowRef(userInformation ?? null);
 		this.jwt = null;
@@ -192,7 +186,7 @@ export default class AuthenticationHandler {
 
 	public logout() {
 		this.setJwt(null);
-		this.router.push({name: "Home"});
+		this.router.value.push({name: "Home"});
 	}
 
 	protected setJwt(newJwt: string|null) {
@@ -224,7 +218,7 @@ export default class AuthenticationHandler {
 
 	private get defaultAuthenticatedRedirectUrl() {
 		const origin = new URL(location.href).origin;
-		const authenticatedPath = this.router.resolve({name: "Login.Authenticated"}).fullPath;
+		const authenticatedPath = this.router.value.resolve({name: "Login.Authenticated"}).fullPath;
 		return origin + authenticatedPath;
 	}
 

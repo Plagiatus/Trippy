@@ -3,7 +3,7 @@ import DatabaseClient from "../../../database-client";
 import Command, { CommandExecutionContext } from "./command";
 import BansRepository from "../../../repositories/bans-repository";
 import { ChatInputCommandInteraction, GuildMember } from "discord.js";
-import Provider from "../../../shared/provider/provider";
+import DependencyProvider from "../../../shared/dependency-provider/dependency-provider";
 import ModLogMessages from "../messages/mod-log-messages";
 
 class BanCommand extends Command {
@@ -49,7 +49,7 @@ class BanCommand extends Command {
 		}
 	}
 
-	private async handleBanSubCommand(provider: Provider, bans: BansRepository, interaction: ChatInputCommandInteraction, interactor: GuildMember, getMemberOption: CommandExecutionContext["getMemberOption"]) {
+	private async handleBanSubCommand(provider: DependencyProvider, bans: BansRepository, interaction: ChatInputCommandInteraction, interactor: GuildMember, getMemberOption: CommandExecutionContext["getMemberOption"]) {
 		await interaction.deferReply({ ephemeral: true });
 		const userToBan = await getMemberOption("user");
 		if (!userToBan) {
@@ -75,7 +75,7 @@ class BanCommand extends Command {
 		}
 	}
 
-	private async handleUnbanSubCommand(provider: Provider, bans: BansRepository, interaction: ChatInputCommandInteraction, interactor: GuildMember, getMemberOption: CommandExecutionContext["getMemberOption"]) {
+	private async handleUnbanSubCommand(provider: DependencyProvider, bans: BansRepository, interaction: ChatInputCommandInteraction, interactor: GuildMember, getMemberOption: CommandExecutionContext["getMemberOption"]) {
 		await interaction.deferReply({ ephemeral: true });
 		const userToUnban = await getMemberOption("user");
 		if (!userToUnban) {

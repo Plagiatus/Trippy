@@ -1,19 +1,20 @@
 import { ButtonInteraction, ChatInputCommandInteraction, GuildMember } from "discord.js";
 import utils from "../utils/utils";
-import Provider from "../shared/provider/provider";
+import DependencyProvider from "../shared/dependency-provider/dependency-provider";
 import Command from "./interactions/commands/command";
 import ActionButton from "./interactions/buttons/action-button";
 import DiscordClient from "./discord-client";
+import injectDependency from "../shared/dependency-provider/inject-dependency";
 
 export default class InteractionCollection {
 	public readonly commands: ReadonlyArray<Command>;
 	public readonly buttons: ReadonlyArray<ActionButton>;
-	private readonly discordClient: DiscordClient;
+	private readonly discordClient = injectDependency(DiscordClient, {reference: true});
+	private readonly dependencyProvider = DependencyProvider.activeProvider
 
-	public constructor(private readonly provider: Provider, interactions?: {commands?: ReadonlyArray<Command>, buttons?: ReadonlyArray<ActionButton>}) {
+	public constructor(interactions?: {commands?: ReadonlyArray<Command>, buttons?: ReadonlyArray<ActionButton>}) {
 		this.commands = interactions?.commands ?? InteractionCollection.importCommands();
 		this.buttons = interactions?.buttons ?? InteractionCollection.importButtons();
-		this.discordClient = provider.get(DiscordClient);
 	}
 
 	public async executeCommandInteraction(id: string, interaction: ChatInputCommandInteraction, interactor: GuildMember) {
@@ -26,14 +27,14 @@ export default class InteractionCollection {
 		await command.handleExecution({
 			interaction: interaction,
 			interactor: interactor,
-			provider: this.provider,
+			provider: this.dependencyProvider,
 			getMemberOption: (async (name) => {
 				const user = interaction.options.getUser(name);
 				if (!user) {
 					return null;
 				}
 	
-				const member = await this.discordClient.getMember(user.id);
+				const member = await this.discordClient.value.getMember(user.id);
 				return member;
 			}),
 		});
@@ -50,8 +51,8 @@ export default class InteractionCollection {
 				buttonParameters: result,
 				interaction: interaction,
 				interactor: interactor,
-				provider: this.provider,
-			})
+				provider: this.dependencyProvider,
+			});
 			return;
 		}
 

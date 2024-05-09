@@ -1,12 +1,12 @@
 import { createRouter, createWebHistory, Router } from 'vue-router';
 import Home from "@/views/Home.vue";
-import Provider from '$/provider/provider';
+import DependencyProvider from '$/dependency-provider/dependency-provider';
 import AuthenticationHandler from './authentication-handler';
 
 export default class RouterWrapper {
 	public readonly router: Router;
 
-	public constructor(provider: Provider) {
+	public constructor(provider: DependencyProvider) {
 		this.router = this.createRouter();
 		this.setupAuthentication(provider);
 	}
@@ -35,7 +35,7 @@ export default class RouterWrapper {
 		});
 	}
 
-	private setupAuthentication(provider: Provider) {
+	private setupAuthentication(provider: DependencyProvider) {
 		const authenticationHandler = provider.get(AuthenticationHandler);
 		this.router.beforeEach((to, from, next) => {
 			if (to.meta.anonymous || authenticationHandler.isLoggedIn()) {

@@ -1,6 +1,6 @@
-import { PermissionFlagsBits, ChatInputCommandInteraction, GuildMember } from "discord.js";
+import { PermissionFlagsBits, ChatInputCommandInteraction } from "discord.js";
 import Impersonation from "../../../impersonation";
-import Command, { CommandCreationContext, CommandExecutionContext } from "./command";
+import Command, { CommandExecutionContext } from "./command";
 
 class ImpersonateCommand extends Command {
 	public constructor() {

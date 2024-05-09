@@ -1,5 +1,5 @@
 import { Message, ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "discord.js";
-import Provider from "../../../shared/provider/provider";
+import DependencyProvider from "../../../shared/dependency-provider/dependency-provider";
 import Session from "../../../session/session";
 import constants from "../../../utils/constants";
 import sessionEmbedUtils from "../../../utils/session-embed-utils";
@@ -10,7 +10,7 @@ import { SimpleMessageData } from "../../../types/document-types";
 import stillActiveButton from "../buttons/still-active-button";
 
 export default class SessionInformationMessage {
-	private constructor(private readonly provider: Provider, private readonly message: Message) {
+	private constructor(private readonly provider: DependencyProvider, private readonly message: Message) {
 		
 	}
 
@@ -21,7 +21,7 @@ export default class SessionInformationMessage {
 		};
 	}
 
-	public static async recreate(provider: Provider, session: Session, data: SimpleMessageData) {
+	public static async recreate(provider: DependencyProvider, session: Session, data: SimpleMessageData) {
 		const discordClient = provider.get(DiscordClient);
 		const message = await discordClient.getMessage(data.channelId, data.messageId);
 		if (!message) {
@@ -33,7 +33,7 @@ export default class SessionInformationMessage {
 		return informationMessage;
 	}
 
-	public static async createNew(provider: Provider, session: Session, channelId: ChannelParameterType) {
+	public static async createNew(provider: DependencyProvider, session: Session, channelId: ChannelParameterType) {
 		const discordClient = provider.get(DiscordClient);
 		const message = await discordClient.sendMessage(channelId, {
 			embeds: [
@@ -63,7 +63,7 @@ export default class SessionInformationMessage {
 		await this.message.delete();
 	}
 
-	private static async createEmbed(provider: Provider, session: Session) {
+	private static async createEmbed(provider: DependencyProvider, session: Session) {
 		const host = await session.getHost();
 		const embedBuilder = new EmbedBuilder()
 			.setTitle(session.blueprint.name)

@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
-import useProvidedItem from '@/composables/use-provided-item';
+import useDependency from '@/composables/use-dependency';
 import AuthenticationHandler from '@/authentication-handler';
 import { onMounted, shallowReactive } from 'vue';
 import { useRouter } from 'vue-router';
@@ -19,7 +19,7 @@ const data = shallowReactive({
 	failedAuthentication: false,
 });
 
-const authenticationHandler = useProvidedItem(AuthenticationHandler);
+const authenticationHandler = useDependency(AuthenticationHandler);
 const router = useRouter();
 
 onMounted(() => {

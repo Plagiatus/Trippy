@@ -1,16 +1,11 @@
 import AuthenticationHandler from "@/authentication-handler";
 import Config from "@/config";
-import Provider from "$/provider/provider";
 import { ApiResponse } from "@/types/types";
+import injectDependency from "$/dependency-provider/inject-dependency";
 
 export default abstract class BaseApiClient {
-	protected readonly config: Config;
-	private readonly authenticationHandler: AuthenticationHandler;
-
-	public constructor(provider: Provider) {
-		this.config = provider.get(Config);
-		this.authenticationHandler = provider.get(AuthenticationHandler);
-	}
+	protected readonly config = injectDependency(Config);
+	private readonly authenticationHandler = injectDependency(AuthenticationHandler, {reference: true});
 
 	protected async get<TResult>(path: string, params?: Record<string,string>, options?: {useAuth?: boolean}) {
 		return this.wrapRequest<TResult>(async () => {
@@ -75,7 +70,7 @@ export default abstract class BaseApiClient {
 			return {};
 		}
 
-		const jwt = await this.authenticationHandler.getJwt();
+		const jwt = await this.authenticationHandler.value.getJwt();
 		if (!jwt) {
 			return {};
 		}

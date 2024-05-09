@@ -7,16 +7,18 @@ import RecommendationHelper from "../../recommendation-helper";
 import registerCommand from "../../bot/interactions/commands/register-command";
 import { RawSession } from "../../types/document-types";
 import BlueprintHelper from "../../blueprint-helper";
+import injectDependency from "../../shared/dependency-provider/inject-dependency";
+import { getIsAuthenticatedGuard } from "../guards/is-authenticated-guard";
 
-export default (({server, responses, provider, isAuthenticatedGuard}) => { 
-    const sessionsCollection = provider.get(SessionsCollection);
-    const databaseClient = provider.get(DatabaseClient);
-    const discordClient = provider.get(DiscordClient);
-    const recommendationHelper = provider.get(RecommendationHelper);
-    const blueprintHelper = provider.get(BlueprintHelper);
+export default (({server, responses}) => { 
+    const sessionsCollection = injectDependency(SessionsCollection);
+    const databaseClient = injectDependency(DatabaseClient);
+    const discordClient = injectDependency(DiscordClient);
+    const recommendationHelper = injectDependency(RecommendationHelper);
+    const blueprintHelper = injectDependency(BlueprintHelper);
 
     server.route("/session/millisecondsTillPing")
-        .get(isAuthenticatedGuard, async (req, res) => {
+        .get(getIsAuthenticatedGuard(), async (req, res) => {
             const userData = await databaseClient.userRepository.get(req.userId!);
 			const millisecondsTillNextPing = recommendationHelper.getMillisecondsTillNextAllowedPing(userData);
 
@@ -24,7 +26,7 @@ export default (({server, responses, provider, isAuthenticatedGuard}) => {
         })
         .all(responses.wrongMethod);
 
-    server.get("/session/:id", isAuthenticatedGuard, async (req, res) => {
+    server.get("/session/:id", getIsAuthenticatedGuard(), async (req, res) => {
         const rawSession = await databaseClient.sessionRepository.get(req.params.id);
         if (!rawSession) {
             return responses.sendCustomError(`Unable to get session with id "${req.params.id}".`, res);
@@ -52,7 +54,7 @@ export default (({server, responses, provider, isAuthenticatedGuard}) => {
         });
     });
 
-    server.get("/session", isAuthenticatedGuard, async (req, res) => {
+    server.get("/session", getIsAuthenticatedGuard(), async (req, res) => {
         const hostingSession = sessionsCollection.getHostedSession(req.userId!);
         const inSession = sessionsCollection.getJoinedSession(req.userId!);
 
@@ -81,7 +83,7 @@ export default (({server, responses, provider, isAuthenticatedGuard}) => {
     });
 
     server.route("/session/:id?")
-        .post(isAuthenticatedGuard, async (req, res) => {
+        .post(getIsAuthenticatedGuard(), async (req, res) => {
             const noneValidatedBlueprint = typeof req.body === "object" && "blueprint" in req.body ? JSON.parse(req.body.blueprint) : null;
             const forExperienceId = typeof req.body === "object" && "experienceId" in req.body && typeof req.body.experienceId === "string" ? req.body.experienceId + "" : "";
             const removeImage = typeof req.body === "object" && "removeImage" in req.body;

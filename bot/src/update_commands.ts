@@ -1,15 +1,19 @@
 import { Routes } from "discord-api-types/v10";
 import Config from "./config";
 import InteractionCollection from "./bot/interaction-collection";
-import Provider from "./shared/provider/provider";
+import DependencyProvider from "./shared/dependency-provider/dependency-provider";
 import utils from "./utils/utils";
 import DiscordClient from "./bot/discord-client";
+import ErrorHandler from "./bot/error-handler";
+import Impersonation from "./impersonation";
 
 async function updateServerCommands() {
-	const provider = new Provider()
-		.add(DiscordClient)
+	const provider = new DependencyProvider()
+		.addConstructor(DiscordClient)
 		.addFactory(Config, () => Config.loadConfigFile(Config.getEnvironmentConfigPath()))
-		.add(InteractionCollection);
+		.addFactory(InteractionCollection, () => new InteractionCollection())
+		.addConstructor(ErrorHandler)
+		.addConstructor(Impersonation);
 
 	const interactionCollection = provider.get(InteractionCollection);
 	const config = provider.get(Config);

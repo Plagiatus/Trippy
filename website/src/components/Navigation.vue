@@ -21,12 +21,12 @@
 
 <script setup lang="ts">
 import AuthenticationHandler from "@/authentication-handler";
-import useProvidedItem from "@/composables/use-provided-item";
+import useDependency from "@/composables/use-dependency";
 import DiscordOAuthButton from "./buttons/DiscordOAuthButton.vue";
 import LoggedInUserDisplay from "./LoggedInUserDisplay.vue";
 import NavigationButton from "./buttons/NavigationButton.vue";
 
-const authenticationHandler = useProvidedItem(AuthenticationHandler);
+const authenticationHandler = useDependency(AuthenticationHandler);
 </script>
 
 <style>

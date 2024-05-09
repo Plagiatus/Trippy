@@ -1,81 +1,20 @@
-import Provider from "$/provider/provider";
 import { TokenAndRefreshInformationDto } from "$/types/dto-types";
-import Config from "@/config";
-import { ApiResponse } from "@/types/types";
+import BaseApiClient from "./base-api-client";
 
-// Can't extend BaseApiClient because it creates a dependency loop.
-export default class AuthenticationApiClient {
-	private readonly config: Config;
-
-	public constructor(provider: Provider) {
-		this.config = provider.get(Config);
-	}
-
+export default class AuthenticationApiClient extends BaseApiClient {
 	public async authenticateUsingAuthorizationCode(code: string) {
-		return this.post<TokenAndRefreshInformationDto>(`authentication/code`, { code });
+		return this.post<TokenAndRefreshInformationDto>(`authentication/code`, { code }, {useAuth: false});
 	}
 
 	public async refreshJwt(refreshToken: string) {
-		return this.post<TokenAndRefreshInformationDto>(`authentication/refresh`, { refreshToken });
+		return this.post<TokenAndRefreshInformationDto>(`authentication/refresh`, { refreshToken }, {useAuth: false});
 	}
 
 	public async authenticateUsingLoginToken(token: string) {
-		return this.post<TokenAndRefreshInformationDto>(`authentication/login-token`, { token });
+		return this.post<TokenAndRefreshInformationDto>(`authentication/login-token`, { token }, {useAuth: false});
 	}
 
 	public async getInformationFromLoginToken(token: string) {
-		return this.get<{name: string, avatar: string|null}>(`authentication/login-token`, { token });
-	}
-
-	private async get<TResult>(path: string, params?: Record<string,string>) {
-		return this.wrapRequest<TResult>(async () => {
-			const url = new URL(this.getFullPath(path));
-			if (params) {
-				for (const [key,value] of Object.entries(params)) {
-					url.searchParams.set(key, value);
-				}
-			}
-
-			return await fetch(url, {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-				}
-			});
-		});
-	}
-
-	private async post<TResult>(path: string, data?: unknown) {
-		return this.wrapRequest<TResult>(async () => {
-			return await fetch(this.getFullPath(path), {
-				method: "POST",
-				body: data === undefined ? undefined : JSON.stringify(data),
-				headers: {
-					"Content-Type": "application/json",
-				}
-			});
-		});
-	}
-
-	private async wrapRequest<TResult>(wrapper: () => Promise<Response>): Promise<ApiResponse<TResult>> {
-		try {
-			const response = await wrapper();
-			if (!response.ok) {
-				const statusError = { status: response.status, statusText: response.statusText };
-				return { error: statusError, statusError: statusError}
-			}
-
-			const responseText = await response.text();
-			return { data: JSON.parse(responseText) };
-		} catch (error) {
-			return { error };
-		}
-	}
-
-	private getFullPath(path: string) {
-		if (path.startsWith("/")) {
-			return this.config.apiUrl + path;
-		}
-		return this.config.apiUrl + "/" + path;
+		return this.get<{name: string, avatar: string|null}>(`authentication/login-token`, { token }, {useAuth: false});
 	}
 }

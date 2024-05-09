@@ -6,7 +6,7 @@ import SessionAnnouncementMessage from "../bot/interactions/messages/session-ann
 import SessionHostMessage from "../bot/interactions/messages/session-host-message";
 import SessionInformationMessage from "../bot/interactions/messages/session-information-message";
 import Config from "../config";
-import Provider from "../shared/provider/provider";
+import DependencyProvider from "../shared/dependency-provider/dependency-provider";
 import constants from "../utils/constants";
 import Session from "./session";
 import { SessionChannels, SessionMessages, SessionRoles } from "../types/document-types";
@@ -33,7 +33,7 @@ export default class SessionDisplay {
 	private sessionRole?: Role;
 	private hostRole?: Role;
 
-	public constructor(private readonly provider: Provider, private readonly session: Session) {
+	public constructor(private readonly provider: DependencyProvider, private readonly session: Session) {
 		this.discordClient = provider.get(DiscordClient);
 		this.config = provider.get(Config);
 		this.errorHandler = provider.get(ErrorHandler);

@@ -22,12 +22,12 @@
 </template>
 
 <script setup lang="ts">
-import useProvidedItem from '@/composables/use-provided-item';
+import useDependency from '@/composables/use-dependency';
 import useTrippyMessage from '@/composables/use-trippy-message';
 import Config from '@/config';
 import { watchEffect } from 'vue';
 
-const config = useProvidedItem(Config);
+const config = useDependency(Config);
 const message = useTrippyMessage();
 
 watchEffect((cleanup) => {

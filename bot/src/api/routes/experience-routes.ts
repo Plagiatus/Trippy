@@ -5,15 +5,17 @@ import { ExperienceData } from "../../types/document-types";
 import RecommendationHelper from "../../recommendation-helper";
 import DiscordClient from "../../bot/discord-client";
 import BlueprintHelper from "../../blueprint-helper";
+import injectDependency from "../../shared/dependency-provider/inject-dependency";
+import { getIsAuthenticatedGuard } from "../guards/is-authenticated-guard";
 
-export default (({server, responses, provider, isAuthenticatedGuard}) => { 
-    const databaseClient = provider.get(DatabaseClient);
-    const recommendationHelper = provider.get(RecommendationHelper);
-    const discordClient = provider.get(DiscordClient);
-    const blueprintHelper = provider.get(BlueprintHelper);
+export default (({server, responses}) => { 
+    const databaseClient = injectDependency(DatabaseClient);
+    const recommendationHelper = injectDependency(RecommendationHelper);
+    const discordClient = injectDependency(DiscordClient);
+    const blueprintHelper = injectDependency(BlueprintHelper);
 
     server.route("/experience/:id?")
-        .get(isAuthenticatedGuard, async (req, res) => {
+        .get(getIsAuthenticatedGuard(), async (req, res) => {
             if (req.params.id) {
                 const experience = await databaseClient.experienceRepository.get(req.params.id);
                 if (!experience) {
@@ -40,7 +42,7 @@ export default (({server, responses, provider, isAuthenticatedGuard}) => {
                 }))
             })
         })
-        .post(isAuthenticatedGuard, async (req, res) => {
+        .post(getIsAuthenticatedGuard(), async (req, res) => {
             const blueprintData = typeof req.body === "object" && "defaultBlueprint" in req.body ? JSON.parse(req.body.defaultBlueprint) : null;
             const { validationResult, validatedValue } = blueprintHelper.valdiateSessionBlueprint(blueprintData);
             const removeImage = typeof req.body === "object" && "removeImage" in req.body;
@@ -95,7 +97,7 @@ export default (({server, responses, provider, isAuthenticatedGuard}) => {
                 experienceId: experienceId
             });
         })
-        .delete(isAuthenticatedGuard, async (req, res) => {
+        .delete(getIsAuthenticatedGuard(), async (req, res) => {
             if (!req.params.id) {
                 return;
 			}

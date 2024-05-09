@@ -1,12 +1,6 @@
 import { JavaVersion } from "@/types/types";
 
 export default class MojangApiClient {
-	private static readonly oldestVersion = 7;
-
-	public constructor() {
-
-	}
-
 	public async getJavaVersions() {
 		type VersionResponse = {
             "id": string;

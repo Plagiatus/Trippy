@@ -1,26 +1,24 @@
 import DiscordClient from "../bot/discord-client";
 import ErrorHandler from "../bot/error-handler";
 import DatabaseClient from "../database-client";
-import Provider from "../shared/provider/provider";
 import { RawSession } from "../types/document-types";
 import { SessionBlueprint } from "../shared/types/session-blueprint-types";
 import utils from "../utils/utils";
 import Session from "./session";
 import * as Discord from "discord.js";
+import injectDependency from "../shared/dependency-provider/inject-dependency";
+import DependencyProvider from "../shared/dependency-provider/dependency-provider";
 
 export default class SessionsCollection {
-	private readonly databaseClient: DatabaseClient;
-	private readonly errorHandler: ErrorHandler;
-	private readonly discordClient: DiscordClient;
+	private readonly databaseClient = injectDependency(DatabaseClient);
+	private readonly errorHandler = injectDependency(ErrorHandler);
+	private readonly discordClient = injectDependency(DiscordClient);
+	private readonly provider = DependencyProvider.activeProvider;
 
 	private readonly sessions: Session[];
 	private runningSessionsCount: number|null;
 	
-	public constructor(private readonly provider: Provider) {
-		this.databaseClient = provider.get(DatabaseClient);
-		this.errorHandler = provider.get(ErrorHandler);
-		this.discordClient = provider.get(DiscordClient);
-
+	public constructor() {
 		this.sessions = [];
 		this.runningSessionsCount = null;
 	}

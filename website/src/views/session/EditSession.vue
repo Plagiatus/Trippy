@@ -43,7 +43,7 @@ import ExpectationsEditSection from '@/components/session/ExpectationsEditSectio
 import JoinInformationEditSection from '@/components/session/JoinInformationEditSection.vue';
 import MapInformationEditSection from '@/components/session/MapInformationEditSection.vue';
 import SessionEditSection from '@/components/session/SessionEditSection.vue';
-import useProvidedItem from '@/composables/use-provided-item';
+import useDependency from '@/composables/use-dependency';
 import { useValidateableForm } from '@/composables/use-validateable-form';
 import { SessionInformationDto } from '$/types/dto-types';
 import { reactive, watchEffect } from 'vue';
@@ -57,7 +57,7 @@ const data = reactive({
 	newImage: undefined as undefined|Blob|null,
 });
 
-const sessionApiClient = useProvidedItem(SessionApiClient);
+const sessionApiClient = useDependency(SessionApiClient);
 const route = useRoute();
 const router = useRouter();
 const form = useValidateableForm();

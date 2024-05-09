@@ -27,7 +27,7 @@ import JoinInformationEditSection from '@/components/session/JoinInformationEdit
 import ExpectationsEditSection from '@/components/session/ExpectationsEditSection.vue';
 import SessionEditSection from '@/components/session/SessionEditSection.vue';
 import { useValidateableForm } from '@/composables/use-validateable-form';
-import useProvidedItem from '@/composables/use-provided-item';
+import useDependency from '@/composables/use-dependency';
 import SessionApiClient from '@/api-clients/session-api-client';
 import ErrorDisplay from '@/components/ErrorDisplay.vue';
 import Config from '@/config';
@@ -51,9 +51,9 @@ const sessionBlueprint = ref<PartialSessionBlueprint>({
 	voiceChannels: [],
 });
 
-const config = useProvidedItem(Config);
-const sessionApiClient = useProvidedItem(SessionApiClient);
-const experienceApiClient = useProvidedItem(ExperienceApiClient);
+const config = useDependency(Config);
+const sessionApiClient = useDependency(SessionApiClient);
+const experienceApiClient = useDependency(ExperienceApiClient);
 const form = useValidateableForm();
 const route = useRoute();
 const router = useRouter();

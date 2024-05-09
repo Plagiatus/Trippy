@@ -1,24 +1,22 @@
 import Config from "../config";
-import Provider from "../shared/provider/provider";
+import DependencyProvider from "../shared/dependency-provider/dependency-provider";
 import * as Discord from "discord.js";
 import ErrorHandler from "./error-handler";
 import InteractionCollection from "./interaction-collection";
 import Impersonation from "../impersonation";
+import injectDependency from "../shared/dependency-provider/inject-dependency";
 
 export type ChannelParameterType = (keyof Config["channelIds"]) | (string & {}) | Discord.Channel;
 export default class DiscordClient {
 	private readonly client: Discord.Client;
-	private readonly config: Config;
-	private readonly errorHandler: ErrorHandler;
-	private readonly impersonation: Impersonation;
-	private readonly interactionCollection: InteractionCollection;
+	private readonly config = injectDependency(Config);
+	private readonly errorHandler = injectDependency(ErrorHandler);
+	private readonly impersonation = injectDependency(Impersonation);
+	private readonly interactionCollection = injectDependency(InteractionCollection);
+	private readonly dependencyProvider = DependencyProvider.activeProvider;
 	public readonly restClient: Discord.REST;
 
-	public constructor(private readonly provider: Provider) {
-		this.config = provider.get(Config);
-		this.errorHandler = provider.get(ErrorHandler);
-		this.interactionCollection = provider.get(InteractionCollection);
-		this.impersonation = provider.get(Impersonation);
+	public constructor() {
 		this.client = new Discord.Client({ intents: [Discord.GatewayIntentBits.Guilds] });
 		this.addListeners();
 		this.restClient = new Discord.REST({ version: "10" }).setToken(this.config.discordApiToken);
@@ -42,7 +40,7 @@ export default class DiscordClient {
 	public async connect() {
 		return new Promise<void>(res => {
 			this.client.once("ready", () => res());
-			this.client.login(this.provider.get(Config).discordApiToken);
+			this.client.login(this.dependencyProvider.get(Config).discordApiToken);
 		});
 	}
 

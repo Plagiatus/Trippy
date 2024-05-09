@@ -22,7 +22,7 @@ import JoinInformationEditSection from '@/components/session/JoinInformationEdit
 import ExpectationsEditSection from '@/components/session/ExpectationsEditSection.vue';
 import SessionEditSection from '@/components/session/SessionEditSection.vue';
 import { useValidateableForm } from '@/composables/use-validateable-form';
-import useProvidedItem from '@/composables/use-provided-item';
+import useDependency from '@/composables/use-dependency';
 import ErrorDisplay from '@/components/ErrorDisplay.vue';
 import LoadingButton from '@/components/buttons/LoadingButton.vue';
 import ExperienceApiClient from '@/api-clients/experience-api-client';
@@ -40,7 +40,7 @@ const sessionBlueprint = ref<PartialSessionBlueprint>({
 	voiceChannels: [],
 });
 
-const experienceApiClient = useProvidedItem(ExperienceApiClient);
+const experienceApiClient = useDependency(ExperienceApiClient);
 const form = useValidateableForm();
 const router = useRouter();
 

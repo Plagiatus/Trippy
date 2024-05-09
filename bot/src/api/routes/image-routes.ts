@@ -1,8 +1,9 @@
 import RouteMaker from "../route";
 import DatabaseClient from "../../database-client";
+import injectDependency from "../../shared/dependency-provider/inject-dependency";
 
-export default (({server, responses, provider}) => { 
-    const databaseClient = provider.get(DatabaseClient);
+export default (({server, responses}) => { 
+    const databaseClient = injectDependency(DatabaseClient);
 
     server.route("/image/:id")
         .get(async (req, res) => {

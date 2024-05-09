@@ -1,5 +1,5 @@
 import { ButtonBuilder, ButtonInteraction, GuildMember } from "discord.js";
-import Provider from "../../../shared/provider/provider";
+import DependencyProvider from "../../../shared/dependency-provider/dependency-provider";
 
 export default abstract class ActionButton<TId extends string = string> {
 	public constructor(private readonly buttonId: TId) {
@@ -78,7 +78,7 @@ export default abstract class ActionButton<TId extends string = string> {
 export type ButtonClickContext<TId extends string> = {
 	buttonParameters: Record<ButtonParametersFromId<TId>,string>,
 	interaction: ButtonInteraction,
-	provider: Provider,
+	provider: DependencyProvider,
 	interactor: GuildMember,
 }
 

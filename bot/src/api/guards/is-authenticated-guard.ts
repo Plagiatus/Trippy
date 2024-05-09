@@ -1,9 +1,12 @@
-import { Request, Response, NextFunction } from "express";
-import Provider from "../../shared/provider/provider";
+import { Request, Response, NextFunction, RequestHandler } from "express";
 import AuthenticationService from "../../authentication-service";
+import injectDependency from "../../shared/dependency-provider/inject-dependency";
+import createInjectionKeyAndGetter from "../../shared/dependency-provider/create-injection-key-and-getter";
 
-export default function isAuthenticatedGuardFactory(provider: Provider) {
-	const userAuthenticator = provider.get(AuthenticationService);
+export const {key: isAuthenticatedGuardKey, getter: getIsAuthenticatedGuard} = createInjectionKeyAndGetter<RequestHandler>();
+
+export function isAuthenticatedGuardFactory() {
+	const userAuthenticator = injectDependency(AuthenticationService);
 
 	return async (req: Request, res: Response, next: NextFunction) => {
 		const authorizationHeader = req.headers["authorization"];

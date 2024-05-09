@@ -1,7 +1,7 @@
 import * as Discord from "discord.js";
 import Session from "./../session/session";
 import constants from "./constants";
-import Provider from "../shared/provider/provider";
+import DependencyProvider from "../shared/dependency-provider/dependency-provider";
 import DatabaseClient from "../database-client";
 import utils from "./utils";
 
@@ -172,7 +172,7 @@ class SessionEmbedUtils {
 		return {name: "Time Estimate", value: text};
 	}
 
-	public async createServerOrRealmsField(provider: Provider, session: Session): Promise<Discord.APIEmbedField> {
+	public async createServerOrRealmsField(provider: DependencyProvider, session: Session): Promise<Discord.APIEmbedField> {
 		if (session.blueprint.server.type === "realms") {
 			if (session.blueprint.server.owner) {
 				return {name: "Realms Host:", value: ":bust_in_silhouette: `" + session.blueprint.server.owner + "`"};

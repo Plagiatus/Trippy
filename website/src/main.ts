@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import providerPlugin from './provider/provider-plugin'
+import providerPlugin from './dependency-provider/provider-plugin'
 import Config from './config'
 import SessionApiClient from './api-clients/session-api-client'
 import MojangApiClient from './api-clients/mojang-api-client'
@@ -13,10 +13,11 @@ import ExperienceApiClient from './api-clients/experience-api-client'
 import FileAccess from './file-access'
 import ImageApiClient from './api-clients/image-api-client'
 import TimeHelper from './time-helper'
-import Provider from '$/provider/provider'
+import Provider from '$/dependency-provider/dependency-provider'
 import RouterWrapper from './router'
 import TrippyController from './trippy-controller'
 import SettingsApiClient from './api-clients/settings-api-client'
+import { authenticationApiClientKey, routerKey } from './dependency-provider/keys'
 
 const provider = new Provider()
 	.addFactory(Config, () => {
@@ -26,20 +27,20 @@ const provider = new Provider()
 			return new Config(prodConfig);
 		}
 	})
-	.add(SessionApiClient)
-	.add(MojangApiClient)
-	.add(AuthenticationApiClient)
-	.add(Storage)
-	.add(AuthenticationHandler)
-	.add(ExperienceApiClient)
-	.add(SettingsApiClient)
-	.add(FileAccess)
-	.add(ImageApiClient)
-	.add(TimeHelper)
-	.add(TrippyController)
-	.add(RouterWrapper);
+	.addConstructor(SessionApiClient)
+	.addConstructor(MojangApiClient)
+	.addConstructor(authenticationApiClientKey, AuthenticationApiClient)
+	.addConstructor(Storage)
+	.addConstructor(AuthenticationHandler)
+	.addConstructor(ExperienceApiClient)
+	.addConstructor(SettingsApiClient)
+	.addConstructor(FileAccess)
+	.addConstructor(ImageApiClient)
+	.addConstructor(TimeHelper)
+	.addConstructor(TrippyController)
+	.addFactory(routerKey, (provider) => new RouterWrapper(provider).router);
 
 createApp(App)
-	.use(provider.get(RouterWrapper).router)
+	.use(provider.get(routerKey))
 	.use(providerPlugin({ provider: provider }))
 	.mount('#app');

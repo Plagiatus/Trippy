@@ -1,11 +1,10 @@
-import Provider from "../shared/provider/provider";
 import { RawSession } from "../types/document-types";
 import Repository from "./repository";
 import * as Mongo from "mongodb";
 
 export default class SessionRepository extends Repository<RawSession,"uniqueId"> {
-	public constructor(provider: Provider, collection: Mongo.Collection<RawSession>) {
-		super(provider, collection, "uniqueId");
+	public constructor(collection: Mongo.Collection<RawSession>) {
+		super(collection, "uniqueId");
 	}
 	
 	public async getActiveSessions() {

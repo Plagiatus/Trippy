@@ -6,13 +6,13 @@
 </template>
 
 <script setup lang="ts">
-import useProvidedItem from '@/composables/use-provided-item';
+import useDependency from '@/composables/use-dependency';
 import Config from '@/config';
 import AuthenticationHandler from '@/authentication-handler';
 import NavigationButton from './NavigationButton.vue';
 
-const authenticationHandler = useProvidedItem(AuthenticationHandler);
-const config = useProvidedItem(Config);
+const authenticationHandler = useDependency(AuthenticationHandler);
+const config = useDependency(Config);
 
 function startOAuth() {
 	authenticationHandler.redirectToOAuth({

@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, User } 
 import Command, { CommandExecutionContext } from "./command";
 import DatabaseClient from "../../../database-client";
 import RecommendationHelper from "../../../recommendation-helper";
-import Provider from "../../../shared/provider/provider";
+import DependencyProvider from "../../../shared/dependency-provider/dependency-provider";
 import utils from "../../../utils/utils";
 import constants from "../../../utils/constants";
 import TimeHelper from "../../../time-helper";
@@ -86,7 +86,7 @@ class ImpersonateCommand extends Command {
 		}
 	}
 
-	private async handleGiveCommand(provider: Provider, interaction: ChatInputCommandInteraction, modifyUser: User, recommendation: number) {
+	private async handleGiveCommand(provider: DependencyProvider, interaction: ChatInputCommandInteraction, modifyUser: User, recommendation: number) {
 		const databaseClient = provider.get(DatabaseClient);
 		const recommendationHelper = provider.get(RecommendationHelper);
 		const forceChange = interaction.options.getBoolean("force");
@@ -101,7 +101,7 @@ class ImpersonateCommand extends Command {
 		await this.replyWithOldAndNew(interaction, modifyUser, oldScore, oldTotalScore, newScore, newTotalScore);
 	}
 
-	private async handleSetCommand(provider: Provider, interaction: ChatInputCommandInteraction, modifyUser: User, recommendation: number) {
+	private async handleSetCommand(provider: DependencyProvider, interaction: ChatInputCommandInteraction, modifyUser: User, recommendation: number) {
 		const databaseClient = provider.get(DatabaseClient);
 		const recommendationHelper = provider.get(RecommendationHelper);
 		const timeHelper = provider.get(TimeHelper);
@@ -120,7 +120,7 @@ class ImpersonateCommand extends Command {
 		await this.replyWithOldAndNew(interaction, modifyUser, oldScore, oldTotalScore, newScore, newTotalScore);
 	}
 
-	private async handleSetTotalCommand(provider: Provider, interaction: ChatInputCommandInteraction, modifyUser: User, recommendation: number) {
+	private async handleSetTotalCommand(provider: DependencyProvider, interaction: ChatInputCommandInteraction, modifyUser: User, recommendation: number) {
 		const databaseClient = provider.get(DatabaseClient);
 		const recommendationHelper = provider.get(RecommendationHelper);
 		const timeHelper = provider.get(TimeHelper);
@@ -139,7 +139,7 @@ class ImpersonateCommand extends Command {
 		await this.replyWithOldAndNew(interaction, modifyUser, oldScore, oldTotalScore, newScore, newTotalScore);
 	}
 
-	private async handleViewCommand(provider: Provider, interaction: ChatInputCommandInteraction, viewUser: User) {
+	private async handleViewCommand(provider: DependencyProvider, interaction: ChatInputCommandInteraction, viewUser: User) {
 		const databaseClient = provider.get(DatabaseClient);
 		const recommendationHelper = provider.get(RecommendationHelper);
 

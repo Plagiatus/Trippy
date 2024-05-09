@@ -1,11 +1,10 @@
 import { BanData } from "../types/document-types";
 import Repository from "./repository";
-import Provider from "../shared/provider/provider";
 import * as Mongo from "mongodb";
 
 export default class BansRepository extends Repository<BanData, "userId"> {
-	public constructor(provider: Provider, collection: Mongo.Collection<BanData>) {
-		super(provider, collection, "userId");
+	public constructor(collection: Mongo.Collection<BanData>) {
+		super(collection, "userId");
 	}
 
 	public override async update(document: BanData) {

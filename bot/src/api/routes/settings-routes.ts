@@ -1,8 +1,9 @@
 import RouteMaker from "../route";
 import Config from "../../config";
+import injectDependency from "../../shared/dependency-provider/inject-dependency";
 
-export default (({server, responses, provider}) => { 
-    const config = provider.get(Config);
+export default (({server, responses}) => { 
+    const config = injectDependency(Config);
 
 	server.route("/settings/play-type-multipliers")
 		.get((req, res) => {

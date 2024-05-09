@@ -1,9 +1,9 @@
 import { onUnmounted } from "vue";
-import useProvidedItem from "./use-provided-item";
+import useDependency from "./use-dependency";
 import TrippyController, { TextMessageOptions } from "@/trippy-controller";
 
 export default function useTrippyMessage() {
-	const trippyController = useProvidedItem(TrippyController);
+	const trippyController = useDependency(TrippyController);
 	let currentMessageCloser: (() => void)|null = null;
 
 	onUnmounted(() => {

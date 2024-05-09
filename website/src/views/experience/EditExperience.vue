@@ -41,13 +41,13 @@ import JoinInformationEditSection from '@/components/session/JoinInformationEdit
 import MapInformationEditSection from '@/components/session/MapInformationEditSection.vue';
 import SessionEditSection from '@/components/session/SessionEditSection.vue';
 import useLoadData from '@/composables/use-load-data';
-import useProvidedItem from '@/composables/use-provided-item';
+import useDependency from '@/composables/use-dependency';
 import { useValidateableForm } from '@/composables/use-validateable-form';
 import { SessionBlueprint } from '$/types/session-blueprint-types';
 import { ref, shallowReactive, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-const experienceApiClient = useProvidedItem(ExperienceApiClient);
+const experienceApiClient = useDependency(ExperienceApiClient);
 const form = useValidateableForm();
 const route = useRoute();
 const router = useRouter();

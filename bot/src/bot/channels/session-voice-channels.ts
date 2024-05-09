@@ -1,17 +1,17 @@
 import { VoiceChannel, ChannelType } from "discord.js";
 import Config from "../../config";
-import Provider from "../../shared/provider/provider";
 import { VoiceChannelBlueprint } from "../../shared/types/session-blueprint-types";
 import utils from "../../utils/utils";
 import DiscordClient from "../discord-client";
 import Session from "../../session/session";
 import { SessionVoiceChannelsData } from "../../types/document-types";
+import DependencyProvider from "../../shared/dependency-provider/dependency-provider";
 
 export default class SessionVoiceChannels {
 	private readonly discordClient: DiscordClient;
 	private readonly config: Config;
 
-	private constructor(provider: Provider, private readonly channels: VoiceChannel[], private readonly categoryChannelId: string) {
+	private constructor(provider: DependencyProvider, private readonly channels: VoiceChannel[], private readonly categoryChannelId: string) {
 		this.discordClient = provider.get(DiscordClient);
 		this.config = provider.get(Config);
 	}
@@ -27,7 +27,7 @@ export default class SessionVoiceChannels {
 		return this.channels.some(channel => channel.id === id);
 	}
 
-	public static async recreate(provider: Provider, session: Session, data: SessionVoiceChannelsData) {
+	public static async recreate(provider: DependencyProvider, session: Session, data: SessionVoiceChannelsData) {
 		const discordClient = provider.get(DiscordClient);
 		const voiceChannels = await utils.asyncMap(data.channelIds, async (id) => {
 			const channel = await discordClient.getChannel(id);
@@ -42,7 +42,7 @@ export default class SessionVoiceChannels {
 		return channels;
 	}
 
-	public static async createNew(provider: Provider, session: Session, categoryChannelId: string, sessionRoleId: string) {
+	public static async createNew(provider: DependencyProvider, session: Session, categoryChannelId: string, sessionRoleId: string) {
 		const discordClient = provider.get(DiscordClient);
 		const config = provider.get(Config);
 

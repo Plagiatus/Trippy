@@ -1,6 +1,6 @@
 import DiscordClient from "../bot/discord-client";
 import DatabaseClient from "../database-client";
-import Provider from "../shared/provider/provider";
+import DependencyProvider from "../shared/dependency-provider/dependency-provider";
 import * as Discord from "discord.js";
 import { RawSession, SessionPlayer } from "../types/document-types";
 import { SessionBlueprint } from "../shared/types/session-blueprint-types";
@@ -25,7 +25,7 @@ export default class Session {
 
 	public readonly onStateChange: EventEmitter<[session: Session, state: RawSession["state"]]>;
 
-	public constructor(provider: Provider, private _rawSession: RawSession) {
+	public constructor(provider: DependencyProvider, private _rawSession: RawSession) {
 		this.databaseClient = provider.get(DatabaseClient);
 		this.discordClient = provider.get(DiscordClient);
 		this.timeHelper = provider.get(TimeHelper);

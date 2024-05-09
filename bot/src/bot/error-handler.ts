@@ -1,16 +1,12 @@
 import { CommandInteraction, EmbedBuilder, Message, MessageType, Interaction } from "discord.js";
-import Provider from "../shared/provider/provider";
 import DiscordClient from "./discord-client";
 import Session from "../session/session";
 import constants from "../utils/constants";
+import injectDependency from "../shared/dependency-provider/inject-dependency";
 
 export default class ErrorHandler {
-	private readonly discordClient: DiscordClient;
+	private readonly discordClient = injectDependency(DiscordClient, {reference: true});
 	private readonly isHandlingTheBigOnes: boolean = false;
-
-	public constructor(provider: Provider) {
-		this.discordClient = provider.get(DiscordClient);
-	}
 	
 	handleTheBigOnes(){
 		if(this.isHandlingTheBigOnes) return;
@@ -20,7 +16,7 @@ export default class ErrorHandler {
 
 	async handleGenericError(error: unknown, message?: string) {
 		const errorMessage = this.getErrorString(error);
-		const didSendMessage = !!await this.discordClient.sendMessage("systemLog", {
+		const didSendMessage = !!await this.discordClient.value.sendMessage("systemLog", {
 			content: `${message === undefined ? "" : message + " "}${errorMessage}`
 		});
 
@@ -31,7 +27,7 @@ export default class ErrorHandler {
 
 	async handleSessionError(session: Session, error: unknown, message?: string) {
 		const errorMessage = this.getErrorString(error);
-		const didSendMessage = !!await this.discordClient.sendMessage("systemLog", {
+		const didSendMessage = !!await this.discordClient.value.sendMessage("systemLog", {
 			content: `[Session ${session.id} ${session.uniqueId}]:${message === undefined ? "" : " " + message} ${errorMessage}`
 		});
 
@@ -43,7 +39,7 @@ export default class ErrorHandler {
 	async handleInteractionError(error: unknown, messageOrInteraction: Message | Interaction) {
 		console.error(error);
 
-		await this.discordClient.sendMessage("systemLog", { embeds: [this.makeEmbed(error, messageOrInteraction)] });
+		await this.discordClient.value.sendMessage("systemLog", { embeds: [this.makeEmbed(error, messageOrInteraction)] });
 		if ("isRepliable" in messageOrInteraction && messageOrInteraction.isRepliable()) {
 			(messageOrInteraction as CommandInteraction).reply({ephemeral: true, content: String(error).substring(0, 4000)});
 		}

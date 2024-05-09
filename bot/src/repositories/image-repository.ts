@@ -1,16 +1,15 @@
-import Provider from "../shared/provider/provider";
 import { ImageData } from "../types/document-types";
 import utils from "../utils/utils";
 import Repository from "./repository";
 import * as Mongo from "mongodb";
 import TimeHelper from "../time-helper";
+import injectDependency from "../shared/dependency-provider/inject-dependency";
 
 export default class ImageRepository extends Repository<ImageData,"id"> {
-	private readonly timeHelper: TimeHelper;
+	private readonly timeHelper = injectDependency(TimeHelper);
 
-	public constructor(provider: Provider, collection: Mongo.Collection<ImageData>) {
-		super(provider, collection, "id");
-		this.timeHelper = provider.get(TimeHelper);
+	public constructor(collection: Mongo.Collection<ImageData>) {
+		super(collection, "id");
 	}
 	
 	public async addImage(image: Express.Multer.File): Promise<string> {

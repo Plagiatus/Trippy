@@ -42,7 +42,7 @@ import NormalButton from '../buttons/NormalButton.vue';
 import ValidateableForm from '@/validateable-form';
 import ValidateableFormProvider from '../ValidateableFormProvider.vue';
 import TransitionSize from '../TransitionSize.vue';
-import useProvidedItem from '@/composables/use-provided-item';
+import useDependency from '@/composables/use-dependency';
 import TimeHelper from '@/time-helper';
 import SessionApiClient from '@/api-clients/session-api-client';
 import useLoadData from '@/composables/use-load-data';
@@ -54,8 +54,8 @@ const props = defineProps<{
 }>()
 
 const voiceChannelForm = new ValidateableForm();
-const timeHelper = useProvidedItem(TimeHelper);
-const sessionApiClient = useProvidedItem(SessionApiClient);
+const timeHelper = useDependency(TimeHelper);
+const sessionApiClient = useDependency(SessionApiClient);
 
 const maxVoiceChannels = 8;
 const data = shallowReactive({

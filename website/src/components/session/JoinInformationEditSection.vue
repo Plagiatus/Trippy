@@ -32,7 +32,7 @@ import InputField from '@/components/inputs/InputField.vue';
 import InputSelect from '@/components/inputs/InputSelect.vue';
 import { PartialSessionBlueprint, SessionBlueprint } from '$/types/session-blueprint-types';
 import { computed, onMounted, shallowReactive, watchEffect } from 'vue';
-import useProvidedItem from '@/composables/use-provided-item';
+import useDependency from '@/composables/use-dependency';
 import MojangApiClient from '@/api-clients/mojang-api-client';
 import ContentBox from '../ContentBox.vue';
 import TransitionSize from '../TransitionSize.vue';
@@ -65,7 +65,7 @@ const selectedServerType = computed({
 	}
 })
 
-const mojangApiClient = useProvidedItem(MojangApiClient);
+const mojangApiClient = useDependency(MojangApiClient);
 
 const editionOptions: InputSelectValueType<SessionBlueprint["edition"]>[] = [
 	{value: "java", name: "Java"},

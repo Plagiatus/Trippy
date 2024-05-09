@@ -1,21 +1,18 @@
 import DiscordClient from "./bot/discord-client";
 import Config from "./config";
 import DatabaseClient from "./database-client";
-import Provider from "./shared/provider/provider";
+import injectDependency from "./shared/dependency-provider/inject-dependency";
 import TimeHelper from "./time-helper";
 import { UserData } from "./types/document-types";
 
 export default class RecommendationHelper {
-	private readonly databaseClient: DatabaseClient;
-	private readonly timeHelper: TimeHelper;
-	private readonly config: Config;
-	private readonly discordClient: DiscordClient;
+	private readonly databaseClient = injectDependency(DatabaseClient);
+	private readonly timeHelper = injectDependency(TimeHelper);
+	private readonly config = injectDependency(Config);
+	private readonly discordClient = injectDependency(DiscordClient);
 
-	public constructor(provider: Provider) {
-		this.databaseClient = provider.get(DatabaseClient);
-		this.timeHelper = provider.get(TimeHelper);
-		this.config = provider.get(Config);
-		this.discordClient = provider.get(DiscordClient);
+	public constructor() {
+
 	}
 
 	public async addRecommendationScore(user: UserData|string, addAmount: number, force?: boolean) {
