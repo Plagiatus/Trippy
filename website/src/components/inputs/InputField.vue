@@ -20,6 +20,7 @@
 import { useFormInput } from '@/composables/use-form-input';
 import { computed, shallowReactive, watch } from 'vue';
 import InputLabel from './InputLabel.vue';
+import useElementId from '@/composables/use-element-id';
 
 const props = defineProps<{
 	type: "text"|"number";
@@ -67,7 +68,7 @@ const value = computed<any>({
 	}
 })
 
-const inputId = computed(() => props.id ?? btoa(Math.random().toString()).replace(/=/g,"").toLowerCase());
+const inputId = useElementId(() => props.id);
 
 useFormInput({
 	onValidateStart() {

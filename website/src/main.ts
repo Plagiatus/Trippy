@@ -18,6 +18,7 @@ import RouterWrapper from './router'
 import TrippyController from './trippy-controller'
 import SettingsApiClient from './api-clients/settings-api-client'
 import { authenticationApiClientKey, routerKey } from './dependency-provider/keys'
+import TagsHelper from "$/tags-helper";
 
 const provider = new Provider()
 	.addFactory(Config, () => {
@@ -38,6 +39,7 @@ const provider = new Provider()
 	.addConstructor(ImageApiClient)
 	.addConstructor(TimeHelper)
 	.addConstructor(TrippyController)
+	.addFactory(TagsHelper, () => new TagsHelper())
 	.addFactory(routerKey, (provider) => new RouterWrapper(provider).router);
 
 createApp(App)

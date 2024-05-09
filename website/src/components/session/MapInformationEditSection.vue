@@ -2,7 +2,11 @@
 	<content-box header="Map Information">
 		<input-field v-model="sessionBlueprint.name" type="text" name="Name" class="input-row" required/>
 		<input-textarea v-model="sessionBlueprint.description" name="Description" class="input-row" required/>
-		<input-select v-model="sessionBlueprint.category" :values="categoryOptions" name="Category" class="input-row" required/>
+		<input-multi-select v-model="sessionBlueprint.tags" :values="possibleTags" name="Tags" class="input-row" required>
+			<template #selected="{value}">
+				<tag-display :tag="value"/>
+			</template>
+		</input-multi-select>
 		<template v-if="authenticationHandler.userInformation?.canUseImages">
 			<normal-button @click="uploadImage" color="highlight" class="upload-button">Upload image</normal-button>
 			<transition-size>
@@ -18,8 +22,7 @@
 <script setup lang="ts">
 import InputField from '@/components/inputs/InputField.vue';
 import InputTextarea from '@/components/inputs/InputTextarea.vue';
-import InputSelect from '@/components/inputs/InputSelect.vue';
-import { PartialSessionBlueprint, SessionBlueprint } from '$/types/session-blueprint-types';
+import { PartialSessionBlueprint } from '$/types/session-blueprint-types';
 import ContentBox from '../ContentBox.vue';
 import NormalButton from '../buttons/NormalButton.vue';
 import useDependency from '@/composables/use-dependency';
@@ -28,7 +31,10 @@ import TransitionSize from '../TransitionSize.vue';
 import { shallowReactive } from 'vue';
 import ImageApiClient from '@/api-clients/image-api-client';
 import AuthenticationHandler from '@/authentication-handler';
+import InputMultiSelect from '../inputs/InputMultiSelect.vue';
+import TagsHelper from '$/tags-helper';
 import { InputSelectValueType } from '@/types/types';
+import TagDisplay from '../TagDisplay.vue';
 
 const props = defineProps<{
 	sessionBlueprint: PartialSessionBlueprint;
@@ -41,28 +47,12 @@ const image = defineModel<Blob|null>("image");
 const imageApiClient = useDependency(ImageApiClient);
 const fileAccess = useDependency(FileAccess);
 const authenticationHandler = useDependency(AuthenticationHandler);
+const tagsHelper = useDependency(TagsHelper);
 
-const categoryOptions: InputSelectValueType<SessionBlueprint["category"]>[] = [
-	{value: "ctm", name: "CTM"},
-	{value: "hns", name: "Hide and Seek"},
-	{value: "multiple", name: "Multiple"},
-	{value: "other", name: "Other"},
-	{value: "parkour", name: "Parkour"},
-	{value: "puzzle", name: "Puzzle"},
-	{value: "pve", name: "PvE"},
-	{value: "pvp", name: "PvP"},
-	{value: "stategy", name: "Strategy"},
-	{value: "adventure", name: "Adventure"},
-	{value: "survival", name: "Survival"},
-	{value: "horror", name: "Horror"},
-	{value: "sandbox", name: "Sandbox"},
-	{value: "creation", name: "Creation"},
-	{value: "tabletop", name: "Tabletop Game"},
-	{value: "race", name: "Race"},
-	{value: "minigame", name: "Minigame"},
-	{value: "social-deduction", name: "Social Deduction"},
-];
-categoryOptions.sort((a,b) => a.name.localeCompare(b.name));
+const possibleTags = tagsHelper.getAllTags().map<InputSelectValueType<string>>(tag => ({
+	value: tag.id,
+	name: `${tag.icon} ${tag.name}`,
+}))
 
 async function uploadImage() {
 	const imageFile = await fileAccess.openFileDialog({accept: ".png,.jpg"});

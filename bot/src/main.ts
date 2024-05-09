@@ -13,6 +13,9 @@ import TimeHelper from "./time-helper";
 import RecommendationHelper from "./recommendation-helper";
 import BlueprintHelper from "./blueprint-helper";
 import { isAuthenticatedGuardFactory, isAuthenticatedGuardKey } from "./api/guards/is-authenticated-guard";
+import SessionEmbedBuilder from "./session-embed-builder";
+import JsonSchemasBuilder from "./json-schemas-builder";
+import TagsHelper from "./shared/tags-helper";
 
 async function start(){
 	console.log("Starting...");
@@ -31,6 +34,9 @@ async function start(){
 		.addConstructor(TimeHelper)
 		.addConstructor(RecommendationHelper)
 		.addConstructor(BlueprintHelper)
+		.addConstructor(SessionEmbedBuilder)
+		.addConstructor(JsonSchemasBuilder)
+		.addFactory(TagsHelper, () => new TagsHelper())
 		.addFactory(isAuthenticatedGuardKey, isAuthenticatedGuardFactory);
 
 	await provider.get(DatabaseClient).connect();

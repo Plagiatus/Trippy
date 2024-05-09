@@ -1,11 +1,15 @@
 import * as Discord from "discord.js";
-import Session from "./../session/session";
-import constants from "./constants";
-import DependencyProvider from "../shared/dependency-provider/dependency-provider";
-import DatabaseClient from "../database-client";
-import utils from "./utils";
+import Session from "./session/session";
+import constants from "./utils/constants";
+import DatabaseClient from "./database-client";
+import utils from "./utils/utils";
+import TagsHelper from "./shared/tags-helper";
+import injectDependency from "./shared/dependency-provider/inject-dependency";
 
-class SessionEmbedUtils {
+export default class SessionEmbedBuilder {
+	private readonly tagsHelper = injectDependency(TagsHelper);
+	private readonly databaseClient = injectDependency(DatabaseClient);
+
 	public createPlayerCountField(session: Session): Discord.APIEmbedField {
 		const playerNames = session.joinedUserIds.map(id => `<@!${id}>`).join("\n");
 
@@ -39,71 +43,17 @@ class SessionEmbedUtils {
 	}
 
 	public createCategoryField(session: Session): Discord.APIEmbedField|undefined {
-		let text = "";
-		switch(session.blueprint.category) {
-			case "ctm":
-				text = ":white_large_square: Complete the Monument";
-				break;
-			case "hns":
-				text = ":mag_right: Hide and Seek";
-				break;
-			case "multiple":
-				text = ":confetti_ball: Multiple";
-				break;
-			case "other":
-				text = ":confetti_ball: Uncategorized";
-				break;
-			case "parkour":
-				text = ":person_running: Parkour";
-				break;
-			case "puzzle":
-				text = ":jigsaw: Puzzle";
-				break;
-			case "pve":
-				text = ":zombie: PVE";
-				break;
-			case "pvp":
-				text = ":crossed_swords: PVP";
-				break;
-			case "stategy":
-				text = ":brain: Strategy";
-				break;
-			case "adventure":
-				text = ":shield: Adventure";
-				break;
-			case "creation":
-				text = ":classical_building: Creation";
-				break;
-			case "horror":
-				text = ":zombie: Horror";
-				break;
-			case "race":
-				text = ":race_car: Race";
-				break;
-			case "sandbox":
-				text = ":yellow_square: Sandbox";
-				break;
-			case "survival":
-				text = ":apple: Survival";
-				break;
-			case "tabletop":
-				text = ":chess_pawn: Tabletop Game";
-				break;
-			case "minigame":
-				text = ":ping_pong: Minigame";
-				break;
-			case "social-deduction":
-				text = ":face_with_monocle: Social Deduction";
-				break;
-			default:
-				text = ":question: Unknown";
-				break;
-		}
+		const tags = this.tagsHelper.getTags(session.blueprint.tags);
 
-		if (!text) {
+		if (tags.length === 0) {
 			return undefined;
 		}
-		return {name: "Category:", value: text};
+		return {
+			name: "Tags:",
+			value: tags.map(tag => {
+				return `${tag.icon} ${tag.name}`;
+			}).join("\n")
+		};
 	}
 
 	public createCommuncationField(session: Session): Discord.APIEmbedField|undefined {
@@ -172,13 +122,13 @@ class SessionEmbedUtils {
 		return {name: "Time Estimate", value: text};
 	}
 
-	public async createServerOrRealmsField(provider: DependencyProvider, session: Session): Promise<Discord.APIEmbedField> {
+	public async createServerOrRealmsField(session: Session): Promise<Discord.APIEmbedField> {
 		if (session.blueprint.server.type === "realms") {
 			if (session.blueprint.server.owner) {
 				return {name: "Realms Host:", value: ":bust_in_silhouette: `" + session.blueprint.server.owner + "`"};
 			} else {
 				const host = await session.getHost();
-				const userData = await (host && provider.get(DatabaseClient).userRepository.get(host.id));
+				const userData = await (host && this.databaseClient.userRepository.get(host.id));
 				const account = session.blueprint.edition === "bedrock" ? userData?.bedrockAccount : (session.blueprint.edition === "java" ? userData?.javaAccount : undefined);
 				const displayedUsername = utils.getUsernameString(account) ?? ("`" + ( host?.displayName ?? " ") + "`");
 				return {name: "Realms Host:", value: ":bust_in_silhouette: " + displayedUsername};
@@ -233,5 +183,3 @@ class SessionEmbedUtils {
 		return {name: "Type:", value: text};
 	}
 }
-
-export default new SessionEmbedUtils();

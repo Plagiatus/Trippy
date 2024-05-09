@@ -2,8 +2,8 @@ import * as fs from "fs";
 import path from "path";
 import { validate } from "jsonschema";
 import utils from "./utils/utils";
-import jsonSchemas from "./utils/json-schemas";
 import { RawConfig } from "./types/config";
+import JsonSchemasBuilder from "./json-schemas-builder";
 
 export default class Config {
 	public readonly sortedRecommendationCheckpoints: ReadonlyArray<number>;
@@ -78,7 +78,7 @@ export default class Config {
 		if (!fileContent) throw new Error(`Config file empty.`);
 		
 		const config: RawConfig = JSON.parse(fileContent);
-		const validationResult = validate(config, jsonSchemas.configSchema);
+		const validationResult = validate(config, new JsonSchemasBuilder().buildConfigSchema());
 		if (!validationResult.valid) {
 			console.error("\n\x1b[41m Config Validation Error: \x1b[49m\n", validationResult.errors, "");
 			throw new Error("Config validation failed. See above for details.");
