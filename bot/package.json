@@ -5,9 +5,9 @@
 	"main": "main.js",
 	"scripts": {
 		"local:start": "ts-node-dev --files src/main.ts local",
-		"local:update": "ts-node --files src/update_commands.ts local",
+		"local:update": "ts-node --files src/update.ts local",
 		"prod:start": "ts-node --files src/main.ts prod",
-		"prod:update": "ts-node --files src/update_commands.ts prod",
+		"prod:update": "ts-node --files src/update.ts prod",
 		"db:display": "C:\\\"Program Files\"\\MongoDB\\Server\\6.0\\bin\\mongod.exe --dbpath ./db",
 		"ts:check": "tsc --noEmit"
 	},

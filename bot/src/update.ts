@@ -6,15 +6,21 @@ import utils from "./utils/utils";
 import DiscordClient from "./bot/discord-client";
 import ErrorHandler from "./bot/error-handler";
 import Impersonation from "./impersonation";
+import DatabaseClient from "./database-client";
+import DataUpdater from "./data-updater";
+import TimeHelper from "./time-helper";
+
+const provider = new DependencyProvider()
+	.addConstructor(DiscordClient)
+	.addFactory(Config, () => Config.loadConfigFile(Config.getEnvironmentConfigPath()))
+	.addFactory(InteractionCollection, () => new InteractionCollection())
+	.addConstructor(ErrorHandler)
+	.addConstructor(Impersonation)
+	.addConstructor(DatabaseClient)
+	.addConstructor(DataUpdater)
+	.addConstructor(TimeHelper);
 
 async function updateServerCommands() {
-	const provider = new DependencyProvider()
-		.addConstructor(DiscordClient)
-		.addFactory(Config, () => Config.loadConfigFile(Config.getEnvironmentConfigPath()))
-		.addFactory(InteractionCollection, () => new InteractionCollection())
-		.addConstructor(ErrorHandler)
-		.addConstructor(Impersonation);
-
 	const interactionCollection = provider.get(InteractionCollection);
 	const config = provider.get(Config);
 	const discordClient = provider.get(DiscordClient);
@@ -33,4 +39,20 @@ async function updateServerCommands() {
 	}
 }
 
-updateServerCommands();
+async function updateData() {
+	const updater = provider.get(DataUpdater);
+
+	try {
+		await updater.runUpdates();
+		console.log("Successfully updated data");
+	} catch(error) {
+		console.error("Failed to update data", error);
+	}
+}
+
+
+(async () => {
+	await updateServerCommands();
+	await updateData();
+	await provider.get(DatabaseClient).close();
+})();
