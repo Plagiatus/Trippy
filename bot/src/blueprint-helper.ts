@@ -1,11 +1,14 @@
+import JsonSchemasBuilder from "./json-schemas-builder";
+import injectDependency from "./shared/dependency-provider/inject-dependency";
 import { SessionBlueprint, SimplifiedSessionBlueprint } from "./shared/types/session-blueprint-types";
-import jsonSchemas from "./utils/json-schemas";
 import ValidationUtils from "./utils/validation-utils";
 import sizeOfImage from "image-size";
 
 export default class BlueprintHelper {
+	private readonly jsonSchemasBuilder = injectDependency(JsonSchemasBuilder);
+
 	public valdiateSessionBlueprint(value: unknown) {
-		return ValidationUtils.validateValueWithJsonSchema<SessionBlueprint>(value, jsonSchemas.sessionBlueprintSchema);
+		return ValidationUtils.validateValueWithJsonSchema<SessionBlueprint>(value, this.jsonSchemasBuilder.buildBlueprintSchema());
 	}
 
 	public validateSessionImage(image: Express.Multer.File) {
@@ -29,7 +32,7 @@ export default class BlueprintHelper {
 
 	public simplifyBlueprint(blueprint: SessionBlueprint): SimplifiedSessionBlueprint {
 		return {
-			category: blueprint.category,
+			tags: blueprint.tags,
 			description: blueprint.description,
 			edition: blueprint.edition,
 			name: blueprint.name,

@@ -19,6 +19,7 @@ import { computed, shallowReactive, watch } from 'vue';
 import InputLabel from './InputLabel.vue';
 import { useFormInput } from '@/composables/use-form-input';
 import { InputSelectValueType, InputSelectedGroupedValuesType } from '@/types/types';
+import useElementId from '@/composables/use-element-id';
 
 const props = defineProps<{
 	modelValue: any;
@@ -64,7 +65,7 @@ const value = computed({
 	}
 });
 
-const inputId = computed(() => props.id ?? btoa(Math.random().toString()).replace(/=/g,""))
+const inputId = useElementId(() => props.id);
 
 useFormInput({
 	onValidateStart() {

@@ -18,6 +18,7 @@
 </template>
 
 <script setup lang="ts">
+import useElementId from '@/composables/use-element-id';
 import { computed } from 'vue';
 
 const props = defineProps<{
@@ -39,7 +40,7 @@ const value = computed({
 	}
 })
 
-const inputId = computed(() => props.id ?? btoa(Math.random().toString()).replace(/=/g,""))
+const inputId = useElementId(() => props.id);
 </script>
 
 <style scoped>

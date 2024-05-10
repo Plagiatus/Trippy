@@ -4,11 +4,12 @@ import joinSessionButton from "../buttons/join-session-button";
 import Session from "../../../session/session";
 import constants from "../../../utils/constants";
 import utils from "../../../utils/utils";
-import sessionEmbedUtils from "../../../utils/session-embed-utils";
+import sessionEmbedUtils from "../../../session-embed-builder";
 import { SimpleMessageData } from "../../../types/document-types";
 import { Message, ActionRowBuilder, ButtonBuilder, EmbedBuilder, AttachmentBuilder } from "discord.js";
 import DatabaseClient from "../../../database-client";
 import TimeHelper from "../../../time-helper";
+import SessionEmbedBuilder from "../../../session-embed-builder";
 
 export default class SessionAnnouncementMessage {
 	private constructor(private readonly provider: DependencyProvider, private readonly message: Message, private lastImageId: string|undefined|null) {
@@ -73,6 +74,7 @@ export default class SessionAnnouncementMessage {
 	private static async createEmbed(provider: DependencyProvider, session: Session, lastImageId?: string|null) {
 		const databaseClient = provider.get(DatabaseClient);
 		const timeHelper = provider.get(TimeHelper);
+		const sessionEmbedBuilder = provider.get(SessionEmbedBuilder);
 		
 		const host = await session.getHost();
 
@@ -88,13 +90,13 @@ export default class SessionAnnouncementMessage {
 			.addFields({name: " ", value: " ", inline: false})
 
 		const fields = [
-			sessionEmbedUtils.createEditionField(session),
-			sessionEmbedUtils.createVersionField(session),
-			sessionEmbedUtils.createCategoryField(session),
-			sessionEmbedUtils.createPlayTypeField(session),
-			sessionEmbedUtils.createCommuncationField(session),
-			sessionEmbedUtils.createExperienceField(session),
-			sessionEmbedUtils.createEstimateField(session),
+			sessionEmbedBuilder.createEditionField(session),
+			sessionEmbedBuilder.createVersionField(session),
+			sessionEmbedBuilder.createCategoryField(session),
+			sessionEmbedBuilder.createPlayTypeField(session),
+			sessionEmbedBuilder.createCommuncationField(session),
+			sessionEmbedBuilder.createExperienceField(session),
+			sessionEmbedBuilder.createEstimateField(session),
 		].filter(utils.getHasValuePredicate());
 
 		const fieldsInColumns = utils.fieldsInColumns(fields, 2);
@@ -102,7 +104,7 @@ export default class SessionAnnouncementMessage {
 
 		embedBuilder.addFields({name: " ", value: " ", inline: false});
 		embedBuilder.addFields({name: " ", value: " ", inline: false});
-		embedBuilder.addFields(sessionEmbedUtils.createPlayerCountField(session));
+		embedBuilder.addFields(sessionEmbedBuilder.createPlayerCountField(session));
 
 		const startedAt = session.rawSession.state === "new" ? timeHelper.currentDate : new Date(session.rawSession.startTime);
 		embedBuilder.addFields({

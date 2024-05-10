@@ -2,12 +2,13 @@ import { Message, ActionRowBuilder, ButtonBuilder, EmbedBuilder } from "discord.
 import DependencyProvider from "../../../shared/dependency-provider/dependency-provider";
 import Session from "../../../session/session";
 import constants from "../../../utils/constants";
-import sessionEmbedUtils from "../../../utils/session-embed-utils";
+import sessionEmbedUtils from "../../../session-embed-builder";
 import utils from "../../../utils/utils";
 import DiscordClient, { ChannelParameterType } from "../../discord-client";
 import leaveSessionButton from "../buttons/leave-session-button";
 import { SimpleMessageData } from "../../../types/document-types";
 import stillActiveButton from "../buttons/still-active-button";
+import SessionEmbedBuilder from "../../../session-embed-builder";
 
 export default class SessionInformationMessage {
 	private constructor(private readonly provider: DependencyProvider, private readonly message: Message) {
@@ -64,6 +65,8 @@ export default class SessionInformationMessage {
 	}
 
 	private static async createEmbed(provider: DependencyProvider, session: Session) {
+		const sessionEmbedBuilder = provider.get(SessionEmbedBuilder);
+
 		const host = await session.getHost();
 		const embedBuilder = new EmbedBuilder()
 			.setTitle(session.blueprint.name)
@@ -77,12 +80,12 @@ export default class SessionInformationMessage {
 			.addFields({name: " ", value: " ", inline: false});
 
 		const fields = [
-			sessionEmbedUtils.createEditionField(session),
-			sessionEmbedUtils.createVersionField(session),
-			await sessionEmbedUtils.createServerOrRealmsField(provider, session),
-			sessionEmbedUtils.createResourcepackField(session),
-			sessionEmbedUtils.createCategoryField(session),
-			sessionEmbedUtils.createPlayTypeField(session),
+			sessionEmbedBuilder.createEditionField(session),
+			sessionEmbedBuilder.createVersionField(session),
+			await sessionEmbedBuilder.createServerOrRealmsField(session),
+			sessionEmbedBuilder.createResourcepackField(session),
+			sessionEmbedBuilder.createCategoryField(session),
+			sessionEmbedBuilder.createPlayTypeField(session),
 		].filter(utils.getHasValuePredicate());
 
 		const fieldsInColumns = utils.fieldsInColumns(fields, 2);
@@ -90,7 +93,7 @@ export default class SessionInformationMessage {
 
 		embedBuilder.addFields({name: " ", value: " ", inline: false});
 		embedBuilder.addFields({name: " ", value: " ", inline: false});
-		embedBuilder.addFields(sessionEmbedUtils.createPlayerCountField(session));
+		embedBuilder.addFields(sessionEmbedBuilder.createPlayerCountField(session));
 
 		return embedBuilder.toJSON();
 	}

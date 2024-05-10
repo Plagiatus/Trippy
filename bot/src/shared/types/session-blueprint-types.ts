@@ -2,7 +2,7 @@ export type SessionBlueprint = {
 	name: string;
 	description: string;
 	type: SessionType;
-	category: SessionCategory;
+	tags: string[];
 	edition: MinecraftEdition;
 	version?: string;
 	server: ServerType;
@@ -18,7 +18,7 @@ export type SimplifiedSessionBlueprint = {
 	name: string;
 	description: string;
 	type: SessionType;
-	category: SessionCategory;
+	tags: string[];
 	edition: MinecraftEdition;
 	version?: string;
 	preferences: SessionPreferences;
