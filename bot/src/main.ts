@@ -24,7 +24,6 @@ async function start(){
 	const provider = new DependencyProvider()
 		.addFactory(Config, () => Config.loadConfigFile(Config.getEnvironmentConfigPath()))
 		.addConstructor(DatabaseClient)
-		.addConstructor(DatabaseLegacyClient)
 		.addConstructor(WebServer)
 		.addConstructor(WebResponses)
 		.addConstructor(DiscordClient)
@@ -43,9 +42,6 @@ async function start(){
 
 	await provider.get(DatabaseClient).connect();
 	console.log("Connected to database...");
-
-	await provider.get(DatabaseLegacyClient).connect();
-	console.log("Connected to legacy database...");
 
 	await provider.get(WebServer).start();
 	console.log("Started web server...");

@@ -21,10 +21,4 @@ export default class ModLogMessages {
 			content: `${host.toString()} just kicked ${kicked.toString()} from their session.`,
 		});
 	}
-	public static async transfer(provider: DependencyProvider, transferee: GuildMember, stats: any){
-		const discordClient = provider.get(DiscordClient);
-		await discordClient.sendMessage("modLog", {
-			content: `${transferee.toString()} just transferred their XP.\n` + "```json\n" + JSON.stringify(stats, undefined, 2) + "```",
-		});
-	}
 }

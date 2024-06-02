@@ -11,13 +11,8 @@ export default class UserLegacyRepository extends Repository<UserLegacyData, "id
 		const data = await this.collection.findOne({ discordID });
 		return this.removeMongoIdField(data);
 	}
-	
-	public async setTransferred(discordID: string, transferredXP: boolean = true): Promise<void> {
-		await this.collection.findOneAndUpdate({ discordID }, {
-			$set: {
-				transferredXP
-			}
-		});
 
+	public async getAll(): Promise<UserLegacyData[]> {
+		return this.collection.find().toArray();
 	}
 }

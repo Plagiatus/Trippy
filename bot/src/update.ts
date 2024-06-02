@@ -9,6 +9,8 @@ import Impersonation from "./impersonation";
 import DatabaseClient from "./database-client";
 import DataUpdater from "./data-updater";
 import TimeHelper from "./time-helper";
+import DatabaseLegacyClient from "./database-client-legacy";
+import RecommendationHelper from "./recommendation-helper";
 
 const provider = new DependencyProvider()
 	.addConstructor(DiscordClient)
@@ -17,6 +19,8 @@ const provider = new DependencyProvider()
 	.addConstructor(ErrorHandler)
 	.addConstructor(Impersonation)
 	.addConstructor(DatabaseClient)
+	.addConstructor(DatabaseLegacyClient)
+	.addConstructor(RecommendationHelper)
 	.addConstructor(DataUpdater)
 	.addConstructor(TimeHelper);
 

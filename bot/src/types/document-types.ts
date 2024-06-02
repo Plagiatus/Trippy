@@ -84,7 +84,6 @@ export type UserLegacyData = {
 	mcBedrockIGN: string,
 	mcJavaIGN: string,
 	muted: number,
-	transferredXP?: boolean,
 }
 
 export type UserData = {
@@ -104,6 +103,13 @@ export type UserData = {
 	lastRecommendationScoreUpdate: Date;
 	lastPingAt?: Date;
 	givenRecommendations: Array<RecommendationData>;
+	legacyData?: {
+		experience: number,
+		hostedSessionsDuration: number,
+		joinedSessionsDuration: number,
+		sessionsHosted: number,
+		sessionsJoined: number,
+	}
 }
 
 export type RecommendationData = {
