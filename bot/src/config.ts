@@ -19,6 +19,13 @@ export default class Config {
 
 		return `mongodb+srv://${this.rawConfig.db.user}:${this.rawConfig.db.password}@${this.rawConfig.db.url}`;
 	}
+	public get databaseLegacyUrl() {
+		if (!this.rawConfig.legacyDB.name || !this.rawConfig.legacyDB.password) {
+			return `mongodb://${this.rawConfig.legacyDB.url}`
+		}
+
+		return `mongodb+srv://${this.rawConfig.legacyDB.user}:${this.rawConfig.legacyDB.password}@${this.rawConfig.legacyDB.url}`;
+	}
 
 	public get webServerPort() {
 		return this.rawConfig.port;
@@ -58,6 +65,9 @@ export default class Config {
 
 	public get databaseName() {
 		return this.rawConfig.db.name;
+	}
+	public get databaseLegacyName() {
+		return this.rawConfig.legacyDB.name;
 	}
 
 	public get sessionEndingTime() {

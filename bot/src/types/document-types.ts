@@ -71,6 +71,21 @@ export type EndedSession = BaseSession&{
 
 export type RawSession = NewSession|RunningSession|StoppingSession|EndedSession;
 
+export type UserLegacyData = {
+	readonly id: string,
+	discordName: string,
+	discordID: string,
+	experience: number,
+	sessionsHosted: number,
+	sessionsJoined: number,
+	hostedSessionsDuration: number,
+	joinedSessionsDuration: number,
+	lastPing: number,
+	mcBedrockIGN: string,
+	mcJavaIGN: string,
+	muted: number,
+}
+
 export type UserData = {
 	readonly id: string;
 	discordAuthToken?: string;
@@ -88,6 +103,13 @@ export type UserData = {
 	lastRecommendationScoreUpdate: Date;
 	lastPingAt?: Date;
 	givenRecommendations: Array<RecommendationData>;
+	legacyData?: {
+		experience: number,
+		hostedSessionsDuration: number,
+		joinedSessionsDuration: number,
+		sessionsHosted: number,
+		sessionsJoined: number,
+	}
 }
 
 export type RecommendationData = {

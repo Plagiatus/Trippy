@@ -83,7 +83,7 @@ export default class JsonSchemasBuilder {
 	public buildConfigSchema(): Schema {
 		return {
 			type: "object",
-			required: ["frontendUrl","botToken","serverId","appId","port","db","channels","roles","session","recommendation"],
+			required: ["frontendUrl","botToken","serverId","appId","port","db","legacyDB","channels","roles","session","recommendation"],
 			properties: {
 				frontendUrl: {type: "string"},
 				backendUrl: {type: "string"},
@@ -94,6 +94,14 @@ export default class JsonSchemasBuilder {
 				jwtSecret: {type: "string", minLength: 16},
 				port: {type: "integer", minimum: 0, maximum: 65535},
 				db: {
+					type: "object",
+					required: ["url","name"],
+					properties: {
+						url: { type: "string" },
+						name: { type: "string" },
+					}
+				},
+				legacyDB: {
 					type: "object",
 					required: ["url","name"],
 					properties: {
