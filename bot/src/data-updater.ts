@@ -82,7 +82,6 @@ export default class DataUpdater {
 							sessionsHosted: legacyUser.sessionsHosted,
 							sessionsJoined: legacyUser.sessionsJoined,
 						}
-						await users.update(user);
 
 						const oldScore = this.recommendationHelper.getRecommendationScore(user);
 						const oldTotalScore = user.totalRecommendationScore;
@@ -94,7 +93,8 @@ export default class DataUpdater {
 						user.totalRecommendationScore = newTotalScore;
 						user.recommendationScore = newScore;
 						user.lastRecommendationScoreUpdate = this.timeHelper.currentDate;
-						await users.updateRecommendationScore(user);
+						
+						await users.update(user);
 						await this.recommendationHelper.updateRecommendationRole(user);
 					}
 				}
