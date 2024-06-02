@@ -12,6 +12,12 @@
 		"url": "",
 		"name": ""
 	},
+	"legacyDB": {
+		"user": "",
+		"password": "",
+		"url": "",
+		"name": ""
+	},
 	"channels": {
 		"modLog": "",
 		"systemLog": "",

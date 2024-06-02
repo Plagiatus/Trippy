@@ -15,6 +15,12 @@ export type RawConfig = Readonly<{
 		url: string,
 		name: string,
 	}>,
+	legacyDB: Readonly<{
+		user: string,
+		password: string,
+		url: string,
+		name: string,
+	}>,
 	channels: Readonly<{
 		modLog: string,
 		systemLog: string,

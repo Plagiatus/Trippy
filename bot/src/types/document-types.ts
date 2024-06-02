@@ -71,6 +71,22 @@ export type EndedSession = BaseSession&{
 
 export type RawSession = NewSession|RunningSession|StoppingSession|EndedSession;
 
+export type UserLegacyData = {
+	readonly id: string,
+	discordName: string,
+	discordID: string,
+	experience: number,
+	sessionsHosted: number,
+	sessionsJoined: number,
+	hostedSessionsDuration: number,
+	joinedSessionsDuration: number,
+	lastPing: number,
+	mcBedrockIGN: string,
+	mcJavaIGN: string,
+	muted: number,
+	transferredXP?: boolean,
+}
+
 export type UserData = {
 	readonly id: string;
 	discordAuthToken?: string;

@@ -2,6 +2,7 @@ import WebResponses from "./api/responses";
 import { WebServer } from "./api/web-server";
 import Config from "./config";
 import DatabaseClient from "./database-client";
+import DatabaseLegacyClient from "./database-client-legacy";
 import DependencyProvider from "./shared/dependency-provider/dependency-provider";
 import DiscordClient from "./bot/discord-client";
 import ErrorHandler from "./bot/error-handler";
@@ -23,6 +24,7 @@ async function start(){
 	const provider = new DependencyProvider()
 		.addFactory(Config, () => Config.loadConfigFile(Config.getEnvironmentConfigPath()))
 		.addConstructor(DatabaseClient)
+		.addConstructor(DatabaseLegacyClient)
 		.addConstructor(WebServer)
 		.addConstructor(WebResponses)
 		.addConstructor(DiscordClient)
@@ -41,6 +43,9 @@ async function start(){
 
 	await provider.get(DatabaseClient).connect();
 	console.log("Connected to database...");
+
+	await provider.get(DatabaseLegacyClient).connect();
+	console.log("Connected to legacy database...");
 
 	await provider.get(WebServer).start();
 	console.log("Started web server...");
