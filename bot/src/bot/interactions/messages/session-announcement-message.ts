@@ -45,7 +45,8 @@ export default class SessionAnnouncementMessage {
 			files: embedAndFiles.files,
 			components: [
 				new ActionRowBuilder<ButtonBuilder>().addComponents(joinSessionButton.create({sessionId: session.id}))
-			]
+			],
+			...utils.createNonceOptions(),
 		});
 
 		return new SessionAnnouncementMessage(provider, message, session.blueprint.imageId);

@@ -44,7 +44,7 @@ export default class DiscordClient {
 		});
 	}
 
-	public async sendMessage(channel: ChannelParameterType, message: string|Discord.MessagePayload|Discord.BaseMessageOptions) {
+	public async sendMessage(channel: ChannelParameterType, message: string|Discord.MessagePayload|Discord.MessageCreateOptions) {
 		const sendInChannel = await this.getChannel(channel);
 
 		if (!sendInChannel || !sendInChannel.isTextBased()) {

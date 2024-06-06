@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import path from "path";
 import crypto from "crypto";
-import { APIEmbedField } from "discord.js";
+import { APIEmbedField, MessageCreateOptions, SnowflakeUtil } from "discord.js";
 
 class Utils {
 	private readonly hasValuePredicate = (value: unknown) => value !== null && value !== undefined;
@@ -93,6 +93,19 @@ class Utils {
 		}
 
 		return "`" + userData.username + "`" + (userData.validated ? " :white_check_mark:" : "") 
+	}
+
+	/**
+	 * Creates the options for turning on nonce for a message.
+	 * 
+	 * When Discord gets a message with "enforceNonce" and "nonce" then Discord will remember the nonce.
+	 * All other messages with the same nonce will be ignored for the next few minutes.
+	 */
+	public createNonceOptions() {
+		return {
+			enforceNonce: true,
+			nonce: SnowflakeUtil.generate().toString(),
+		} satisfies MessageCreateOptions
 	}
 }
 

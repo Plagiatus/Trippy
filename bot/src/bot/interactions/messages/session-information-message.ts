@@ -45,7 +45,8 @@ export default class SessionInformationMessage {
 					leaveSessionButton.create({sessionId: session.id}),
 					stillActiveButton.create({sessionId: session.id}),
 				])
-			]
+			],
+			...utils.createNonceOptions(),
 		});
 		await message.pin();
 
