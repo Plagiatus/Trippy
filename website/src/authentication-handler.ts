@@ -162,7 +162,11 @@ export default class AuthenticationHandler {
 
 			const refreshResponse = await this.authenticationApiClient.refreshJwt(refreshInformation.refreshToken);
 			if (!refreshResponse.data) {
-				this.logout();
+				if (!this.router.value.currentRoute.value.name || this.router.value.currentRoute.value.meta.anonymous) {
+					this.setJwt(null);
+				} else {
+					this.logout();
+				}
 				return null;
 			}
 
