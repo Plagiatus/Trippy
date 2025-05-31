@@ -52,6 +52,7 @@ import 'chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm';
 import NumberDisplay from '@/components/NumberDisplay.vue';
 import TimeHelper from '@/time-helper';
 import { useRoute, useRouter } from 'vue-router';
+import useRandomTrippyMessage from '@/composables/use-random-trippy-message';
 
 const statsApiClient = useDependency(StatsApiClient);
 const timeHelper = useDependency(TimeHelper);
@@ -349,6 +350,45 @@ const latestChartHeader = computed(() => {
 		case "year": return "This Year";
 		case "all": return "All Time";
 	}
+});
+
+useRandomTrippyMessage((add) => {
+	if (currentStats.value === null) {
+		add({ message: "Can't wait to see some stats.", mood: "normal" });
+		add({ message: "Will the stats come soon?", mood: "tired", weight: 0.2 });
+		return;
+	}
+
+	add({ message: "Charts!", mood: "suprised" });
+	add({ message: "I love stats!", mood: "normal" });
+	add({ message: "Those numbers are so cool.", mood: "normal" });
+	add({ message: "You might be a part of this data.", mood: "normal" });
+	add({ message: "You can help with adding to this data.", mood: "normal" });
+
+	if (currentStats.value.totalSessions > 50) {
+		add({ message: "That's a lot of sessions.", mood: "suprised" });
+	}
+
+	if (currentStats.value.totalSessions > 100) {
+		add({ message: "That's more than 5 sessions!", mood: "suprised" });
+	}
+
+	if (currentStats.value.totalJoins > 50) {
+		add({ message: "That's a lot of players.", mood: "suprised" });
+	}
+
+	if (selectedSessionStats.value === "year") {
+		add({ message: "What a great year this has been.", mood: "suprised" });
+	}
+
+	if ((selectedSessionStats.value === "week" || selectedSessionStats.value === "day") && currentStats.value.totalSessions === 0) {
+		add({ message: "Where are the sessions?", mood: "angry" });
+	}
+}, {
+	autoCloseInSeconds: 10,
+	keepOnSendingMessages: true,
+	minimumSecondsDelay: 20,
+	maximumSecondsDelay: 40,
 });
 </script>
 
