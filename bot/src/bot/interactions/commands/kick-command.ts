@@ -14,12 +14,16 @@ class KickCommand extends Command {
 			.addUserOption(option => 
 				option.setName("user")
 				.setDescription("The user to be removed from the session")
-				.setRequired(true));
+				.setRequired(true))
+			.addBooleanOption(option => option
+				.setName("softly")
+				.setDescription("Removes the user without making them lose their earned recommendation."));
 	}
 
 	public async handleExecution({interaction, provider, interactor, getMemberOption}: CommandExecutionContext) {
 		const sessionsCollection = provider.get(SessionsCollection);
 		const config = provider.get(Config);
+		const kickSoftly = interaction.options.getBoolean("softly") ?? false;
 
 		const session = sessionsCollection.getSessionFromChannel(interaction.channelId) ?? sessionsCollection.getHostedSession(interactor);
 		if (!session) {
@@ -41,9 +45,11 @@ class KickCommand extends Command {
 		}
 		
 		if (session.isUserInSession(userToKick.id)) {
-			await session.leave(userToKick.id, "kicked");
-			interaction.editReply(`You have removed ${userToKick} from the session.`);
-			ModLogMessages.kick(provider, interactor, userToKick.user);
+			await session.leave(userToKick.id, kickSoftly ? "soft-kicked" : "kicked");
+			interaction.editReply(`You have ${kickSoftly ? "softly " : ""}removed ${userToKick} from the session.`);
+			if (!kickSoftly) {
+				ModLogMessages.kick(provider, interactor, userToKick.user);
+			}
 		} else {
 			interaction.editReply({content: `You cannot kick ${userToKick} from a session they're not in.`});
 		}
