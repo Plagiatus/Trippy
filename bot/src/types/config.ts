@@ -32,6 +32,7 @@ export type RawConfig = Readonly<{
 	roles: Readonly<{
 		mods: string,
 		hosts: string,
+		pingRole?: string,
 		unlocks: ReadonlyArray<Readonly<{
 			roleId: string,
 			requiredRecommendation: number,

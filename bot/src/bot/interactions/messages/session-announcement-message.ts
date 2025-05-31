@@ -4,12 +4,12 @@ import joinSessionButton from "../buttons/join-session-button";
 import Session from "../../../session/session";
 import constants from "../../../utils/constants";
 import utils from "../../../utils/utils";
-import sessionEmbedUtils from "../../../session-embed-builder";
 import { SimpleMessageData } from "../../../types/document-types";
 import { Message, ActionRowBuilder, ButtonBuilder, EmbedBuilder, AttachmentBuilder } from "discord.js";
 import DatabaseClient from "../../../database-client";
 import TimeHelper from "../../../time-helper";
 import SessionEmbedBuilder from "../../../session-embed-builder";
+import Config from "../../../config";
 
 export default class SessionAnnouncementMessage {
 	private constructor(private readonly provider: DependencyProvider, private readonly message: Message, private lastImageId: string|undefined|null) {
@@ -34,11 +34,22 @@ export default class SessionAnnouncementMessage {
 
 	public static async createNew(provider: DependencyProvider, session: Session, channel: ChannelParameterType, maySendPing: boolean) {
 		const discordClient = provider.get(DiscordClient);
+		const config = provider.get(Config);
 		const embedAndFiles = await SessionAnnouncementMessage.createEmbed(provider, session);
 
-		const shouldSendPing = maySendPing && (session.blueprint.ping ?? false);
+		const content: string[] = [];
+		const chosenToSendPing = (session.blueprint.ping ?? false);
+		const shouldSendPing = maySendPing && chosenToSendPing;
+		if (shouldSendPing) {
+			content.push("@here");
+			const pingRole = config.roleIds.pingRole ? await discordClient.getRole(config.roleIds.pingRole) : null;
+			if (pingRole) {
+				content.push(pingRole.toString());
+			}
+		}
+
 		const message = await discordClient.sendMessage(channel, {
-			content: shouldSendPing ? '@here' : undefined,
+			content: content.length === 0 ? undefined : content.join(" "),
 			embeds: [
 				embedAndFiles.embed,
 			],

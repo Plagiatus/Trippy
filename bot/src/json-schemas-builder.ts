@@ -127,6 +127,7 @@ export default class JsonSchemasBuilder {
 					properties: {
 						mods: {type: "string", minLength: 18},
 						hosts: {type: "string", minLength: 18},
+						pingRole: {type: "string", minLength: 18},
 						unlocks: {
 							type: "array",
 							items: {
