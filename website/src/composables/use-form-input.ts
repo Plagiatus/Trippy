@@ -3,7 +3,7 @@ import { FormInputInformation } from "@/validateable-form";
 import { inject } from "vue";
 
 export function useFormInput(inputInformation: FormInputInformation) {
-	const form = inject(validateableFormInjectionKey);
+	const form = inject(validateableFormInjectionKey, undefined);
 	if (!form) {
 		return;
 	}

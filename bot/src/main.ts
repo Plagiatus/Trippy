@@ -16,6 +16,7 @@ import { isAuthenticatedGuardFactory, isAuthenticatedGuardKey } from "./api/guar
 import SessionEmbedBuilder from "./session-embed-builder";
 import JsonSchemasBuilder from "./json-schemas-builder";
 import TagsHelper from "./shared/tags-helper";
+import StatsService from "./stats-service";
 
 async function start(){
 	console.log("Starting...");
@@ -36,6 +37,7 @@ async function start(){
 		.addConstructor(BlueprintHelper)
 		.addConstructor(SessionEmbedBuilder)
 		.addConstructor(JsonSchemasBuilder)
+		.addConstructor(StatsService)
 		.addFactory(TagsHelper, () => new TagsHelper())
 		.addFactory(isAuthenticatedGuardKey, isAuthenticatedGuardFactory);
 

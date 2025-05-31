@@ -96,6 +96,10 @@ export default abstract class BaseApiClient {
 	}
 
 	private getFullPath(path: string) {
+		if (path.includes("..")) {
+			throw new Error("Path is not allowed to back track");
+		}
+
 		if (path.startsWith("/")) {
 			return this.config.apiUrl + path;
 		}

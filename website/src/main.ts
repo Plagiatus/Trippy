@@ -19,6 +19,7 @@ import TrippyController from './trippy-controller'
 import SettingsApiClient from './api-clients/settings-api-client'
 import { authenticationApiClientKey, routerKey } from './dependency-provider/keys'
 import TagsHelper from "$/tags-helper";
+import StatsApiClient from './api-clients/stats-api-client'
 
 const provider = new Provider()
 	.addFactory(Config, () => {
@@ -35,6 +36,7 @@ const provider = new Provider()
 	.addConstructor(AuthenticationHandler)
 	.addConstructor(ExperienceApiClient)
 	.addConstructor(SettingsApiClient)
+	.addConstructor(StatsApiClient)
 	.addConstructor(FileAccess)
 	.addConstructor(ImageApiClient)
 	.addConstructor(TimeHelper)

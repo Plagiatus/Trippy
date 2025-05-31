@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, Router } from 'vue-router';
 import Home from "@/views/Home.vue";
+import Stats from "@/views/Stats.vue";
 import DependencyProvider from '$/dependency-provider/dependency-provider';
 import AuthenticationHandler from './authentication-handler';
 
@@ -29,6 +30,8 @@ export default class RouterWrapper {
 	
 				{path: "/login/authenticated", name: "Login.Authenticated", component: ()=> import("@/views/LoginAuthenticated.vue"), meta: {anonymous: true}},
 				{path: "/login/token", name: "Login.Token", component: ()=> import("@/views/LoginToken.vue"), meta: {anonymous: true}},
+
+				{path: "/stats", name: "Stats", component: Stats, meta: {anonymous: true}},
 	
 				{path: "/:pathMatch(.*)*", redirect: {name: "Home"}, meta: {anonymous: true}}
 			],

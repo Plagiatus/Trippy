@@ -11,6 +11,7 @@
 				<navigation-button :route-to="{name: 'Experience'}">Experiences</navigation-button>
 				<navigation-button :route-to="{name: 'Session'}">Sessions</navigation-button>
 			</template>
+			<navigation-button :route-to="{name: 'Stats'}">Stats</navigation-button>
 			<span id="discord-in-nav">
 				<logged-in-user-display v-if="authenticationHandler.isLoggedIn()"/>
 				<discord-o-auth-button v-else/>

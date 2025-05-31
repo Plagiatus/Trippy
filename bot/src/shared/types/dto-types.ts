@@ -54,3 +54,27 @@ export type TokenAndRefreshInformationDto = {
 	refreshToken: string;
 	expiresIn: number;
 }
+
+export type CountAtTimeIntervalDto = {
+	count: number;
+	dateTime: number;
+}
+
+export type PeriodSessionStatsDto = {
+	players: CountAtTimeIntervalDto[];
+	sessions: CountAtTimeIntervalDto[];
+	aggregatedPlayers?: CountAtTimeIntervalDto[];
+	aggregatedSessions?: CountAtTimeIntervalDto[];
+	totalJoins: number;
+	totalUniqueJoins: number;
+	totalSessions: number;
+	totalUniqueHosts: number;
+	totalUniqueExperiences: number;
+	start: number;
+	end: number;
+	aggreatedStart: number;
+	aggregatedEnd: number;
+	intervals: number;
+}
+
+export type PeriodSessionStatsTypeDto = "day"|"week"|"month"|"year"|"all";

@@ -13,6 +13,7 @@ footer {
 	right: 0;
 	background-color: var(--background2);
 	padding: .1em .5em;
+	box-shadow: -2px -2px 2px rgba(0, 0, 0, 0.05);
 }
 
 .heart {
