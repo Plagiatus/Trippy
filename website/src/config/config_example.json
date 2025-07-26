@@ -1,5 +1,6 @@
 {
 	"apiUrl": "http://localhost:9009",
 	"discordOAuthClientId": "",
-	"discordInvite": "https://discord.gg/G9u72eW"
+	"discordInvite": "https://discord.gg/G9u72eW",
+	"serverResourcePackGuideUrl": "https://minecraft.wiki/w/Server.properties#resource-pack"
 }

@@ -1,6 +1,6 @@
 import { onUnmounted } from "vue";
 import useDependency from "./use-dependency";
-import TrippyController, { TextMessageOptions } from "@/trippy-controller";
+import TrippyController, { ComponentMessageOptions, TextMessageOptions } from "@/trippy-controller";
 
 export default function useTrippyMessage() {
 	const trippyController = useDependency(TrippyController);
@@ -14,6 +14,10 @@ export default function useTrippyMessage() {
 		displayText(options: TextMessageOptions) {
 			currentMessageCloser?.();
 			currentMessageCloser = trippyController.displayTextMessage(options);
+		},
+		displayComponent(options: ComponentMessageOptions) {
+			currentMessageCloser?.();
+			currentMessageCloser = trippyController.displayComponentMessage(options);
 		},
 		closeMessage() {
 			currentMessageCloser?.();

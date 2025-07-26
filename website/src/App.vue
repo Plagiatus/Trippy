@@ -12,7 +12,7 @@ import Navigation from './components/Navigation.vue';
 import Footer from './components/Footer.vue';
 import useDependency from './composables/use-dependency';
 import AuthenticationHandler from "./authentication-handler"
-import Trippy from './components/Trippy.vue';
+import Trippy from './components/trippy/Trippy.vue';
 
 const authenticationHandler = useDependency(AuthenticationHandler);
 authenticationHandler.getJwt(); //refresh jwt

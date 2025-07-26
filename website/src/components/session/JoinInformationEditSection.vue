@@ -37,6 +37,8 @@ import MojangApiClient from '@/api-clients/mojang-api-client';
 import ContentBox from '../ContentBox.vue';
 import TransitionSize from '../TransitionSize.vue';
 import { InputSelectedGroupedValuesType, InputSelectValueType } from '@/types/types';
+import useTrippyMessage from '@/composables/use-trippy-message';
+import ServerResourcePackMessage from '../trippy/ServerResourcePackMessage.vue';
 
 const props = defineProps<{
 	sessionBlueprint: PartialSessionBlueprint;
@@ -62,10 +64,13 @@ const selectedServerType = computed({
 				selectedServerValue.value = "";
 				break;
 		}
+		checkIfRPLinkOnNoneRealmsServer();
 	}
 })
 
 const mojangApiClient = useDependency(MojangApiClient);
+const resourcePackMessage = useTrippyMessage();
+let hasShownToUseServerResourcePack = false;
 
 const editionOptions: InputSelectValueType<SessionBlueprint["edition"]>[] = [
 	{value: "java", name: "Java"},
@@ -118,8 +123,27 @@ const rpLinkValue = computed({
 		} else {
 			props.sessionBlueprint.rpLink = undefined;
 		}
+		checkIfRPLinkOnNoneRealmsServer();
 	}
 })
+
+function checkIfRPLinkOnNoneRealmsServer() {
+	if (!(props.sessionBlueprint.rpLink && props.sessionBlueprint.server?.type === "server")) {
+		resourcePackMessage.closeMessage();
+		return;
+	}
+	if (hasShownToUseServerResourcePack) {
+		return;
+	}
+	hasShownToUseServerResourcePack = true;
+
+	resourcePackMessage.displayComponent({
+		message: ServerResourcePackMessage,
+		relevance: 5,
+		autoCloseInSeconds: 30,
+		mood: "tired",
+	})
+}
 
 onMounted(async () => {
 	const versions = await mojangApiClient.getJavaVersions();

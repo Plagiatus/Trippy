@@ -59,7 +59,7 @@ const playType = computed({
 			});
 		} else if (multiplier < 0) {
 			multiplierWarningMessage.displayText({
-				message: `Everyone will lose recommendation\nwhen selecting "${typeInformation.name}".\n\nWhy is this even a thing?.`,
+				message: `Everyone will lose recommendation\nwhen selecting "${typeInformation.name}".\n\nWhy is this even a thing?`,
 				autoCloseInSeconds: 15,
 				relevance: 15,
 				mood: "confused"

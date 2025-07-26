@@ -7,6 +7,10 @@
 						{{line}}&nbsp;<!--&nbsp; to allow empty lines.-->
 					</p>
 				</template>
+				<component
+					v-else-if="data.displayingMessage?.type === 'component'"
+					:is="data.displayingMessage.message"
+				/>
 			</div>
 			<button class="close" @click="closeMessage">Close</button>
 		</div>

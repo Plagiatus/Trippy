@@ -2,6 +2,7 @@ export type RawConfigType = {
 	apiUrl: string;
 	discordOAuthClientId: string;
 	discordInvite: string;
+	serverResourcePackGuideUrl?: string;
 }
 
 export default class Config {
@@ -19,5 +20,9 @@ export default class Config {
 
 	public get discordInviteLink() {
 		return this.rawConfig.discordInvite;
+	}
+
+	public get serverResourcePackGuideUrl() {
+		return this.rawConfig.serverResourcePackGuideUrl;
 	}
 }

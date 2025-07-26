@@ -1,4 +1,4 @@
-import { Ref, shallowRef } from "vue";
+import { Component, Ref, shallowRef } from "vue";
 
 export default class TrippyController {
 	private readonly messages: MessageInformation[];
@@ -28,6 +28,23 @@ export default class TrippyController {
 			autoCloseEvenIfHidden: options.autoCloseEvenIfHidden ?? false,
 			onClose: options.onClose,
 		}
+		return this.addmessage(message);
+	}
+
+	public displayComponentMessage(options: ComponentMessageOptions) {
+		const message: ComponentMessageInformation = {
+			message: options.message,
+			mood: options.mood ?? "normal",
+			relevance: options.relevance ?? 0,
+			type: "component",
+			autoCloseInSeconds: options.autoCloseInSeconds,
+			autoCloseEvenIfHidden: options.autoCloseEvenIfHidden ?? false,
+			onClose: options.onClose,
+		}
+		return this.addmessage(message);
+	}
+
+	private addmessage(message: MessageInformation) {
 		this.messages.push(message);
 
 		if (message.autoCloseEvenIfHidden && message.autoCloseInSeconds !== undefined) {
@@ -84,5 +101,7 @@ export default class TrippyController {
 export type TrippyMood = "normal"|"angry"|"confused"|"suprised"|"tired";
 export type BaseMessageInformation = {autoCloseInSeconds?: number, autoCloseEvenIfHidden: boolean, relevance: number, mood: TrippyMood, onClose?: (message: MessageInformation) => void};
 export type TextMessageInformation = {type: "text", message: string}&BaseMessageInformation;
-export type MessageInformation = TextMessageInformation;
+export type ComponentMessageInformation = { type: "component", message: Component }&BaseMessageInformation;
+export type MessageInformation = TextMessageInformation|ComponentMessageInformation;
 export type TextMessageOptions = {message: string, autoCloseInSeconds?: number, autoCloseEvenIfHidden?: boolean, relevance?: number, mood?: TrippyMood, onClose?: () => void};
+export type ComponentMessageOptions = {message: Component, autoCloseInSeconds?: number, autoCloseEvenIfHidden?: boolean, relevance?: number, mood?: TrippyMood, onClose?: () => void};
