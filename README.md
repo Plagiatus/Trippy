@@ -4,7 +4,7 @@
 
 ## The idea 
 
-Trippy, a Tripwire hook with eyes (inspired by Clippy, the Paperclip) is aiming to be the main driving force for good behing the Minecraft Maptesting server.  
+Trippy, a Tripwire hook with eyes (inspired by Clippy, the Paperclip) is aiming to be the main driving force for good behind the Minecraft Maptesting server.  
 It's main functionality is to **organize testing sessions** in said server, but is aiming to be expanded to provide additional functionalities such as user levels, casual playing sessions, a website with stats and statistics, help and support with questions and some moderation tools.
 
 It's supposed to be a (spiritual) successor to https://github.com/Plagiatus/MaptestingBot

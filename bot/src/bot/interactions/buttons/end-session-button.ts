@@ -1,4 +1,4 @@
-import { ButtonStyle } from "discord.js";
+import { ButtonStyle, MessageFlags } from "discord.js";
 import SessionsCollection from "../../../session/sessions-collection";
 import ActionButton, { ButtonClickContext } from "./action-button";
 import Config from "../../../config";
@@ -21,16 +21,16 @@ class EndSessionButton extends ActionButton<typeof buttonId> {
 		const session = sessionsCollection.getSession(parameters.sessionId);
 
 		if (!session) {
-			interaction.reply({content: "Session couldn't be found. The button shouldn't exist.", ephemeral: true});
+			interaction.reply({content: "Session couldn't be found. The button shouldn't exist.", flags: MessageFlags.Ephemeral});
 			return;
 		}
 
 		if (session.state !== "running") {
-			interaction.reply({content: "Session isn't running. The button should be disabled.", ephemeral: true});
+			interaction.reply({content: "Session isn't running. The button should be disabled.", flags: MessageFlags.Ephemeral});
 			return;
 		}
 
-		await interaction.deferReply({ephemeral: true});
+		await interaction.deferReply({flags: MessageFlags.Ephemeral});
 		const didStopSession = await session.tryStopSession(interactor);
 		if (didStopSession) {
 			interaction.editReply({content: "Session has been stopped."});

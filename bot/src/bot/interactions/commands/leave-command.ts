@@ -1,3 +1,4 @@
+import { MessageFlags } from "discord.js";
 import SessionsCollection from "../../../session/sessions-collection";
 import Command, { CommandExecutionContext } from "./command";
 
@@ -16,16 +17,16 @@ class LeaveCommand extends Command {
 
 		const session = sessionsCollection.getSessionFromChannel(interaction.channelId) ?? sessionsCollection.getJoinedSession(interactor);
 		if (!session) {
-			interaction.reply({ephemeral: true, content: "You are not in any sessions which you can leave."});
+			interaction.reply({flags: MessageFlags.Ephemeral, content: "You are not in any sessions which you can leave."});
 			return;
 		}
 
 		if (session.isUserInSession(interactor.id)) {
-			await interaction.deferReply({ephemeral: true});
+			await interaction.deferReply({flags: MessageFlags.Ephemeral});
 			await session.leave(interactor.id);
 			interaction.editReply("You have left the session.")
 		} else {
-			interaction.reply({ephemeral: true, content: "You cannot leave this session."});
+			interaction.reply({flags: MessageFlags.Ephemeral, content: "You cannot leave this session."});
 		}
 	}
 }

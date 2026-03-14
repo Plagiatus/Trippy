@@ -1,4 +1,4 @@
-import { CommandInteraction, EmbedBuilder, Message, MessageType, Interaction } from "discord.js";
+import { CommandInteraction, EmbedBuilder, Message, MessageType, Interaction, MessageFlags } from "discord.js";
 import DiscordClient from "./discord-client";
 import Session from "../session/session";
 import constants from "../utils/constants";
@@ -41,7 +41,7 @@ export default class ErrorHandler {
 
 		await this.discordClient.value.sendMessage("systemLog", { embeds: [this.makeEmbed(error, messageOrInteraction)] });
 		if ("isRepliable" in messageOrInteraction && messageOrInteraction.isRepliable()) {
-			(messageOrInteraction as CommandInteraction).reply({ephemeral: true, content: String(error).substring(0, 4000)});
+			(messageOrInteraction as CommandInteraction).reply({flags: MessageFlags.Ephemeral, content: String(error).substring(0, 4000)});
 		}
 	}
 

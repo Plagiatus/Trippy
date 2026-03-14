@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } from "discord.js";
 import SessionsCollection from "../../../session/sessions-collection";
 import ActionButton, { ButtonClickContext } from "./action-button";
 import createEditSessionButton from "./create-edit-session-button";
@@ -20,16 +20,16 @@ class EndSessionButton extends ActionButton<typeof buttonId> {
 		const session = sessionsCollection.getSession(buttonParameters.sessionId);
 
 		if (!session) {
-			interaction.reply({content: "Session couldn't be found. This button shouldn't exist.", ephemeral: true});
+			interaction.reply({content: "Session couldn't be found. This button shouldn't exist.", flags: MessageFlags.Ephemeral});
 			return;
 		}
 
 		if (session.hostId !== interactor.id) {
-			interaction.reply({content: "You cannot edit this session.", ephemeral: true});
+			interaction.reply({content: "You cannot edit this session.", flags: MessageFlags.Ephemeral});
 			return;
 		}
 
-		await interaction.deferReply({ephemeral: true});
+		await interaction.deferReply({flags: MessageFlags.Ephemeral});
 		const editSessionButton = await createEditSessionButton({provider: provider, forUserId: interactor.id, sessionId: session.uniqueId});
 		await interaction.editReply({
 			components: [

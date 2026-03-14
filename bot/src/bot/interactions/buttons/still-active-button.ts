@@ -1,4 +1,4 @@
-import { ButtonStyle } from "discord.js";
+import { ButtonStyle, MessageFlags } from "discord.js";
 import SessionsCollection from "../../../session/sessions-collection";
 import ActionButton, { ButtonClickContext } from "./action-button";
 
@@ -19,12 +19,12 @@ class StillActiveButton extends ActionButton<typeof buttonId> {
 		const session = sessionsCollection.getSession(buttonParameters.sessionId);
 
 		if (!session) {
-			interaction.reply({content: "Session couldn't be found. The button shouldn't exist.", ephemeral: true});
+			interaction.reply({content: "Session couldn't be found. The button shouldn't exist.", flags: MessageFlags.Ephemeral});
 			return;
 		}
 
 		if (session.state !== "running") {
-			interaction.reply({content: "The session is no longer running and can't be continued.", ephemeral: true});
+			interaction.reply({content: "The session is no longer running and can't be continued.", flags: MessageFlags.Ephemeral});
 			return;
 		}
 
@@ -36,7 +36,7 @@ class StillActiveButton extends ActionButton<typeof buttonId> {
 		await session.markSessionAsBeingActive();
 
 		if (buttonParameters.delete !== "true") {
-			await interaction.reply({content: "The session won't automatically close for a while now.", ephemeral: true});
+			await interaction.reply({content: "The session won't automatically close for a while now.", flags: MessageFlags.Ephemeral});
 		}
 	}
 }

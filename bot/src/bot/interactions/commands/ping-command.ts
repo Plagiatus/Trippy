@@ -1,3 +1,4 @@
+import { MessageFlags } from "discord.js";
 import TimeHelper from "../../../time-helper";
 import Command, { CommandExecutionContext } from "./command";
 
@@ -13,7 +14,7 @@ class PingCommand extends Command {
 
 	public handleExecution({interaction, provider}: CommandExecutionContext) {
 		const latency = provider.get(TimeHelper).currentDate.getTime() - interaction.createdTimestamp;
-		interaction.reply({ephemeral: true, content: `Ping Pong, my latency is long! (${latency}ms)`});
+		interaction.reply({flags: MessageFlags.Ephemeral, content: `Ping Pong, my latency is long! (${latency}ms)`});
 	}
 }
 

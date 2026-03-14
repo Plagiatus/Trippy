@@ -1,3 +1,4 @@
+import { MessageFlags } from "discord.js";
 import Config from "../../../config";
 import SessionsCollection from "../../../session/sessions-collection";
 import ModLogMessages from "../messages/mod-log-messages";
@@ -27,17 +28,17 @@ class KickCommand extends Command {
 
 		const session = sessionsCollection.getSessionFromChannel(interaction.channelId) ?? sessionsCollection.getHostedSession(interactor);
 		if (!session) {
-			interaction.reply({ephemeral: true, content: "You are not hosting any session."});
+			interaction.reply({flags: MessageFlags.Ephemeral, content: "You are not hosting any session."});
 			return;
 		}
 
 		const isModerator = interactor.roles.cache.has(config.roleIds.mods);
 		if (session.hostId !== interactor.id && !isModerator) {
-			interaction.reply({ephemeral: true, content: "You can cannot kick players from this session."});
+			interaction.reply({flags: MessageFlags.Ephemeral, content: "You can cannot kick players from this session."});
 			return;
 		}
 
-		await interaction.deferReply({ephemeral: true});
+		await interaction.deferReply({flags: MessageFlags.Ephemeral});
 		const userToKick = await getMemberOption("user");
 		if (!userToKick) {
 			interaction.editReply({ content: "Cannot kick an invalid user."});

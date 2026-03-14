@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, MessageFlags } from "discord.js";
 import createCreateSessionButton from "../buttons/create-create-session-button";
 import Command, { CommandExecutionContext } from "./command";
 
@@ -13,7 +13,7 @@ class SessionCommand extends Command {
 
 	public async handleExecution({provider, interaction, interactor}: CommandExecutionContext) {
 		interaction.reply({
-			content: `Click the button below to get to the session setup website.`, ephemeral: true,
+			content: `Click the button below to get to the session setup website.`, flags: MessageFlags.Ephemeral,
 			components: [
 				new ActionRowBuilder<ButtonBuilder>().addComponents(
 					await createCreateSessionButton({provider, forUserId: interactor.id})

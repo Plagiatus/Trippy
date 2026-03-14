@@ -1,4 +1,4 @@
-import { PermissionFlagsBits, ChatInputCommandInteraction } from "discord.js";
+import { PermissionFlagsBits, ChatInputCommandInteraction, MessageFlags } from "discord.js";
 import Impersonation from "../../../impersonation";
 import Command, { CommandExecutionContext } from "./command";
 
@@ -40,19 +40,19 @@ class ImpersonateCommand extends Command {
 		} else if (subCommand === "user") {
 			await this.handleUserSubCommand(impersonation, interaction, getMemberOption);
 		} else {
-			interaction.reply({ephemeral: true, content: `Invalid subcommand "${subCommand}".`});
+			interaction.reply({flags: MessageFlags.Ephemeral, content: `Invalid subcommand "${subCommand}".`});
 		}
 	}
 
 	private async handleClearSubCommand(impersonation: Impersonation, interaction: ChatInputCommandInteraction, getMemberOption: CommandExecutionContext["getMemberOption"]) {
-		await interaction.deferReply({ephemeral: true});
+		await interaction.deferReply({flags: MessageFlags.Ephemeral});
 		const clearFor = await getMemberOption("impersonator") ?? interaction.user;
 		impersonation.clearImpersonation(clearFor.id);
 		await interaction.editReply({content: `${clearFor} is not longer impersonating.`});
 	}
 
 	private async handleUserSubCommand(impersonation: Impersonation, interaction: ChatInputCommandInteraction, getMemberOption: CommandExecutionContext["getMemberOption"]) {
-		await interaction.deferReply({ephemeral: true});
+		await interaction.deferReply({flags: MessageFlags.Ephemeral});
 		const impersonate = await getMemberOption("impersonate");
 		if (!impersonate) {
 			await interaction.editReply("Unable to find user to impersonate.")

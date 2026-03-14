@@ -2,7 +2,7 @@ import SessionsCollection from "../../../session/sessions-collection";
 import DatabaseClient from "../../../database-client";
 import Command, { CommandExecutionContext } from "./command";
 import BansRepository from "../../../repositories/bans-repository";
-import { ChatInputCommandInteraction, GuildMember } from "discord.js";
+import { ChatInputCommandInteraction, GuildMember, MessageFlags } from "discord.js";
 import DependencyProvider from "../../../shared/dependency-provider/dependency-provider";
 import ModLogMessages from "../messages/mod-log-messages";
 
@@ -44,13 +44,13 @@ class BanCommand extends Command {
 		} else if (subCommand === "list") {
 			await this.handleListSubCommand(bans, interaction, interactor);
 		} else {
-			interaction.reply({ ephemeral: true, content: `Invalid subcommand "${subCommand}".` });
+			interaction.reply({ flags: MessageFlags.Ephemeral, content: `Invalid subcommand "${subCommand}".` });
 			return;
 		}
 	}
 
 	private async handleBanSubCommand(provider: DependencyProvider, bans: BansRepository, interaction: ChatInputCommandInteraction, interactor: GuildMember, getMemberOption: CommandExecutionContext["getMemberOption"]) {
-		await interaction.deferReply({ ephemeral: true });
+		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 		const userToBan = await getMemberOption("user");
 		if (!userToBan) {
 			interaction.editReply({ content: "User not found." })
@@ -76,7 +76,7 @@ class BanCommand extends Command {
 	}
 
 	private async handleUnbanSubCommand(provider: DependencyProvider, bans: BansRepository, interaction: ChatInputCommandInteraction, interactor: GuildMember, getMemberOption: CommandExecutionContext["getMemberOption"]) {
-		await interaction.deferReply({ ephemeral: true });
+		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 		const userToUnban = await getMemberOption("user");
 		if (!userToUnban) {
 			interaction.editReply({ content: "User not found." })
@@ -89,7 +89,7 @@ class BanCommand extends Command {
 	}
 
 	private async handleListSubCommand(bans: BansRepository, interaction: ChatInputCommandInteraction, interactor: GuildMember) {
-		await interaction.deferReply({ ephemeral: true });
+		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 		const bandata = await bans.get(interactor.id);
 		if (!bandata || bandata.bannedUsers.length === 0) {
 			interaction.editReply({ content: `You haven't banned any users.` });

@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, GuildMember } from "discord.js";
+import { ChatInputCommandInteraction, GuildMember, MessageFlags } from "discord.js";
 import Command, { CommandExecutionContext } from "./command";
 import DatabaseClient from "../../../database-client";
 import UserRepository from "../../../repositories/user-repository";
@@ -47,18 +47,18 @@ class RegisterCommand extends Command {
 				await this.handleView(userRepository, interaction, interactor);
 				break;
 			default:
-				interaction.reply({ ephemeral: true, content: `Invalid subcommand "${subCommand}".` });
+				interaction.reply({ flags: MessageFlags.Ephemeral, content: `Invalid subcommand "${subCommand}".` });
 		}
 	}
 
 	private async handleJavaRegistration(userRepository: UserRepository, interaction: ChatInputCommandInteraction, interactor: GuildMember) {
 		const username = interaction.options.getString("username", true);
 		if (!this.simpleUsernameValidation(username)) {
-			interaction.reply({ephemeral: true, content: `The username ${username} is not a valid username.`});
+			interaction.reply({flags: MessageFlags.Ephemeral, content: `The username ${username} is not a valid username.`});
 			return;
 		}
 
-		await interaction.deferReply({ephemeral: true});
+		await interaction.deferReply({flags: MessageFlags.Ephemeral});
 		const user = await userRepository.get(interactor.id);
 
 		user.javaAccount = {
@@ -73,11 +73,11 @@ class RegisterCommand extends Command {
 	private async handleBedrockRegistration(userRepository: UserRepository, interaction: ChatInputCommandInteraction, interactor: GuildMember) {
 		const username = interaction.options.getString("username", true);
 		if (!this.simpleUsernameValidation(username)) {
-			interaction.reply({ephemeral: true, content: `The username ${username} is not a valid username.`});
+			interaction.reply({flags: MessageFlags.Ephemeral, content: `The username ${username} is not a valid username.`});
 			return;
 		}
 
-		await interaction.deferReply({ephemeral: true});
+		await interaction.deferReply({flags: MessageFlags.Ephemeral});
 		const user = await userRepository.get(interactor.id);
 
 		user.bedrockAccount = {
@@ -90,7 +90,7 @@ class RegisterCommand extends Command {
 	}
 
 	private async handleView(userRepository: UserRepository, interaction: ChatInputCommandInteraction, interactor: GuildMember) {
-		await interaction.deferReply({ephemeral: true});
+		await interaction.deferReply({flags: MessageFlags.Ephemeral});
 		const user = await userRepository.get(interactor.id);
 
 		let nameLines: string[] = [];

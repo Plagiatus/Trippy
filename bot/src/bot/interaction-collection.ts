@@ -1,4 +1,4 @@
-import { ButtonInteraction, ChatInputCommandInteraction, GuildMember } from "discord.js";
+import { ButtonInteraction, ChatInputCommandInteraction, GuildMember, MessageFlags } from "discord.js";
 import utils from "../utils/utils";
 import DependencyProvider from "../shared/dependency-provider/dependency-provider";
 import Command from "./interactions/commands/command";
@@ -20,7 +20,7 @@ export default class InteractionCollection {
 	public async executeCommandInteraction(id: string, interaction: ChatInputCommandInteraction, interactor: GuildMember) {
 		const command = this.commands.find(command => command.isCommandName(id));
 		if (!command) {
-			interaction.reply({ephemeral: true, content: `The command "${id}" doesn't exist. Please contact a moderator if this problem persists.`});
+			interaction.reply({flags: MessageFlags.Ephemeral, content: `The command "${id}" doesn't exist. Please contact a moderator if this problem persists.`});
 			return;
 		}
 
@@ -56,7 +56,7 @@ export default class InteractionCollection {
 			return;
 		}
 
-		interaction.reply({ephemeral: true, content: `The button you pressed doesn't exist. Please contact a moderator if this problem persists. Button Id: ${id}`});
+		interaction.reply({flags: MessageFlags.Ephemeral, content: `The button you pressed doesn't exist. Please contact a moderator if this problem persists. Button Id: ${id}`});
 	}
 
 	public static importButtons() {

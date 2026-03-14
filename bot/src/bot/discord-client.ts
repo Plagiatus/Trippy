@@ -39,7 +39,7 @@ export default class DiscordClient {
 
 	public async connect() {
 		return new Promise<void>(res => {
-			this.client.once("ready", () => res());
+			this.client.once("clientReady", () => res());
 			this.client.login(this.dependencyProvider.get(Config).discordApiToken);
 		});
 	}
@@ -47,7 +47,7 @@ export default class DiscordClient {
 	public async sendMessage(channel: ChannelParameterType, message: string|Discord.MessagePayload|Discord.MessageCreateOptions) {
 		const sendInChannel = await this.getChannel(channel);
 
-		if (!sendInChannel || !sendInChannel.isTextBased()) {
+		if (!sendInChannel || !sendInChannel.isTextBased() || sendInChannel.isDMBased()) {
 			throw new Error("Failed to find channel to send message in.");
 		}
 		return await sendInChannel.send(message);

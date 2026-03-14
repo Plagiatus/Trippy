@@ -1,3 +1,4 @@
+import { MessageFlags } from "discord.js";
 import Config from "../../../config";
 import SessionsCollection from "../../../session/sessions-collection";
 import Command, { CommandExecutionContext } from "./command";
@@ -18,17 +19,17 @@ class StopCommand extends Command {
 
 		const session = sessionsCollection.getSessionFromChannel(interaction.channelId) ?? sessionsCollection.getHostedSession(interactor);
 		if (!session) {
-			interaction.reply({ephemeral: true, content: "You are not in any sessions which you can stop."});
+			interaction.reply({flags: MessageFlags.Ephemeral, content: "You are not in any sessions which you can stop."});
 			return;
 		}
 
 		const isModerator = interactor.roles.cache.has(config.roleIds.mods);
 		if (session.hostId !== interactor.id && !isModerator) {
-			interaction.reply({ephemeral: true, content: "You can not stop this session."});
+			interaction.reply({flags: MessageFlags.Ephemeral, content: "You can not stop this session."});
 			return;
 		}
 
-		await interaction.deferReply({ephemeral: true});
+		await interaction.deferReply({flags: MessageFlags.Ephemeral});
 		const didStop = await session.tryStopSession(interactor);
 		if (didStop) {
 			interaction.editReply({content: "Session has been stopped."});

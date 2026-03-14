@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, EmbedBuilder, PermissionFlagsBits, User } from "discord.js";
+import { ChatInputCommandInteraction, EmbedBuilder, MessageFlags, PermissionFlagsBits, User } from "discord.js";
 import Command, { CommandExecutionContext } from "./command";
 import DatabaseClient from "../../../database-client";
 import RecommendationHelper from "../../../recommendation-helper";
@@ -64,7 +64,7 @@ class ImpersonateCommand extends Command {
 	}
 
 	public async handleExecution({provider, interaction, getMemberOption}: CommandExecutionContext) {
-		await interaction.deferReply({ephemeral: true});
+		await interaction.deferReply({flags: MessageFlags.Ephemeral});
 		const subCommand = interaction.options.getSubcommand(true);
 		const modifyUser = (await getMemberOption("user"))?.user;
 		const recommendation = interaction.options.getNumber("recommendation") ?? 0;

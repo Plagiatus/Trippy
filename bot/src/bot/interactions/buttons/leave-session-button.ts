@@ -1,4 +1,4 @@
-import { ButtonStyle } from "discord.js";
+import { ButtonStyle, MessageFlags } from "discord.js";
 import SessionsCollection from "../../../session/sessions-collection";
 import ActionButton, { ButtonClickContext } from "./action-button";
 
@@ -19,12 +19,12 @@ class LeaveSessionButton extends ActionButton<typeof buttonId> {
 		const session = sessionsCollection.getSession(buttonParameters.sessionId);
 
 		if (!session) {
-			interaction.reply({content: "Session couldn't be found. The button shouldn't exist.", ephemeral: true});
+			interaction.reply({content: "Session couldn't be found. The button shouldn't exist.", flags: MessageFlags.Ephemeral});
 			return;
 		}
 
 		if (session.state !== "running") {
-			interaction.reply({content: "Session isn't running. The button should be disabled.", ephemeral: true});
+			interaction.reply({content: "Session isn't running. The button should be disabled.", flags: MessageFlags.Ephemeral});
 			return;
 		}
 

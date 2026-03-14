@@ -1,4 +1,4 @@
-import { ButtonStyle } from "discord.js";
+import { ButtonStyle, MessageFlags } from "discord.js";
 import SessionsCollection from "../../../session/sessions-collection";
 import DatabaseClient from "../../../database-client";
 import ActionButton, { ButtonClickContext } from "./action-button";
@@ -23,49 +23,49 @@ class joinSessionButton extends ActionButton<typeof buttonId> {
 		const session = sessionsCollection.getSession(buttonParameters.sessionId);
 		
 		if (!session) {
-			interaction.reply({content: "Session couldn't be found. The button shouldn't exist.", ephemeral: true});
+			interaction.reply({content: "Session couldn't be found. The button shouldn't exist.", flags: MessageFlags.Ephemeral});
 			return;
 		}
 
 		if (session.state !== "running") {
-			interaction.reply({content: "Session isn't running. The button shouldn't exist.", ephemeral: true});
+			interaction.reply({content: "Session isn't running. The button shouldn't exist.", flags: MessageFlags.Ephemeral});
 			return;
 		}
 
 		if (session.isUserInSession(interactor.id)) {
-			interaction.reply({content: "You are already in this session.", ephemeral: true});
+			interaction.reply({content: "You are already in this session.", flags: MessageFlags.Ephemeral});
 			return;
 		}
 
 		if (sessionsCollection.getHostedSession(interactor.id)) {
-			interaction.reply({content: "You cannot join the session since you currently are hosting a session.", ephemeral: true});
+			interaction.reply({content: "You cannot join the session since you currently are hosting a session.", flags: MessageFlags.Ephemeral});
 			return;
 		}
 
 		if (sessionsCollection.getJoinedSession(interactor.id)) {
-			interaction.reply({content: "You cannot join the session since you already are in a session.", ephemeral: true});
+			interaction.reply({content: "You cannot join the session since you already are in a session.", flags: MessageFlags.Ephemeral});
 			return;
 		}
 
 		const userData = await databaseClient.userRepository.get(interactor.id);
 		if (session.blueprint.edition === "bedrock" && !userData.bedrockAccount) {
-			interaction.reply({content: `This session requires you to have a Bedrock edition account. Use /${registerCommand.name} to register.`, ephemeral: true});
+			interaction.reply({content: `This session requires you to have a Bedrock edition account. Use /${registerCommand.name} to register.`, flags: MessageFlags.Ephemeral});
 			return;
 		}
 		if (session.blueprint.edition === "java" && !userData.javaAccount) {
-			interaction.reply({content: `This session requires you to have a Java edition account. Use /${registerCommand.name} to register.`, ephemeral: true});
+			interaction.reply({content: `This session requires you to have a Java edition account. Use /${registerCommand.name} to register.`, flags: MessageFlags.Ephemeral});
 			return;
 		}
 		
 		if (session.playerCount >= session.maxPlayers) {
-			interaction.reply({content: "Session is full. Button is supposed to be disabled.", ephemeral: true});
+			interaction.reply({content: "Session is full. Button is supposed to be disabled.", flags: MessageFlags.Ephemeral});
 			return;
 		}
 
 		const bans = provider.get(DatabaseClient).bansRepository;
 		const sessionHost = await session.getHost();
 		if (await bans.isUserBanned(sessionHost?.id ?? "", interactor.id)) {
-			interaction.reply({content: `${sessionHost} has banned you from their sessions.`, ephemeral: true})
+			interaction.reply({content: `${sessionHost} has banned you from their sessions.`, flags: MessageFlags.Ephemeral})
 			return;
 		}
 		
