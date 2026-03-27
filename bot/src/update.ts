@@ -57,6 +57,6 @@ async function updateData() {
 
 (async () => {
 	await updateServerCommands();
-	await updateData();
+	// await updateData();
 	await provider.get(DatabaseClient).close();
 })();

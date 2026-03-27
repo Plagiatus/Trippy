@@ -50,6 +50,12 @@ export default class DiscordClient {
 		if (!sendInChannel || !sendInChannel.isTextBased() || sendInChannel.isDMBased()) {
 			throw new Error("Failed to find channel to send message in.");
 		}
+		if (sendInChannel.isVoiceBased()){
+			throw new Error("Cannot send message in voice channel.");
+		}
+		if (!sendInChannel.permissionsFor(this.user)?.has(Discord.PermissionFlagsBits.SendMessages + Discord.PermissionFlagsBits.ViewChannel)) {
+			throw new Error("Don't have permission to send a message in that channel.");
+		}
 		return await sendInChannel.send(message);
 	}
 
