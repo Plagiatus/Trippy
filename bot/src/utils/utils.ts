@@ -113,6 +113,14 @@ class Utils {
 			setTimeout(resolve, ms)
 		});
 	}
+
+	public getRandomArrayElement<T>(array: Array<T>, remove: boolean = false): T | undefined {
+		if (array.length == 0) return undefined
+		let index = Math.floor(Math.random() * array.length)
+		if (remove)
+			return array.splice(index, 1)[0]
+		return array[index]
+	}
 }
 
 export default new Utils();

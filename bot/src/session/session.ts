@@ -105,7 +105,7 @@ export default class Session {
 				}, this.config.sessionEndingTime);
 			}
 			this.startAfkCheckTimeout();
-			this.joinWithTrippy()
+			this.joinWithTrippy() // TODO: remove this
 			return;
 		}
 
@@ -456,7 +456,7 @@ export default class Session {
 			return
 		}
 		
-		if (this.rawSession.blueprint.version == "26.1"){
+		if (this.rawSession.blueprint.version?.includes("26.1")){
 			await utils.waitMS(5000)
 			this.discordClient.sendMessage(this.display.MainChannel!, "Oh no, version 26.1? Unfortunately I am unable to update my game to that version. :(")
 			await utils.waitMS(1000)
@@ -484,15 +484,17 @@ export default class Session {
 
 		const onEnd = async (message: string) => {
 			if (message){
-				this.discordClient.sendMessage(this.display.MainChannel!, `Whoops, seems like something went wrong. Not exactly sure what, maybe you know?\`\`\`${message}\`\`\` But anyway that means I need to go. Bye. 😊`)
+				this.discordClient.sendMessage(this.display.MainChannel!, `Whoops, seems like something went wrong. Not exactly sure what, maybe you know?\`\`\`${message}\`\`\` But anyway that means I need to go. Bye. 😊 ||${(await this.discordClient.getMember("155934938133299200"))?.toString()}||`)
 			} else {
-				this.discordClient.sendMessage(this.display.MainChannel!, "Was fun, thanks bye!")
+				this.discordClient.sendMessage(this.display.MainChannel!, utils.getRandomArrayElement(MinecraftBot.LEAVE_MESSAGES_SERVER)!)
 			}
 			await utils.waitMS(2000)
 			await this.leave(id, "normal")
 			return
 		}
 		bot.onEnd(onEnd)
+
+		setTimeout(bot.endBot, 1000 * 60 * 8)
 	}
 
 	public static generateSessionId() {
