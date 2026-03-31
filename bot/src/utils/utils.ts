@@ -6,9 +6,9 @@ import { APIEmbedField, MessageCreateOptions, SnowflakeUtil } from "discord.js";
 class Utils {
 	private readonly hasValuePredicate = (value: unknown) => value !== null && value !== undefined;
 
-	dynamicImportFolder<T = unknown>(folder: string): {path: string, imported: T}[] {
+	dynamicImportFolder<T = unknown>(folder: string): { path: string, imported: T }[] {
 		let files: string[] = fs.readdirSync(`${this.executionRootPath}/${folder}`);
-		let importedFiles: {path: string, imported: T}[] = [];
+		let importedFiles: { path: string, imported: T }[] = [];
 
 		for (const file of files) {
 			let path: string = `${folder}/${file}`;
@@ -20,15 +20,15 @@ class Utils {
 	}
 
 	private importPath<T>(path: string) {
-		if(path.endsWith(".js") || path.endsWith(".ts")){
+		if (path.endsWith(".js") || path.endsWith(".ts")) {
 			const imported: T = require(`${this.executionRootPath}/${path}`).default;
 			return [{
 				imported,
 				path,
 			}];
 		}
-		
-		if(fs.statSync(`${this.executionRootPath}/${path}`).isDirectory()){
+
+		if (fs.statSync(`${this.executionRootPath}/${path}`).isDirectory()) {
 			const importsFromFolder = this.dynamicImportFolder<T>(path);
 			return importsFromFolder;
 		}
@@ -44,10 +44,10 @@ class Utils {
 		return crypto.randomUUID();
 	}
 
-	public async asyncMap<TElement,TReturn>(array: ReadonlyArray<TElement>, map: (element: TElement, index: number, array: ReadonlyArray<TElement>) => Promise<TReturn>): Promise<TReturn[]> {
+	public async asyncMap<TElement, TReturn>(array: ReadonlyArray<TElement>, map: (element: TElement, index: number, array: ReadonlyArray<TElement>) => Promise<TReturn>): Promise<TReturn[]> {
 		const mapPromises: Promise<TReturn>[] = [];
 		for (let i = 0; i < array.length; i++) {
-			mapPromises.push(map(array[i],i,array));
+			mapPromises.push(map(array[i], i, array));
 		}
 		return await Promise.all(mapPromises);
 	}
@@ -56,23 +56,23 @@ class Utils {
 		await this.asyncMap(array, foreach);
 	}
 
-	public getHasValuePredicate<TValue>()  {
-		return this.hasValuePredicate as ((value: TValue|null|undefined) => value is TValue);
+	public getHasValuePredicate<TValue>() {
+		return this.hasValuePredicate as ((value: TValue | null | undefined) => value is TValue);
 	}
 
 	public fieldsInColumns(fields: ReadonlyArray<APIEmbedField>, columns: number, spacing: number = 5) {
 		const rows: APIEmbedField[][] = [];
 		const spacingSpaces = new Array(spacing).fill(" ").join("");
 		for (let i = 0; i < fields.length; i += columns) {
-			const row = fields.slice(i, i + columns).map(field => ({...field, inline: true}));
+			const row = fields.slice(i, i + columns).map(field => ({ ...field, inline: true }));
 
 			if (spacing > 0) {
 				for (let i = 1; i < row.length; i += 2) {
-					row.splice(i, 0, {name: spacingSpaces, value: spacingSpaces, inline: true});
+					row.splice(i, 0, { name: spacingSpaces, value: spacingSpaces, inline: true });
 				}
 			}
 
-			row.push({name: " ", value: " ", inline: false});
+			row.push({ name: " ", value: " ", inline: false });
 
 			rows.push(row);
 		}
@@ -85,14 +85,14 @@ class Utils {
 		return rows.flatMap(row => row);
 	}
 
-	public getUsernameString(userData: {username: string, validated: boolean}|undefined): string|undefined
-	public getUsernameString(userData: {username: string, validated: boolean}): string
-	public getUsernameString(userData: {username: string, validated: boolean}|undefined): string|undefined {
+	public getUsernameString(userData: { username: string, validated: boolean } | undefined): string | undefined
+	public getUsernameString(userData: { username: string, validated: boolean }): string
+	public getUsernameString(userData: { username: string, validated: boolean } | undefined): string | undefined {
 		if (!userData) {
 			return undefined;
 		}
 
-		return "`" + userData.username + "`" + (userData.validated ? " :white_check_mark:" : "") 
+		return "`" + userData.username + "`" + (userData.validated ? " :white_check_mark:" : "")
 	}
 
 	/**
@@ -106,6 +106,12 @@ class Utils {
 			enforceNonce: true,
 			nonce: SnowflakeUtil.generate().toString(),
 		} satisfies MessageCreateOptions
+	}
+
+	public async waitMS(ms: number): Promise<void> {
+		return new Promise(resolve => {
+			setTimeout(resolve, ms)
+		});
 	}
 }
 

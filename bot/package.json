@@ -21,6 +21,8 @@
 		"image-size": "^1.1.1",
 		"jsonschema": "^1.4.1",
 		"jsonwebtoken": "^9.0.0",
+		"mineflayer": "^4.35.0",
+		"mineflayer-pathfinder": "^2.4.5",
 		"mongodb": "^4.7.0",
 		"multer": "^1.4.5-lts.1",
 		"object-hash": "^3.0.0",

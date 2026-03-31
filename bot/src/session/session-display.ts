@@ -42,6 +42,10 @@ export default class SessionDisplay {
 		this.announcementMessages = [];
 	}
 
+	public get MainChannel(): TextChannel | undefined {
+		return this.mainChannel
+	}
+
 	public async createSessionMessages() {
 		if (this.session.rawSession.state !== "new") {
 			return;

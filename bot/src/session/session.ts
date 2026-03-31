@@ -11,6 +11,7 @@ import utils from "../utils/utils";
 import RecommendationHelper from "../recommendation-helper";
 import EventEmitter from "../event-emitter";
 import ErrorHandler from "../bot/error-handler";
+import MinecraftBot from "../mc-bot/mc-bot";
 
 export default class Session {
 	private readonly databaseClient: DatabaseClient;
@@ -21,7 +22,7 @@ export default class Session {
 
 	private readonly display: SessionDisplay;
 	private isSetup: boolean;
-	private afkCheckTimeout: NodeJS.Timeout|undefined;
+	private afkCheckTimeout: NodeJS.Timeout | undefined;
 
 	public readonly onStateChange: EventEmitter<[session: Session, state: RawSession["state"]]>;
 
@@ -104,6 +105,7 @@ export default class Session {
 				}, this.config.sessionEndingTime);
 			}
 			this.startAfkCheckTimeout();
+			this.joinWithTrippy()
 			return;
 		}
 
@@ -129,6 +131,8 @@ export default class Session {
 		}
 		this.onStateChange.emit(this, this.state);
 		this.startAfkCheckTimeout();
+
+		this.joinWithTrippy()
 	}
 
 	public async destroy() {
@@ -244,7 +248,7 @@ export default class Session {
 		await this.recommendationHelper.addRecommendationScore(this.hostId, gottenRecommendation);
 	}
 
-	private multiplyPlayTimeRangesByTestTypes(ranges: {from: number, to: number}[]) {
+	private multiplyPlayTimeRangesByTestTypes(ranges: { from: number, to: number }[]) {
 		const endTime = "endTime" in this.rawSession ? this.rawSession.endTime : this.timeHelper.currentDate.getTime();
 
 		let totalMilliseconds = 0;
@@ -353,7 +357,7 @@ export default class Session {
 				type: blueprint.type,
 			});
 		}
-		
+
 		this.rawSession = {
 			...this.rawSession,
 			blueprint: blueprint,
@@ -435,6 +439,60 @@ export default class Session {
 		setTimeout(() => {
 			this.destroy();
 		}, this.config.sessionEndingTime);
+	}
+
+	private async joinWithTrippy() {
+		if (this.rawSession.blueprint.edition !== "java") return
+
+		const id = this.discordClient.allowAccessToChannelPermissions.id
+		await this.join(id)
+		await utils.waitMS(1000)
+
+		if (this.rawSession.blueprint.server.type !== "server") {
+			await utils.waitMS(5000)
+			this.discordClient.sendMessage(this.display.MainChannel!, "Oh no, unfortunately I don't know how to join a Realm yet. Sorry about that, I hope you'll have a great session though!")
+			await utils.waitMS(1000)
+			await this.leave(id, "normal")
+			return
+		}
+		
+		if (this.rawSession.blueprint.version == "26.1"){
+			await utils.waitMS(5000)
+			this.discordClient.sendMessage(this.display.MainChannel!, "Oh no, version 26.1? Unfortunately I am unable to update my game to that version. :(")
+			await utils.waitMS(1000)
+			await this.leave(id, "normal")
+			return
+		}
+		if (this.rawSession.blueprint.version?.includes("w")){
+			await utils.waitMS(5000)
+			this.discordClient.sendMessage(this.display.MainChannel!, "Oh no, a snapshot? I don't think I can help with a snapshot map. Sorry about that.")
+			await utils.waitMS(1000)
+			await this.leave(id, "normal")
+			return
+		}
+		
+		const bot = new MinecraftBot(this.rawSession.blueprint.server.ip)
+		
+		if (!bot) {
+			this.discordClient.sendMessage(this.display.MainChannel!, "I can't join that server for some reason... 😢")
+			await utils.waitMS(2000)
+			this.discordClient.sendMessage(this.display.MainChannel!, "Oh well, you normal humans have fun anyway. Bye 👋")
+			await utils.waitMS(2000)
+			await this.leave(id, "normal")
+			return
+		}
+
+		const onEnd = async (message: string) => {
+			if (message){
+				this.discordClient.sendMessage(this.display.MainChannel!, `Whoops, seems like something went wrong. Not exactly sure what, maybe you know?\`\`\`${message}\`\`\` But anyway that means I need to go. Bye. 😊`)
+			} else {
+				this.discordClient.sendMessage(this.display.MainChannel!, "Was fun, thanks bye!")
+			}
+			await utils.waitMS(2000)
+			await this.leave(id, "normal")
+			return
+		}
+		bot.onEnd(onEnd)
 	}
 
 	public static generateSessionId() {
