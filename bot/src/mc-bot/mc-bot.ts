@@ -134,6 +134,7 @@ export default class MinecraftBot {
             const defaultMove = new Movements(this.bot)
             this.bot.pathfinder.setMovements(defaultMove)
             this.bot.chat(utils.getRandomArrayElement(MinecraftBot.JOIN_MESSAGES)!)
+            setTimeout(this.randomMessage, (Math.random() * 0.5 + 1) * 1000 * 30);
             await utils.waitMS(1000)
             this.activeState = new MovingRandom(this.bot)
         })
@@ -148,7 +149,6 @@ export default class MinecraftBot {
             this.activeState = new MoveToPlayer(this.bot, username)
         })
 
-        setTimeout(this.randomMessage, (Math.random() * 0.5 + 1) * 1000 * 30);
         return this.bot
     }
 
