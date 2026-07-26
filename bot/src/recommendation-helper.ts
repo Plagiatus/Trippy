@@ -4,6 +4,7 @@ import DatabaseClient from "./database-client";
 import injectDependency from "./shared/dependency-provider/inject-dependency";
 import TimeHelper from "./time-helper";
 import { UserData } from "./types/document-types";
+import { UserRecommendationResultDto } from "./shared/types/dto-types";
 
 export default class RecommendationHelper {
 	private readonly databaseClient = injectDependency(DatabaseClient);
@@ -106,6 +107,66 @@ export default class RecommendationHelper {
 		const millisecondsSinceLastRecommendation = this.timeHelper.currentDate.getTime() - lastRecommendationForUser.recommendedAt.getTime();
 		const recommendTimeoutMilliseconds = this.config.rawConfig.recommendation.give.cooldownHours * (1000 * 60 * 60 /*1 hour*/);
 		return Math.max(0, recommendTimeoutMilliseconds - millisecondsSinceLastRecommendation);
+	}
+
+	public async makeUserRecommendUser(recommender: UserData|string, recommendedUserId: string): Promise<UserRecommendationResultDto> {
+		const recommenderData = typeof recommender === "string" ? await this.databaseClient.userRepository.get(recommender) : recommender;
+
+		if (recommenderData.id === recommendedUserId) {
+			return {
+				success: false,
+				recommenderUserId: recommenderData.id,
+				recommendedUserId,
+				error: "self",
+			};
+		}
+
+		const recommendedUser = await this.discordClient.getMember(recommendedUserId);
+		if (!recommendedUser) {
+			return {
+				success: false,
+				recommenderUserId: recommenderData.id,
+				recommendedUserId,
+				error: "userNotFound",
+			};
+		}
+
+		const millisecondsBeforeBeingAbleToRecommendUser = await this.getMillisecondsLeftBeforeBeingAbleToRecommendToUser(recommenderData, recommendedUserId);
+		const millisecondsBeforeBeingAbleToRecommendAny = await this.getMillisecondsLeftBeforeBeingAbleToRecommendAnyUser(recommenderData);
+		const recommenderMember = await this.discordClient.getMember(recommenderData.id);
+		const hasNoDelay = recommenderMember?.roles.cache.has(this.config.roleIds.mods) ?? false;
+		const maxMillisecondsBeforeBeingAbleToRecommend = millisecondsBeforeBeingAbleToRecommendAny !== null
+			? Math.max(millisecondsBeforeBeingAbleToRecommendUser, millisecondsBeforeBeingAbleToRecommendAny)
+			: millisecondsBeforeBeingAbleToRecommendUser;
+
+		if (maxMillisecondsBeforeBeingAbleToRecommend > 0 && !hasNoDelay) {
+			return {
+				success: false,
+				recommenderUserId: recommenderData.id,
+				recommendedUserId,
+				error: "cooldown",
+				millisecondsBeforeBeingAbleToRecommendUser,
+				millisecondsBeforeBeingAbleToRecommendAny,
+			};
+		}
+
+		if (millisecondsBeforeBeingAbleToRecommendAny === null && !hasNoDelay) {
+			return {
+				success: false,
+				recommenderUserId: recommenderData.id,
+				recommendedUserId,
+				error: "notAllowed",
+			};
+		}
+
+		await this.addRecommendationScore(recommendedUserId, this.config.rawConfig.recommendation.give.amount);
+		await this.databaseClient.userRepository.addGivenRecommendation(recommenderData.id, recommendedUserId);
+
+		return {
+			success: true,
+			recommenderUserId: recommenderData.id,
+			recommendedUserId,
+		};
 	}
 
 	private async getMaxRecommendationGivesPerDay(recommender: UserData|string) {

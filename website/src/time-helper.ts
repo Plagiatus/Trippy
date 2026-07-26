@@ -14,4 +14,16 @@ export default class TimeHelper {
 			timeStyle: (options?.time ?? true) ? "medium" : undefined,
 		});
 	}
+
+	public formatTime(milliseconds: number) {
+		const seconds = Math.ceil(milliseconds / this.millisecondsInSecond) % 60;
+		const minutes = Math.floor(milliseconds / this.millisecondsInMinute) % 60;
+		const hours = Math.floor(milliseconds / this.millisecondsInHour) % 60;
+
+		return [
+			hours > 0 ? `${hours}h` : undefined,
+			(minutes > 0 || hours > 0) ? `${minutes}m` : undefined,
+			`${seconds}s`,
+		].filter(part => part !== undefined).join(" ");
+	}
 }

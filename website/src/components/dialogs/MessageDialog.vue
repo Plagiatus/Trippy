@@ -1,15 +1,12 @@
 <template>
-	<dialog-holder @clicked-outside="select(false)">
+	<dialog-holder @clicked-outside="close()">
 		<content-box :header="header" class="dialog">
 			<div class="body">
 				<slot></slot>
 			</div>
 			<div class="buttons">
-				<normal-button class="button" color="highlight" @click="select(false)">
-					{{ noText ?? 'No' }}
-				</normal-button>
-				<normal-button class="button" color="highlight" @click="select(true)">
-					{{ yesText ?? 'Yes' }}
+				<normal-button class="button" color="highlight" @click="close()">
+					{{ okText ?? 'Ok' }}
 				</normal-button>
 			</div>
 		</content-box>
@@ -23,16 +20,15 @@ import NormalButton from '../buttons/NormalButton.vue';
 
 const props = defineProps<{
 	header?: string;
-	noText?: string;
-	yesText?: string;
+	okText?: string;
 }>();
 
 const emit = defineEmits<{
-	select: [boolean];
+	close: [];
 }>();
 
-function select(value: boolean) {
-	emit('select', value);
+function close() {
+	emit('close');
 }
 </script>
 

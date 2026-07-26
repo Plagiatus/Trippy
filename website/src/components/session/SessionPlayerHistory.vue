@@ -11,13 +11,16 @@
 					v-for="point,index in timelinePoints"
 					:key="index"
 				>
-						{{timeHelper.formatDateTime(new Date(point), { date: false })}}
+					{{timeHelper.formatDateTime(new Date(point), { date: false })}}
 				</span>
 			</div>
 		</div>
 		<div v-for="{ player, ranges } in chartPlayers" :key="player.id" class="history-player-row">
 			<div class="history-player-label">
-				<discord-user :user="player.user" class="history-user" />
+				<discord-user
+					:user="player.user"
+					class="history-user"
+				/>
 			</div>
 			<div class="history-player-timeline">
 				<div class="history-player-line">

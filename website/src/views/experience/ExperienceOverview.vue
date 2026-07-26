@@ -3,9 +3,6 @@
 		<loading-spinner/>
 	</div>
 	<div v-else-if="experienceResponse.data" class="overview-page">
-		<yes-no-dialog ref="deleteExperienceRef" header="Delete experience">
-			Are you sure you want to delete <span class="delete-experience-name">{{experienceResponse.data.defaultBlueprint.name}}</span>?
-		</yes-no-dialog>
 		<experience-details :experience="experienceResponse.data" />
 		<div class="options">
 			<normal-button v-if="experienceResponse.data.ownsExperience" :route-to="{name: 'Experience.Edit'}">Edit experience</normal-button>
@@ -27,11 +24,11 @@ import ErrorDisplay from '@/components/ErrorDisplay.vue';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import LoadingButton from '@/components/buttons/LoadingButton.vue';
 import NormalButton from '@/components/buttons/NormalButton.vue';
-import YesNoDialog from '@/components/dialogs/YesNoDialog.vue';
+import PopupContainer from '@/popup-container';
 import useLoadData from '@/composables/use-load-data';
 import useDependency from '@/composables/use-dependency';
 import useRandomTrippyMessage from '@/composables/use-random-trippy-message';
-import { shallowReactive, shallowRef } from 'vue';
+import { shallowReactive } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 const experienceApiClient = useDependency(ExperienceApiClient);
@@ -39,18 +36,21 @@ const route = useRoute();
 const router = useRouter();
 const experienceResponse = useLoadData(() => experienceApiClient.getExperience(route.params.experienceId + ""), () => !!route.params.experienceId);
 
-const deleteExperienceRef = shallowRef<InstanceType<typeof YesNoDialog>>();
+const popupService = useDependency(PopupContainer);
 
 const data = shallowReactive({
 	isDeleting: false,
 });
 
 async function startDeletingExperience() {
-	if (!deleteExperienceRef.value || !experienceResponse.data) {
+	if (!experienceResponse.data) {
 		return;
 	}
 
-	const result = await deleteExperienceRef.value.openDialog();
+	const result = await popupService.displayYesNoDialog({
+		header: "Delete experience",
+		body: `Are you sure you want to delete ${experienceResponse.data.defaultBlueprint.name}?`,
+	});
 	if (!result) {
 		return;
 	}

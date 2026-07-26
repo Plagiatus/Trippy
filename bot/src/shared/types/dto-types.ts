@@ -67,6 +67,49 @@ export type TokenAndRefreshInformationDto = {
 	expiresIn: number;
 }
 
+export type UserRecommendationSuccessDto = {
+	success: true;
+	recommenderUserId: string;
+	recommendedUserId: string;
+}
+
+export type UserRecommendationCooldownDto = {
+	success: false;
+	recommenderUserId: string;
+	recommendedUserId: string;
+	error: "cooldown";
+	millisecondsBeforeBeingAbleToRecommendUser: number;
+	millisecondsBeforeBeingAbleToRecommendAny: number|null;
+}
+
+export type UserRecommendationNotAllowedDto = {
+	success: false;
+	recommenderUserId: string;
+	recommendedUserId: string;
+	error: "notAllowed";
+}
+
+export type UserRecommendationSelfDto = {
+	success: false;
+	recommenderUserId: string;
+	recommendedUserId: string;
+	error: "self";
+}
+
+export type UserRecommendationUserNotFoundDto = {
+	success: false;
+	recommenderUserId: string;
+	recommendedUserId: string;
+	error: "userNotFound";
+}
+
+export type UserRecommendationResultDto =
+	| UserRecommendationSuccessDto
+	| UserRecommendationCooldownDto
+	| UserRecommendationNotAllowedDto
+	| UserRecommendationSelfDto
+	| UserRecommendationUserNotFoundDto;
+
 export type CountAtTimeIntervalDto = {
 	count: number;
 	dateTime: number;

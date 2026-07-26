@@ -1,6 +1,4 @@
-import { EmbedBuilder, GuildMember, GuildMemberRoleManager, PermissionFlagsBits, User } from "discord.js";
-import Config from "../../../config";
-import DatabaseClient from "../../../database-client";
+import { EmbedBuilder } from "discord.js";
 import RecommendationHelper from "../../../recommendation-helper";
 import TimeHelper from "../../../time-helper";
 import Command, { CommandExecutionContext } from "./command";
@@ -24,9 +22,7 @@ class RecommendCommand extends Command {
 	}
 
 	public async handleExecution({provider, interaction, interactor, getMemberOption}: CommandExecutionContext) {
-		const databaseClient = provider.get(DatabaseClient);
 		const recommendationHelper = provider.get(RecommendationHelper);
-		const config = provider.get(Config);
 		const timeHelper = provider.get(TimeHelper);
 		
 		const dontAnnounce = interaction.options.getBoolean("privately") ?? false;
@@ -38,35 +34,30 @@ class RecommendCommand extends Command {
 			return;
 		}
 
-		if (interactor.user.id === recommendUser.id) {
-			interaction.editReply({content: "You can't recommend yourself."});
-			return;
-		}
-
-		const userData = await databaseClient.userRepository.get(interactor.user.id);
-		const millisecondsBeforeBeingAbleToRecommendUser = await recommendationHelper.getMillisecondsLeftBeforeBeingAbleToRecommendToUser(userData, recommendUser.id);
-		const millisecondsBeforeBeingAbleToRecommendAny = await recommendationHelper.getMillisecondsLeftBeforeBeingAbleToRecommendAnyUser(userData);
-		const maxMillisecondsBeforeBeingAbleToRecommend = millisecondsBeforeBeingAbleToRecommendAny !== null
-			? Math.max(millisecondsBeforeBeingAbleToRecommendUser, millisecondsBeforeBeingAbleToRecommendAny)
-			: millisecondsBeforeBeingAbleToRecommendUser;
-
-		const hasNoDelay = interactor.roles.cache.has(config.roleIds.mods);
-		if (maxMillisecondsBeforeBeingAbleToRecommend > 0 && !hasNoDelay) {
-			if (millisecondsBeforeBeingAbleToRecommendAny) {
-				interaction.editReply(`${interactor}, you can first recommend ${recommendUser} or anyone else again ${timeHelper.formatCountdown(maxMillisecondsBeforeBeingAbleToRecommend)}.`);
-			} else {
-				interaction.editReply(`${interactor}, you can first recommend ${recommendUser} again ${timeHelper.formatCountdown(maxMillisecondsBeforeBeingAbleToRecommend)}.`);
+		const result = await recommendationHelper.makeUserRecommendUser(interactor.user.id, recommendUser.id);
+		if (!result.success) {
+			switch (result.error) {
+				case "self":
+					interaction.editReply({content: "You can't recommend yourself."});
+					return;
+				case "userNotFound":
+					interaction.editReply({content: "Can't find the user to recommend."});
+					return;
+				case "cooldown":
+					if (result.millisecondsBeforeBeingAbleToRecommendAny) {
+						interaction.editReply(`${interactor}, you can first recommend ${recommendUser} or anyone else again ${timeHelper.formatCountdown(Math.max(result.millisecondsBeforeBeingAbleToRecommendUser ?? 0, result.millisecondsBeforeBeingAbleToRecommendAny ?? 0))}.`);
+					} else {
+						interaction.editReply(`${interactor}, you can first recommend ${recommendUser} again ${timeHelper.formatCountdown(result.millisecondsBeforeBeingAbleToRecommendUser ?? 0)}.`);
+					}
+					return;
+				case "notAllowed":
+					interaction.editReply(`${interactor}, you are not yet allowed to recommend ${recommendUser} or anyone else.`);
+					return;
+				default:
+					interaction.editReply({content: "Unable to recommend the selected user."});
+					return;
 			}
-			return;
 		}
-
-		if (millisecondsBeforeBeingAbleToRecommendAny === null && !hasNoDelay) {
-			interaction.editReply(`${interactor}, you are not yet allowed to recommend ${recommendUser} or anyone else.`);
-			return;
-		}
-
-		await recommendationHelper.addRecommendationScore(recommendUser.id, config.rawConfig.recommendation.give.amount);
-		await databaseClient.userRepository.addGivenRecommendation(interactor.user.id, recommendUser.id);
 
 		interaction.editReply({
 			embeds: [

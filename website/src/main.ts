@@ -17,9 +17,11 @@ import Provider from '$/dependency-provider/dependency-provider'
 import RouterWrapper from './router'
 import TrippyController from './trippy-controller'
 import SettingsApiClient from './api-clients/settings-api-client'
+import PopupContainer from './popup-container.js'
 import { authenticationApiClientKey, routerKey } from './dependency-provider/keys'
 import TagsHelper from "$/tags-helper";
 import StatsApiClient from './api-clients/stats-api-client'
+import RecommendationApiClient from './api-clients/recommendation-api-client'
 
 const provider = new Provider()
 	.addFactory(Config, () => {
@@ -37,10 +39,12 @@ const provider = new Provider()
 	.addConstructor(ExperienceApiClient)
 	.addConstructor(SettingsApiClient)
 	.addConstructor(StatsApiClient)
+	.addConstructor(RecommendationApiClient)
 	.addConstructor(FileAccess)
 	.addConstructor(ImageApiClient)
 	.addConstructor(TimeHelper)
 	.addConstructor(TrippyController)
+	.addConstructor(PopupContainer)
 	.addFactory(TagsHelper, () => new TagsHelper())
 	.addFactory(routerKey, (provider) => new RouterWrapper(provider).router);
 

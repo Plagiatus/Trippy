@@ -4,12 +4,14 @@
 		<router-view></router-view>
 	</div>
 	<Footer />
+	<popups-display />
 	<trippy/>
 </template>
 
 <script setup lang="ts">
 import Navigation from './components/Navigation.vue';
 import Footer from './components/Footer.vue';
+import PopupsDisplay from './components/dialogs/PopupsDisplay.vue';
 import useDependency from './composables/use-dependency';
 import AuthenticationHandler from "./authentication-handler"
 import Trippy from './components/trippy/Trippy.vue';
