@@ -34,13 +34,13 @@ class RecommendCommand extends Command {
 			return;
 		}
 
-		const result = await recommendationHelper.makeUserRecommendUser(interactor.user.id, recommendUser.id);
+		const result = await recommendationHelper.makeUserRecommendUser({ user: interactor, recommendUser: recommendUser });
 		if (!result.success) {
 			switch (result.error) {
 				case "self":
 					interaction.editReply({content: "You can't recommend yourself."});
 					return;
-				case "userNotFound":
+				case "user-not-found":
 					interaction.editReply({content: "Can't find the user to recommend."});
 					return;
 				case "cooldown":
@@ -50,7 +50,7 @@ class RecommendCommand extends Command {
 						interaction.editReply(`${interactor}, you can first recommend ${recommendUser} again ${timeHelper.formatCountdown(result.millisecondsBeforeBeingAbleToRecommendUser ?? 0)}.`);
 					}
 					return;
-				case "notAllowed":
+				case "not-allowed":
 					interaction.editReply(`${interactor}, you are not yet allowed to recommend ${recommendUser} or anyone else.`);
 					return;
 				default:

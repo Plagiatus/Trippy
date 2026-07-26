@@ -1,8 +1,7 @@
 import { MessageFlags } from "discord.js";
-import Config from "../../../config";
 import SessionsCollection from "../../../session/sessions-collection";
-import ModLogMessages from "../messages/mod-log-messages";
 import Command, { CommandExecutionContext } from "./command";
+import KickHelper from "../../../kick-helper";
 
 class KickCommand extends Command {
 	public constructor() {
@@ -23,18 +22,12 @@ class KickCommand extends Command {
 
 	public async handleExecution({interaction, provider, interactor, getMemberOption}: CommandExecutionContext) {
 		const sessionsCollection = provider.get(SessionsCollection);
-		const config = provider.get(Config);
+		const kickHelper = provider.get(KickHelper);
 		const kickSoftly = interaction.options.getBoolean("softly") ?? false;
 
 		const session = sessionsCollection.getSessionFromChannel(interaction.channelId) ?? sessionsCollection.getHostedSession(interactor);
 		if (!session) {
 			interaction.reply({flags: MessageFlags.Ephemeral, content: "You are not hosting any session."});
-			return;
-		}
-
-		const isModerator = interactor.roles.cache.has(config.roleIds.mods);
-		if (session.hostId !== interactor.id && !isModerator) {
-			interaction.reply({flags: MessageFlags.Ephemeral, content: "You can cannot kick players from this session."});
 			return;
 		}
 
@@ -44,16 +37,22 @@ class KickCommand extends Command {
 			interaction.editReply({ content: "Cannot kick an invalid user."});
 			return;
 		}
-		
-		if (session.isUserInSession(userToKick.id)) {
-			await session.leave(userToKick.id, kickSoftly ? "soft-kicked" : "kicked");
-			interaction.editReply(`You have ${kickSoftly ? "softly " : ""}removed ${userToKick} from the session.`);
-			if (!kickSoftly) {
-				ModLogMessages.kick(provider, interactor, userToKick.user);
+		const result = await kickHelper.makeUserKickUser({ session, user: interactor, kickUser: userToKick, softly: kickSoftly });
+		if (!result.success) {
+			switch (result.error) {
+				case "no-permission":
+					interaction.editReply({content: "You can cannot kick players from this session."});
+					return;
+				case "user-not-found":
+					interaction.editReply({content: "Cannot kick an invalid user."});
+					return;
+				default:
+					interaction.editReply({content: "Unable to kick the user."});
+					return;
 			}
-		} else {
-			interaction.editReply({content: `You cannot kick ${userToKick} from a session they're not in.`});
 		}
+
+		interaction.editReply(`You have ${kickSoftly ? "softly " : ""}removed ${userToKick} from the session.`);
 	}
 }
 

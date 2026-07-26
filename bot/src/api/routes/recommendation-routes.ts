@@ -8,7 +8,7 @@ export default (({server}) => {
 
 	server.route("/recommendation/recommend/:userId")
 		.post(getIsAuthenticatedGuard(), async (req, res) => {
-			const result = await recommendationHelper.makeUserRecommendUser(req.userId!, req.params.userId);
+			const result = await recommendationHelper.makeUserRecommendUser({ user: req.userId!, recommendUser: req.params.userId});
 			res.send(result);
 		})
 		.all((_, res) => res.sendStatus(405));

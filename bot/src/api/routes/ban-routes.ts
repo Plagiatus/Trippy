@@ -5,23 +5,23 @@ import { getIsAuthenticatedGuard } from "../guards/is-authenticated-guard";
 import utils from "../../utils/utils";
 import DiscordClient from "../../bot/discord-client";
 
-export default (({server}) => {
+export default (({server, responses}) => {
 	const databaseClient = injectDependency(DatabaseClient);
 	const discordClient = injectDependency(DiscordClient);
 
 	server.route("/ban/ban/:userId")
 		.post(getIsAuthenticatedGuard(), async (req, res) => {
-			const result = await databaseClient.bansRepository.makeUserBanUser(req.userId!, req.params.userId);
+			const result = await databaseClient.bansRepository.makeUserBanUser({user: req.userId!, userToBan: req.params.userId});
 			res.send(result);
 		})
-		.all((_, res) => res.sendStatus(405));
+		.all(responses.wrongMethod);
 
 	server.route("/ban/unban/:userId")
 		.post(getIsAuthenticatedGuard(), async (req, res) => {
-			const result = await databaseClient.bansRepository.makeUserUnbanUser(req.userId!, req.params.userId);
+			const result = await databaseClient.bansRepository.makeUserUnbanUser({user: req.userId!, userToUnban: req.params.userId});
 			res.send(result);
 		})
-		.all((_, res) => res.sendStatus(405));
+		.all(responses.wrongMethod);
 
 	server.route("/ban/list")
 		.get(getIsAuthenticatedGuard(), async (req, res) => {
@@ -30,5 +30,5 @@ export default (({server}) => {
 
 			res.send({ bannedUsers });
 		})
-		.all((_, res) => res.sendStatus(405));
+		.all(responses.wrongMethod);
 }) satisfies RouteMaker;

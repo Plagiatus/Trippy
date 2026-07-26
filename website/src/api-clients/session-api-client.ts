@@ -1,6 +1,6 @@
 import BaseApiClient from "./base-api-client";
 import { SessionBlueprint } from "$/types/session-blueprint-types";
-import { SessionInformationDto, UserSessionsListDto } from "$/types/dto-types";
+import { KickResultDto, SessionInformationDto, UserSessionsListDto } from "$/types/dto-types";
 
 export default class SessionApiClient extends BaseApiClient {
 	public async createSession(sessionInformation: {blueprint: SessionBlueprint, experienceId?: string, image?: Blob}) {
@@ -13,15 +13,15 @@ export default class SessionApiClient extends BaseApiClient {
 			formData.append("image", sessionInformation.image);
 		}
 		
-		return this.post<{sessionId: string, uniqueSessionId: string}>(`session`, formData);
+		return this.post<{sessionId: string, uniqueSessionId: string}>(`sessions`, formData);
 	};
 
 	public async getUsersSessions() {
-		return this.get<UserSessionsListDto>(`session`);
+		return this.get<UserSessionsListDto>(`sessions`);
 	}
 
 	public async getSessionInformation(sessionId: string) {
-		return this.get<SessionInformationDto>(`session/${sessionId}`);
+		return this.get<SessionInformationDto>(`sessions/${sessionId}`);
 	}
 
 	public async updateSessionBlueprint(options: {sessionId: string, blueprint: SessionBlueprint, image?: Blob|null}) {
@@ -37,6 +37,10 @@ export default class SessionApiClient extends BaseApiClient {
 	}
 
 	public async getMillisecondsTillBeingAbleToPing() {
-		return this.get<{millisecondsTillNextPing: number|null}>("/session/millisecondsTillPing");
+		return this.get<{millisecondsTillNextPing: number|null}>("sessions/millisecondsTillPing");
+	}
+
+	public async kickPlayer(options: { sessionId: string, userId: string, soft?: boolean }) {
+		return this.post<KickResultDto>(`sessions/${options.sessionId}/users/${options.userId}/kick`, { soft: options.soft });
 	}
 }

@@ -5,6 +5,7 @@ import injectDependency from "./shared/dependency-provider/inject-dependency";
 import TimeHelper from "./time-helper";
 import { UserData } from "./types/document-types";
 import { UserRecommendationResultDto } from "./shared/types/dto-types";
+import { GuildMember } from "discord.js";
 
 export default class RecommendationHelper {
 	private readonly databaseClient = injectDependency(DatabaseClient);
@@ -109,32 +110,23 @@ export default class RecommendationHelper {
 		return Math.max(0, recommendTimeoutMilliseconds - millisecondsSinceLastRecommendation);
 	}
 
-	public async makeUserRecommendUser(recommender: UserData|string, recommendedUserId: string): Promise<UserRecommendationResultDto> {
-		const recommenderData = typeof recommender === "string" ? await this.databaseClient.userRepository.get(recommender) : recommender;
+	public async makeUserRecommendUser(options: {user: string | GuildMember, recommendUser: string | GuildMember}): Promise<UserRecommendationResultDto> {
+		const user = typeof options.user === "string" ? await this.discordClient.getMember(options.user) : options.user;
+		const recommendUser = typeof options.recommendUser === "string" ? await this.discordClient.getMember(options.recommendUser) : options.recommendUser;
 
-		if (recommenderData.id === recommendedUserId) {
-			return {
-				success: false,
-				recommenderUserId: recommenderData.id,
-				recommendedUserId,
-				error: "self",
-			};
+		if (!user) {
+			return { success: false, error: "self-not-found" }
+		}
+		if (!recommendUser) {
+			return { success: false, error: "user-not-found" }
+		}
+		if (user.id === recommendUser.id) {
+			return { success: false, error: "self" };
 		}
 
-		const recommendedUser = await this.discordClient.getMember(recommendedUserId);
-		if (!recommendedUser) {
-			return {
-				success: false,
-				recommenderUserId: recommenderData.id,
-				recommendedUserId,
-				error: "userNotFound",
-			};
-		}
-
-		const millisecondsBeforeBeingAbleToRecommendUser = await this.getMillisecondsLeftBeforeBeingAbleToRecommendToUser(recommenderData, recommendedUserId);
-		const millisecondsBeforeBeingAbleToRecommendAny = await this.getMillisecondsLeftBeforeBeingAbleToRecommendAnyUser(recommenderData);
-		const recommenderMember = await this.discordClient.getMember(recommenderData.id);
-		const hasNoDelay = recommenderMember?.roles.cache.has(this.config.roleIds.mods) ?? false;
+		const millisecondsBeforeBeingAbleToRecommendUser = await this.getMillisecondsLeftBeforeBeingAbleToRecommendToUser(user.id, recommendUser.id);
+		const millisecondsBeforeBeingAbleToRecommendAny = await this.getMillisecondsLeftBeforeBeingAbleToRecommendAnyUser(user.id);
+		const hasNoDelay = user.roles.cache.has(this.config.roleIds.mods) ?? false;
 		const maxMillisecondsBeforeBeingAbleToRecommend = millisecondsBeforeBeingAbleToRecommendAny !== null
 			? Math.max(millisecondsBeforeBeingAbleToRecommendUser, millisecondsBeforeBeingAbleToRecommendAny)
 			: millisecondsBeforeBeingAbleToRecommendUser;
@@ -142,8 +134,6 @@ export default class RecommendationHelper {
 		if (maxMillisecondsBeforeBeingAbleToRecommend > 0 && !hasNoDelay) {
 			return {
 				success: false,
-				recommenderUserId: recommenderData.id,
-				recommendedUserId,
 				error: "cooldown",
 				millisecondsBeforeBeingAbleToRecommendUser,
 				millisecondsBeforeBeingAbleToRecommendAny,
@@ -153,19 +143,15 @@ export default class RecommendationHelper {
 		if (millisecondsBeforeBeingAbleToRecommendAny === null && !hasNoDelay) {
 			return {
 				success: false,
-				recommenderUserId: recommenderData.id,
-				recommendedUserId,
-				error: "notAllowed",
+				error: "not-allowed",
 			};
 		}
 
-		await this.addRecommendationScore(recommendedUserId, this.config.rawConfig.recommendation.give.amount);
-		await this.databaseClient.userRepository.addGivenRecommendation(recommenderData.id, recommendedUserId);
+		await this.addRecommendationScore(recommendUser.id, this.config.rawConfig.recommendation.give.amount);
+		await this.databaseClient.userRepository.addGivenRecommendation(user.id, recommendUser.id);
 
 		return {
 			success: true,
-			recommenderUserId: recommenderData.id,
-			recommendedUserId,
 		};
 	}
 

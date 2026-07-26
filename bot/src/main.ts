@@ -17,6 +17,7 @@ import SessionEmbedBuilder from "./session-embed-builder";
 import JsonSchemasBuilder from "./json-schemas-builder";
 import TagsHelper from "./shared/tags-helper";
 import StatsService from "./stats-service";
+import KickHelper from "./kick-helper";
 
 async function start(){
 	console.log("Starting...");
@@ -33,6 +34,7 @@ async function start(){
 		.addConstructor(AuthenticationService)
 		.addFactory(InteractionCollection, () => new InteractionCollection())
 		.addConstructor(TimeHelper)
+		.addConstructor(KickHelper)
 		.addConstructor(RecommendationHelper)
 		.addConstructor(BlueprintHelper)
 		.addConstructor(SessionEmbedBuilder)

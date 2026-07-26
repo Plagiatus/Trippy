@@ -9,6 +9,7 @@ import { RawSession } from "../../types/document-types";
 import BlueprintHelper from "../../blueprint-helper";
 import injectDependency from "../../shared/dependency-provider/inject-dependency";
 import { getIsAuthenticatedGuard } from "../guards/is-authenticated-guard";
+import KickHelper from "../../kick-helper";
 
 export default (({server, responses}) => { 
     const sessionsCollection = injectDependency(SessionsCollection);
@@ -16,8 +17,9 @@ export default (({server, responses}) => {
     const discordClient = injectDependency(DiscordClient);
     const recommendationHelper = injectDependency(RecommendationHelper);
     const blueprintHelper = injectDependency(BlueprintHelper);
+    const kickHelper = injectDependency(KickHelper);
 
-    server.route("/session/millisecondsTillPing")
+    server.route("/sessions/millisecondsTillPing")
         .get(getIsAuthenticatedGuard(), async (req, res) => {
             const userData = await databaseClient.userRepository.get(req.userId!);
 			const millisecondsTillNextPing = recommendationHelper.getMillisecondsTillNextAllowedPing(userData);
@@ -26,7 +28,7 @@ export default (({server, responses}) => {
         })
         .all(responses.wrongMethod);
 
-    server.get("/session/:id", getIsAuthenticatedGuard(), async (req, res) => {
+    server.get("/sessions/:id", getIsAuthenticatedGuard(), async (req, res) => {
         const rawSession = await databaseClient.sessionRepository.get(req.params.id);
         if (!rawSession) {
             return responses.sendCustomError(`Unable to get session with id "${req.params.id}".`, res);
@@ -69,7 +71,7 @@ export default (({server, responses}) => {
         });
     });
 
-    server.get("/session", getIsAuthenticatedGuard(), async (req, res) => {
+    server.get("/sessions", getIsAuthenticatedGuard(), async (req, res) => {
         const hostingSession = sessionsCollection.getHostedSession(req.userId!);
         const inSession = sessionsCollection.getJoinedSession(req.userId!);
 
@@ -97,7 +99,20 @@ export default (({server, responses}) => {
         });
     });
 
-    server.route("/session/:id?")
+    server.route("/sessions/:sessionId/users/:userId/kick")
+        .post(getIsAuthenticatedGuard(), async (req, res) => {
+            let soft = false;
+            const body: unknown = req.body;
+            if (body && typeof body === "object" && "soft" in body) {
+                soft = !!body.soft;
+            }
+
+            const result = await kickHelper.makeUserKickUser({ session: req.params.sessionId, user: req.userId!, kickUser: req.params.userId, softly: soft});
+			res.send(result);
+        })
+        .all(responses.wrongMethod);
+
+    server.route("/sessions/:id?")
         .post(getIsAuthenticatedGuard(), async (req, res) => {
             const noneValidatedBlueprint = typeof req.body === "object" && "blueprint" in req.body ? JSON.parse(req.body.blueprint) : null;
             const forExperienceId = typeof req.body === "object" && "experienceId" in req.body && typeof req.body.experienceId === "string" ? req.body.experienceId + "" : "";

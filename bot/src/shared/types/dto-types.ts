@@ -1,4 +1,13 @@
-import { SessionBlueprint, SimplifiedSessionBlueprint } from "./session-blueprint-types"
+import { SessionBlueprint, SimplifiedSessionBlueprint } from "./session-blueprint-types";
+
+export type SimpleSuccessDto = {
+	success: true;
+}
+
+export type SimpleErrorDto<TError> = {
+	success: false;
+	error: TError;
+}
 
 export type DiscordUserInformationDto = {
 	id: string;
@@ -67,85 +76,41 @@ export type TokenAndRefreshInformationDto = {
 	expiresIn: number;
 }
 
-export type UserRecommendationSuccessDto = {
-	success: true;
-	recommenderUserId: string;
-	recommendedUserId: string;
-}
-
 export type UserRecommendationCooldownDto = {
 	success: false;
-	recommenderUserId: string;
-	recommendedUserId: string;
 	error: "cooldown";
 	millisecondsBeforeBeingAbleToRecommendUser: number;
 	millisecondsBeforeBeingAbleToRecommendAny: number|null;
 }
 
-export type UserRecommendationNotAllowedDto = {
-	success: false;
-	recommenderUserId: string;
-	recommendedUserId: string;
-	error: "notAllowed";
-}
-
-export type UserRecommendationSelfDto = {
-	success: false;
-	recommenderUserId: string;
-	recommendedUserId: string;
-	error: "self";
-}
-
-export type UserRecommendationUserNotFoundDto = {
-	success: false;
-	recommenderUserId: string;
-	recommendedUserId: string;
-	error: "userNotFound";
-}
-
 export type UserRecommendationResultDto =
-	| UserRecommendationSuccessDto
+	| SimpleSuccessDto
 	| UserRecommendationCooldownDto
-	| UserRecommendationNotAllowedDto
-	| UserRecommendationSelfDto
-	| UserRecommendationUserNotFoundDto;
+	| SimpleErrorDto<"not-allowed">
+	| SimpleErrorDto<"self">
+	| SimpleErrorDto<"self-not-found">
+	| SimpleErrorDto<"user-not-found">;
 
-export type UnbanActionSuccessDto = {
-	success: true;
-	hostUserId: string;
-	targetUserId: string;
-}
+export type KickResultDto =
+	| SimpleSuccessDto
+	| SimpleErrorDto<"no-permission">
+	| SimpleErrorDto<"self-not-found">
+	| SimpleErrorDto<"user-not-found">
+	| SimpleErrorDto<"user-not-here">
+	| SimpleErrorDto<"session-not-found">;
 
-export type UnbanActionNotBannedErrorDto = {
-	success: false;
-	hostUserId: string;
-	targetUserId: string;
-	error: "not-banned";
-}
+export type BanActionResultDto =
+	| SimpleSuccessDto
+	| SimpleErrorDto<"self-not-found">
+	| SimpleErrorDto<"user-not-found">
+	| SimpleErrorDto<"self">
+	| SimpleErrorDto<"already-banned">;
 
-export type UnbanActionResultDto = UnbanActionSuccessDto | UnbanActionNotBannedErrorDto;
-
-export type BanActionSuccessDto = {
-	success: true;
-	hostUserId: string;
-	targetUserId: string;
-}
-
-export type BanActionSelfErrorDto = {
-	success: false;
-	hostUserId: string;
-	targetUserId: string;
-	error: "self";
-}
-
-export type BanActionAlreadyBannedErrorDto = {
-	success: false;
-	hostUserId: string;
-	targetUserId: string;
-	error: "already-banned";
-}
-
-export type BanActionResultDto = BanActionAlreadyBannedErrorDto | BanActionSuccessDto | BanActionSelfErrorDto;
+export type UnbanActionResultDto =
+	| SimpleSuccessDto
+	| SimpleErrorDto<"self-not-found">
+	| SimpleErrorDto<"user-not-found">
+	| SimpleErrorDto<"not-banned">;
 
 export type BanListDto = {
 	bannedUsers: DiscordUserInformationDto[];

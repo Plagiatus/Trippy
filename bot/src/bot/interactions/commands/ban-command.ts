@@ -55,7 +55,7 @@ class BanCommand extends Command {
 			return;
 		}
 
-		const result = await bans.makeUserBanUser(interactor.id, userToBan.id);
+		const result = await bans.makeUserBanUser({user: interactor, userToBan: userToBan});
 		if (!result.success) {
 			switch (result.error) {
 				case "self":
@@ -81,7 +81,7 @@ class BanCommand extends Command {
 			return;
 		}
 
-		const result = await bans.makeUserUnbanUser(interactor.id, userToUnban.id);
+		const result = await bans.makeUserUnbanUser({user: interactor, userToUnban: userToUnban});
 		if (!result.success) {
 			switch (result.error) {
 				case "not-banned":

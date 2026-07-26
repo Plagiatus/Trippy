@@ -18,8 +18,9 @@
 		<div v-for="{ player, ranges } in chartPlayers" :key="player.id" class="history-player-row">
 			<div class="history-player-label">
 				<discord-user
-					:user="player.user"
+					:user="player"
 					:display-ban-option="session.isHost"
+					:extra-options="getExtraPlayerOptions(player)"
 					class="history-user"
 				/>
 			</div>
@@ -47,6 +48,7 @@ import { computed, StyleValue, useTemplateRef } from 'vue';
 import type { DiscordUserInformationDto, SessionInformationDto, SessionPlayerHistoryDto, SessionPlayerHistoryTypeDto } from '$/types/dto-types';
 import { useElementBounding } from '@vueuse/core';
 import PopupContainer from '@/popup-container';
+import SessionApiClient from '@/api-clients/session-api-client';
 
 const props = defineProps<{
 	session: SessionInformationDto;
@@ -54,6 +56,7 @@ const props = defineProps<{
 
 const timeHelper = useDependency(TimeHelper);
 const popupContainer = useDependency(PopupContainer);
+const sessionApiClient = useDependency(SessionApiClient);
 
 const chartAxisLabelsRef = useTemplateRef("chart-axis-labels");
 
@@ -122,7 +125,7 @@ const chartPlayers = computed(() => {
 	const safeDuration = rangeDuration || timeHelper.millisecondsInMinute;
 
 	const chartPlayers = groupedPlayerHistory.value.map((player) => ({
-		player: player,
+		player: player.user,
 		ranges: player.ranges.map((range) => {
 			const join = Math.max(range.joinTime, timelineBounds.value.start);
 			const leave = Math.max(range.leaveTime ?? Date.now(), join);
@@ -161,6 +164,65 @@ const playerHistoryTypes: Record<SessionPlayerHistoryTypeDto, { description?: st
 	"kicked": { description: "Player was kicked.", color: "var(--background-warning)"},
 	"soft-kicked": { description: "Player was soft kicked.", color: "var(--background-warning)"},
 	"normal": { color: "var(--text-color)"},
+}
+
+const activePlayerIds = computed<ReadonlySet<string>>(() => {
+	const ids = new Set<string>();
+	if (props.session.state === "ended") {
+		return ids;
+	}
+
+	for (const group of groupedPlayerHistory.value) {
+		for (const range of group.ranges) {
+			if (range.leaveTime === undefined) {
+				ids.add(group.user.id);
+				break;
+			}
+		}
+	}
+
+	return ids;
+});
+
+async function kickUser(user: DiscordUserInformationDto, options?: { soft?: boolean }) {
+	const response = await sessionApiClient.kickPlayer({ sessionId: props.session.uniqueId, userId: user.id, soft: options?.soft });
+	if (response.error || !response.data) {
+		popupContainer.displayMessagePopup({
+			header: "Kick failed",
+			body: "Unable to kick the selected user.",
+		});
+		return;
+	}
+
+	popupContainer.displayMessagePopup({
+		header: response.data.success ? "Banned" : "Ban failed",
+		body: response.data.success
+			? `${user.name ?? "The user"} was kicked from your sessions.`
+			: response.data.error === "no-permission"
+			? "You cannot kick users from this session."
+			: response.data.error === "session-not-found"
+			? "Unable to find session to kick user from."
+			: "Unable to kick the selected user.",
+	});
+}
+
+function getExtraPlayerOptions(user: DiscordUserInformationDto) {
+	const options: DiscordUserMenuOption[] = [];
+
+	if (activePlayerIds.value.has(user.id)) {
+		options.push(
+			{
+				title: "Kick",
+				onClick: async () => await kickUser(user),
+			},
+			{
+				title: "Soft kick",
+				onClick: async () => await kickUser(user, { soft: true }),
+			}
+		);
+	}
+
+	return options;
 }
 </script>
 

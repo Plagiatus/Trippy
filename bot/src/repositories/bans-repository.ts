@@ -5,6 +5,7 @@ import SessionsCollection from "../session/sessions-collection";
 import DiscordClient from "../bot/discord-client";
 import injectDependency from "../shared/dependency-provider/inject-dependency";
 import { BanActionResultDto, UnbanActionResultDto } from "../shared/types/dto-types";
+import { GuildMember } from "discord.js";
 
 export default class BansRepository extends Repository<BanData, "userId"> {
 	private readonly sessionsCollection = injectDependency(SessionsCollection, { reference: true });
@@ -23,43 +24,40 @@ export default class BansRepository extends Repository<BanData, "userId"> {
 		return host.bannedUsers.includes(userToJoin);
 	}
 
-	public async makeUserBanUser(sessionHost: string, userToBan: string): Promise<BanActionResultDto> {
-		if (sessionHost === userToBan) {
-			return {
-				success: false,
-				hostUserId: sessionHost,
-				targetUserId: userToBan,
-				error: "self",
-			};
+	public async makeUserBanUser(options: {user: string | GuildMember, userToBan: string | GuildMember}): Promise<BanActionResultDto> {
+		const user = typeof options.user === "string" ? await this.discordClient.getMember(options.user) : options.user;
+		const userToBan = typeof options.userToBan === "string" ? await this.discordClient.getMember(options.userToBan) : options.userToBan;
+
+		if (!user) {
+			return { success: false, error: "self-not-found" }
 		}
-		if (await this.isUserBanned(sessionHost, userToBan)) {
+		if (!userToBan) {
+			return { success: false, error: "user-not-found" }
+		}
+		if (user.id === userToBan.id) {
+			return { success: false, error: "self" };
+		}
+
+		if (await this.isUserBanned(user.id, userToBan.id)) {
 			return {
 				success: false,
-				hostUserId: sessionHost,
-				targetUserId: userToBan,
 				error: "already-banned",
 			}
 		}
 
-		await this.ban(sessionHost, userToBan);
+		await this.ban(user.id, userToBan.id);
 
-		const hostMember = await this.discordClient.getMember(sessionHost);
-		const bannedMember = await this.discordClient.getMember(userToBan);
-		if (hostMember && bannedMember) {
-			await this.discordClient.sendMessage("modLog", {
-				content: `${hostMember.toString()} just banned ${bannedMember.toString()} from their sessions.`,
-			});
-		}
+		await this.discordClient.sendMessage("modLog", {
+			content: `${user.toString()} just banned ${userToBan.toString()} from their sessions.`,
+		});
 
-		const session = this.sessionsCollection.value.getHostedSession(sessionHost);
-		if (session && session.hostId === sessionHost && session.isUserInSession(userToBan)) {
-			await session.leave(userToBan, "banned");
+		const session = this.sessionsCollection.value.getHostedSession(user);
+		if (session && session.isUserInSession(userToBan.id)) {
+			await session.leave(userToBan.id, "banned");
 		}
 
 		return {
 			success: true,
-			hostUserId: sessionHost,
-			targetUserId: userToBan,
 		};
 	}
 
@@ -72,30 +70,32 @@ export default class BansRepository extends Repository<BanData, "userId"> {
 			}, { upsert: true });
 	}
 
-	public async makeUserUnbanUser(sessionHost: string, userToUnban: string): Promise<UnbanActionResultDto> {
-		if (!(await this.isUserBanned(sessionHost, userToUnban))) {
+	public async makeUserUnbanUser(options: {user: string | GuildMember, userToUnban: string | GuildMember}): Promise<UnbanActionResultDto> {
+		const user = typeof options.user === "string" ? await this.discordClient.getMember(options.user) : options.user;
+		const userToUnban = typeof options.userToUnban === "string" ? await this.discordClient.getMember(options.userToUnban) : options.userToUnban;
+
+		if (!user) {
+			return { success: false, error: "self-not-found" }
+		}
+		if (!userToUnban) {
+			return { success: false, error: "user-not-found" }
+		}
+		
+		if (!(await this.isUserBanned(user.id, userToUnban.id))) {
 			return {
 				success: false,
-				hostUserId: sessionHost,
-				targetUserId: userToUnban,
 				error: "not-banned",
 			}
 		}
 
-		await this.unban(sessionHost, userToUnban);
+		await this.unban(user.id, userToUnban.id);
 
-		const user = await this.discordClient.getMember(sessionHost);
-		const unbannedUser = await this.discordClient.getMember(userToUnban);
-		if (user && unbannedUser) {
-			await this.discordClient.sendMessage("modLog", {
-				content: `${user.toString()} just unbanned ${unbannedUser.toString()}, they can join their sessions again.`,
-			});
-		}
+		await this.discordClient.sendMessage("modLog", {
+			content: `${user.toString()} just unbanned ${userToUnban.toString()}, they can join their sessions again.`,
+		});
 
 		return {
 			success: true,
-			hostUserId: sessionHost,
-			targetUserId: userToUnban,
 		};
 	}
 

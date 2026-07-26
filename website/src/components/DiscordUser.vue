@@ -71,29 +71,6 @@ const recommendationApiClient = useDependency(RecommendationApiClient);
 const banApiClient = useDependency(BanApiClient);
 const popupContainer = useDependency(PopupContainer);
 
-const formatRecommendationResult = (result: UserRecommendationResultDto, userName: string) => {
-	if (result.success) {
-		return `You have recommended ${userName}.`;
-	}
-
-	switch (result.error) {
-		case "cooldown":
-			if (result.millisecondsBeforeBeingAbleToRecommendAny !== null) {
-				const waitTime = Math.max(result.millisecondsBeforeBeingAbleToRecommendUser, result.millisecondsBeforeBeingAbleToRecommendAny ?? 0);
-				return `You can first recommend ${userName} or anyone else again in ${timeHelper.formatTime(waitTime)}.`;
-			}
-			return `You can first recommend ${userName} again in ${timeHelper.formatTime(result.millisecondsBeforeBeingAbleToRecommendUser)}.`;
-		case "notAllowed":
-			return `You are not yet allowed to recommend ${userName} or anyone else.`;
-		case "self":
-			return `You can't recommend yourself.`;
-		case "userNotFound":
-			return `Can't find the user to recommend.`;
-		default:
-			return `Unable to recommend ${userName}.`;
-	}
-};
-
 const recommendUser = async (user: DiscordUserInformationDto) => {
 	const response = await recommendationApiClient.recommendUser(user.id);
 	if (response.error || !response.data) {
@@ -104,9 +81,21 @@ const recommendUser = async (user: DiscordUserInformationDto) => {
 		return;
 	}
 
+	const username = props.user?.name ?? "the user";
+
 	popupContainer.displayMessagePopup({
 		header: response.data.success ? "Recommended" : "Recommendation failed",
-		body: formatRecommendationResult(response.data, user.name ?? "the user"),
+		body: response.data.success
+			? `You have recommended ${username}.`
+			: response.data.error === "cooldown" && response.data.millisecondsBeforeBeingAbleToRecommendAny !== null
+			? `You can first recommend ${username} or anyone else again in ${timeHelper.formatTime(Math.max(response.data.millisecondsBeforeBeingAbleToRecommendUser, response.data.millisecondsBeforeBeingAbleToRecommendAny ?? 0))}.`
+			: response.data.error === "cooldown"
+			? `You can first recommend ${username} again in ${timeHelper.formatTime(response.data.millisecondsBeforeBeingAbleToRecommendUser)}.`
+			: response.data.error === "not-allowed"
+			? `You are not yet allowed to recommend ${username} or anyone else.`
+			: response.data.error === "self"
+			? `You can't recommend yourself.`
+			: `Unable to recommend ${username}.`,
 	});
 };
 
