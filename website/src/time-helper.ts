@@ -8,10 +8,10 @@ export default class TimeHelper {
 		return new Date();
 	}
 
-	public formatDateTime(date: Date) {
+	public formatDateTime(date: Date, options?: { time?: boolean, date?: boolean }) {
 		return date.toLocaleString(undefined, {
-			dateStyle: "medium",
-			timeStyle: "medium",
+			dateStyle: (options?.date ?? true) ? "medium" : undefined,
+			timeStyle: (options?.time ?? true) ? "medium" : undefined,
 		});
 	}
 }

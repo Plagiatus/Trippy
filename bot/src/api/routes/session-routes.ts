@@ -37,6 +37,16 @@ export default (({server, responses}) => {
         const isHost = rawSession.hostId === req.userId;
         const experience = rawSession.experinceId === undefined ? null : await databaseClient.experienceRepository.get(rawSession.experinceId);
 
+        const playerHistory = rawSession.players.map(player => ({
+            id: player.id,
+            joinTime: player.joinTime,
+            leaveTime: player.leaveTime,
+            type: player.type,
+        }));
+        const uniquePlayerIds = [...new Set(playerHistory.map(player => player.id))];
+        const playerUsers = await utils.asyncMap(uniquePlayerIds, id => discordClient.getSimplifiedMember(id));
+        const playerUsersById = new Map(playerUsers.map(user => [user.id, user]));
+
         return res.send({
             state: rawSession.state,
             blueprint: blueprintHelper.conditionalSimplifyBlueprint(!isHost, rawSession.blueprint),
@@ -47,10 +57,15 @@ export default (({server, responses}) => {
             isHost: isHost,
             hasJoined: rawSession.players.some(player => player.id === req.userId),
             startedAt: rawSession.state === "new" ? undefined : rawSession.startTime,
+            endedAt: rawSession.state === "ended" ? rawSession.endTime : undefined,
             experience: !experience ? undefined : {
                 id: experience.id,
                 name: experience.defaultBlueprint.name,
-            }
+            },
+            playerHistory: playerHistory.map(player => ({
+                ...player,
+                user: playerUsersById.get(player.id) ?? { id: player.id },
+            })),
         });
     });
 

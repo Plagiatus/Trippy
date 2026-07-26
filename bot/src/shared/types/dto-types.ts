@@ -6,6 +6,16 @@ export type DiscordUserInformationDto = {
 	avatar: string|undefined;
 };
 
+export type SessionPlayerHistoryTypeDto = "normal"|"kicked"|"banned"|"soft-kicked";
+
+export type SessionPlayerHistoryDto = {
+	id: string;
+	joinTime: number;
+	leaveTime?: number;
+	type?: SessionPlayerHistoryTypeDto;
+	user: DiscordUserInformationDto;
+};
+
 export type SessionInformationDto = {
 	state: "running"|"stopping"|"ended",
 	id: string;
@@ -14,10 +24,12 @@ export type SessionInformationDto = {
 	host: DiscordUserInformationDto;
 	hasJoined: boolean;
 	startedAt: null|number;
+	endedAt: null|number;
 	experience: undefined|{
 		id: string;
 		name: string;
 	};
+	playerHistory: Array<SessionPlayerHistoryDto>;
 }&({isHost: false, blueprint: SimplifiedSessionBlueprint}|{isHost: true, blueprint: SessionBlueprint});
 
 export type SimplifiedSessionInformationDto = {
