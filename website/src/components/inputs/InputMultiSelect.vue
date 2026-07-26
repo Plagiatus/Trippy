@@ -37,7 +37,7 @@ const props = defineProps<{
 	required?: boolean;
 }>();
 
-const selectedValues = defineModel<TValue[]>({default: []});
+const selectedValues = defineModel<ReadonlyArray<TValue>>();
 
 const error = shallowRef("");
 const chosenValue = shallowRef<TValue>();
@@ -50,7 +50,7 @@ watch(() => selectedValues.value, () => {
 
 watch(() => chosenValue.value, () => {
 	if (chosenValue.value) {
-		selectedValues.value = [...selectedValues.value, chosenValue.value];
+		selectedValues.value = [...(selectedValues.value ?? []), chosenValue.value];
 
 		// The value isn't correctly cleared if there isn't a delay.
 		queueMicrotask(() => {
@@ -65,7 +65,7 @@ const noneSelectedValuesWithDisplayType = computed(() => {
 			groups: (props.values as ReadonlyArray<InputSelectedGroupedValuesType<TValue>>)
 				.map(group => ({
 					name: group.name,
-					values: group.values.filter(value => !selectedValues.value.includes(value.value))
+					values: group.values.filter(value => !selectedValues.value?.includes(value.value))
 				}))
 				.filter(group => group.values.length > 0),
 		}
@@ -73,12 +73,12 @@ const noneSelectedValuesWithDisplayType = computed(() => {
 
 	return {
 		values: (props.values as ReadonlyArray<InputSelectValueType<TValue>>)
-			.filter(value => !selectedValues.value.includes(value.value)),
+			.filter(value => !selectedValues.value?.includes(value.value)),
 	}
 });
 
 function removeValue(value: TValue) {
-	const newSelectedValues = [...selectedValues.value];
+	const newSelectedValues = [...(selectedValues.value ?? [])];
 
 	const valueIndex = newSelectedValues.indexOf(value);
 	if (valueIndex >= 0) {
@@ -93,7 +93,7 @@ useFormInput({
 		error.value = "";
 	},
 	onValidate() {
-		const hasSelectedInvalidValues = selectedValues.value.some(selectedValue => {
+		const hasSelectedInvalidValues = selectedValues.value?.some(selectedValue => {
 			return !props.values.some(option => {
 				if ("values" in option) {
 					return option.values.some(groupItem => groupItem.value === selectedValue);
@@ -101,12 +101,12 @@ useFormInput({
 					return option.value === selectedValue;
 				}
 			});
-		})
+		}) ?? false;
 		if (hasSelectedInvalidValues) {
 			return {error: `${props.name ?? "Select"} has an invalid value.`}
 		}
 		
-		if (props.required && selectedValues.value.length < 1) {
+		if (props.required && (selectedValues.value?.length ?? 0) < 1) {
 			return {error: `${props.name ?? "Select"} is required.`}
 		}
 
