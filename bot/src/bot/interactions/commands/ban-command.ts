@@ -1,10 +1,8 @@
-import SessionsCollection from "../../../session/sessions-collection";
 import DatabaseClient from "../../../database-client";
 import Command, { CommandExecutionContext } from "./command";
 import BansRepository from "../../../repositories/bans-repository";
 import { ChatInputCommandInteraction, GuildMember, MessageFlags } from "discord.js";
 import DependencyProvider from "../../../shared/dependency-provider/dependency-provider";
-import ModLogMessages from "../messages/mod-log-messages";
 
 class BanCommand extends Command {
 	public constructor() {
@@ -38,9 +36,9 @@ class BanCommand extends Command {
 		const subCommand = interaction.options.getSubcommand(true);
 
 		if (subCommand === "ban") {
-			await this.handleBanSubCommand(provider, bans, interaction, interactor, getMemberOption);
+			await this.handleBanSubCommand(bans, interaction, interactor, getMemberOption);
 		} else if (subCommand === "unban") {
-			await this.handleUnbanSubCommand(provider, bans, interaction, interactor, getMemberOption);
+			await this.handleUnbanSubCommand(bans, interaction, interactor, getMemberOption);
 		} else if (subCommand === "list") {
 			await this.handleListSubCommand(bans, interaction, interactor);
 		} else {
@@ -49,43 +47,53 @@ class BanCommand extends Command {
 		}
 	}
 
-	private async handleBanSubCommand(provider: DependencyProvider, bans: BansRepository, interaction: ChatInputCommandInteraction, interactor: GuildMember, getMemberOption: CommandExecutionContext["getMemberOption"]) {
+	private async handleBanSubCommand(bans: BansRepository, interaction: ChatInputCommandInteraction, interactor: GuildMember, getMemberOption: CommandExecutionContext["getMemberOption"]) {
 		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 		const userToBan = await getMemberOption("user");
 		if (!userToBan) {
-			interaction.editReply({ content: "User not found." })
-			return;
-		}
-		if (userToBan.id === interactor.id) {
-			interaction.editReply({ content: "Why would you ban yourself?" })
+			interaction.editReply({ content: "User not found." });
 			return;
 		}
 
-		await bans.ban(interactor.id, userToBan.id);
+		const result = await bans.makeUserBanUser(interactor.id, userToBan.id);
+		if (!result.success) {
+			switch (result.error) {
+				case "self":
+					interaction.editReply({ content: "Why would you ban yourself?" })
+					return;
+				case "already-banned":
+					interaction.editReply({content: `${userToBan} has already been banned.`});
+					return;
+				default:
+					interaction.editReply({content: `Unable to ban ${userToBan}.`});
+					return;
+			}
+		}
+
 		interaction.editReply(`${userToBan} was banned from your sessions.`);
-		ModLogMessages.ban(provider, interactor, userToBan.user);
-
-		//if player is also currently in the session, kick them.
-		const sessionsCollection = provider.get(SessionsCollection);
-		const session = sessionsCollection.getSessionFromChannel(interaction.channelId) ?? sessionsCollection.getHostedSession(interactor);
-		if (!session) return;
-		if (session.hostId !== interactor.id) return;
-		if (session.isUserInSession(userToBan.id)) {
-			await session.leave(userToBan.id, "banned");
-		}
 	}
 
-	private async handleUnbanSubCommand(provider: DependencyProvider, bans: BansRepository, interaction: ChatInputCommandInteraction, interactor: GuildMember, getMemberOption: CommandExecutionContext["getMemberOption"]) {
+	private async handleUnbanSubCommand(bans: BansRepository, interaction: ChatInputCommandInteraction, interactor: GuildMember, getMemberOption: CommandExecutionContext["getMemberOption"]) {
 		await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 		const userToUnban = await getMemberOption("user");
 		if (!userToUnban) {
-			interaction.editReply({ content: "User not found." })
+			interaction.editReply({ content: "User not found." });
 			return;
 		}
 
-		await bans.unban(interactor.id, userToUnban.id);
+		const result = await bans.makeUserUnbanUser(interactor.id, userToUnban.id);
+		if (!result.success) {
+			switch (result.error) {
+				case "not-banned":
+					interaction.editReply({content: `${userToUnban} isn't banned.`});
+					return;
+				default:
+					interaction.editReply({content: `Unable to unban ${userToUnban}.`});
+					return;
+			}
+		}
+
 		interaction.editReply(`${userToUnban} can join your sessions again.`);
-		ModLogMessages.unban(provider, interactor, userToUnban.user);
 	}
 
 	private async handleListSubCommand(bans: BansRepository, interaction: ChatInputCommandInteraction, interactor: GuildMember) {

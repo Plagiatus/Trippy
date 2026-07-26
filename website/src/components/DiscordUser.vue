@@ -47,6 +47,7 @@ import useDependency from '@/composables/use-dependency';
 import AuthenticationHandler from '@/authentication-handler';
 import PopupContainer from '@/popup-container';
 import RecommendationApiClient from '@/api-clients/recommendation-api-client';
+import BanApiClient from '@/api-clients/ban-api-client';
 import TimeHelper from '@/time-helper';
 
 export type DiscordUserMenuOption = {
@@ -55,8 +56,9 @@ export type DiscordUserMenuOption = {
 }
 
 const props = defineProps<{
-	user: DiscordUserInformationDto|undefined|null,
+	user: DiscordUserInformationDto|undefined|null;
 	extraOptions?: ReadonlyArray<DiscordUserMenuOption>;
+	displayBanOption?: boolean;
 }>();
 
 const buttonRef = ref<HTMLElement | null>(null);
@@ -66,6 +68,7 @@ const isMenuOpen = ref(false);
 const timeHelper = useDependency(TimeHelper);
 const authenticationHandler = useDependency(AuthenticationHandler);
 const recommendationApiClient = useDependency(RecommendationApiClient);
+const banApiClient = useDependency(BanApiClient);
 const popupContainer = useDependency(PopupContainer);
 
 const formatRecommendationResult = (result: UserRecommendationResultDto, userName: string) => {
@@ -107,17 +110,55 @@ const recommendUser = async (user: DiscordUserInformationDto) => {
 	});
 };
 
+const banUser = async (user: DiscordUserInformationDto) => {
+	const response = await banApiClient.banUser(user.id);
+	if (response.error || !response.data) {
+		popupContainer.displayMessagePopup({
+			header: "Ban failed",
+			body: "Unable to ban the selected user.",
+		});
+		return;
+	}
+
+	popupContainer.displayMessagePopup({
+		header: response.data.success ? "Banned" : "Ban failed",
+		body: response.data.success
+			? `${user.name ?? "The user"} was banned from your sessions.`
+			: response.data.error === "self"
+			? "You can't ban yourself."
+			: response.data.error === "already-banned"
+			? `${user.name ?? "The user"} has already been banned.`
+			: "Unable to ban the selected user.",
+	});
+};
+
 const menuOptions = computed<ReadonlyArray<DiscordUserMenuOption>>(() => {
 	const options: DiscordUserMenuOption[] = [];
 	const user = props.user;
 	
 	if (user && authenticationHandler.userInformation && authenticationHandler.userInformation.userId !== user.id) {
-		options.push(
-			{
-				title: "Recommend",
-				onClick: async () => await recommendUser(user),
-			},
-		);
+		options.push({
+			title: "Recommend",
+			onClick: async () => await recommendUser(user),
+		});
+
+		if (props.displayBanOption) {
+			options.push({
+				title: "Ban",
+				onClick: async () => {
+					const result = await popupContainer.displayYesNoDialog({
+						header: `Ban ${user.name}`,
+						body: `Are you sure you want to ban ${user.name} from entering your sessions?`,
+					}).promise;
+
+					if (!result) {
+						return;
+					}
+
+					await banUser(user);
+				},
+			});
+		}
 	}
 
 	if (props.extraOptions) {

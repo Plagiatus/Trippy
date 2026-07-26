@@ -19,6 +19,7 @@
 			<div class="history-player-label">
 				<discord-user
 					:user="player.user"
+					:display-ban-option="session.isHost"
 					class="history-user"
 				/>
 			</div>
@@ -39,18 +40,20 @@
 
 <script setup lang="ts">
 import ContentBox from '@/components/ContentBox.vue';
-import DiscordUser from '@/components/DiscordUser.vue';
+import DiscordUser, { DiscordUserMenuOption } from '@/components/DiscordUser.vue';
 import useDependency from '@/composables/use-dependency';
 import TimeHelper from '@/time-helper';
 import { computed, StyleValue, useTemplateRef } from 'vue';
 import type { DiscordUserInformationDto, SessionInformationDto, SessionPlayerHistoryDto, SessionPlayerHistoryTypeDto } from '$/types/dto-types';
 import { useElementBounding } from '@vueuse/core';
+import PopupContainer from '@/popup-container';
 
 const props = defineProps<{
 	session: SessionInformationDto;
 }>();
 
 const timeHelper = useDependency(TimeHelper);
+const popupContainer = useDependency(PopupContainer);
 
 const chartAxisLabelsRef = useTemplateRef("chart-axis-labels");
 

@@ -110,6 +110,47 @@ export type UserRecommendationResultDto =
 	| UserRecommendationSelfDto
 	| UserRecommendationUserNotFoundDto;
 
+export type UnbanActionSuccessDto = {
+	success: true;
+	hostUserId: string;
+	targetUserId: string;
+}
+
+export type UnbanActionNotBannedErrorDto = {
+	success: false;
+	hostUserId: string;
+	targetUserId: string;
+	error: "not-banned";
+}
+
+export type UnbanActionResultDto = UnbanActionSuccessDto | UnbanActionNotBannedErrorDto;
+
+export type BanActionSuccessDto = {
+	success: true;
+	hostUserId: string;
+	targetUserId: string;
+}
+
+export type BanActionSelfErrorDto = {
+	success: false;
+	hostUserId: string;
+	targetUserId: string;
+	error: "self";
+}
+
+export type BanActionAlreadyBannedErrorDto = {
+	success: false;
+	hostUserId: string;
+	targetUserId: string;
+	error: "already-banned";
+}
+
+export type BanActionResultDto = BanActionAlreadyBannedErrorDto | BanActionSuccessDto | BanActionSelfErrorDto;
+
+export type BanListDto = {
+	bannedUsers: DiscordUserInformationDto[];
+}
+
 export type CountAtTimeIntervalDto = {
 	count: number;
 	dateTime: number;

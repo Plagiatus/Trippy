@@ -22,6 +22,7 @@ import { authenticationApiClientKey, routerKey } from './dependency-provider/key
 import TagsHelper from "$/tags-helper";
 import StatsApiClient from './api-clients/stats-api-client'
 import RecommendationApiClient from './api-clients/recommendation-api-client'
+import BanApiClient from './api-clients/ban-api-client'
 
 const provider = new Provider()
 	.addFactory(Config, () => {
@@ -40,6 +41,7 @@ const provider = new Provider()
 	.addConstructor(SettingsApiClient)
 	.addConstructor(StatsApiClient)
 	.addConstructor(RecommendationApiClient)
+	.addConstructor(BanApiClient)
 	.addConstructor(FileAccess)
 	.addConstructor(ImageApiClient)
 	.addConstructor(TimeHelper)
